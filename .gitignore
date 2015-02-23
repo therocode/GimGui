@@ -13,3 +13,4 @@ doxy/gen/*
 *.sublime-workspace
 *.sublime-project
 *.kdev4
+install_manifest.txt
