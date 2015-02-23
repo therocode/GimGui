@@ -1,28 +1,15 @@
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-
-# Compiled Static libraries
-*.lai
-*.la
+*.swp
+*.swo
+*~
+*CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
 *.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+*.o
+bin/*
+lib/*
+doxy/gen/*
+*.sublime-workspace
+*.sublime-project
+*.kdev4
