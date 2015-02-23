@@ -31,7 +31,10 @@ set(source_files
 
 set(header_files
     include/gimgui/data/element.hpp
+    include/gimgui/data/types.hpp
 )
+
+include_directories(include)
 
 #C++11 required
 if(NOT MSVC)
@@ -50,7 +53,7 @@ if(BUILD_TESTS)
         "test/data/element.cpp"
         )
 
-    target_link_libraries(tests)
+    target_link_libraries(tests ${project_name})
 endif(BUILD_TESTS)
 	
 #installation
