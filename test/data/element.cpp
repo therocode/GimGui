@@ -2,6 +2,148 @@
 
 #include <gimgui/data/element.hpp>
 
+SCENARIO("Elements can be created with tags that can be accessed again", "[data]")
+{
+    GIVEN("An element with tags")
+    {
+        gim::Element element({"tag1", "tag2"});
+
+        WHEN("the tags are accessed")
+        {
+            const gim::TagSet& tags = element.getTags();
+
+            THEN("the proper tags are returned")
+            {
+                CHECK(tags.size() == 2);
+                CHECK(tags.count("tag1") == 1);
+                CHECK(tags.count("tag2") == 1);
+            }
+        }
+    }
+}
+
+SCENARIO("Child elements can be appended or prepended or inserted at any index and the order is retained", "[data]")
+{
+    //non const
+    GIVEN("A parent element")
+    {
+        gim::Element parent({"parent"});
+
+        WHEN("a single child is added")
+        {
+            parent.append(gim::Element({"child"}));
+
+            THEN("that child is accessible at the first index")
+            {
+                CHECK(parent.getChildren()[0]->getTags().count("child") == 1);
+            }
+        }
+
+        WHEN("two children are appended")
+        {
+            parent.append(gim::Element({"child1"}));
+            parent.append(gim::Element({"child2"}));
+
+            THEN("they are accessible in correct order")
+            {
+                REQUIRE(parent.getChildren().size() == 2);
+                CHECK(parent.getChildren()[0]->getTags().count("child1") == 1);
+                CHECK(parent.getChildren()[1]->getTags().count("child2") == 1);
+            }
+        }
+
+        WHEN("two children are appended and one is prepended")
+        {
+            parent.append(gim::Element({"child1"}));
+            parent.append(gim::Element({"child2"}));
+            parent.prepend(gim::Element({"child3"}));
+
+            THEN("they are accessible in correct order")
+            {
+                REQUIRE(parent.getChildren().size() == 3);
+                CHECK(parent.getChildren()[0]->getTags().count("child3") == 1);
+                CHECK(parent.getChildren()[1]->getTags().count("child1") == 1);
+                CHECK(parent.getChildren()[2]->getTags().count("child2") == 1);
+            }
+        }
+
+        WHEN("two children are appended and one is inserted in between")
+        {
+            parent.append(gim::Element({"child1"}));
+            parent.append(gim::Element({"child2"}));
+            parent.insert(1, gim::Element({"child3"}));
+
+            THEN("they are accessible in correct order")
+            {
+                REQUIRE(parent.getChildren().size() == 3);
+                CHECK(parent.getChildren()[0]->getTags().count("child1") == 1);
+                CHECK(parent.getChildren()[1]->getTags().count("child3") == 1);
+                CHECK(parent.getChildren()[2]->getTags().count("child2") == 1);
+            }
+        }
+    }
+
+    //const
+    GIVEN("A const parent element")
+    {
+        gim::Element nonConstParent({"parent"});
+        const gim::Element& parent = nonConstParent;
+
+        WHEN("a single child is added")
+        {
+            nonConstParent.append(gim::Element({"child"}));
+
+            THEN("that child is accessible at the first index")
+            {
+                CHECK(parent.getChildren()[0]->getTags().count("child") == 1);
+            }
+        }
+
+        WHEN("two children are appended")
+        {
+            nonConstParent.append(gim::Element({"child1"}));
+            nonConstParent.append(gim::Element({"child2"}));
+
+            THEN("they are accessible in correct order")
+            {
+                REQUIRE(parent.getChildren().size() == 2);
+                CHECK(parent.getChildren()[0]->getTags().count("child1") == 1);
+                CHECK(parent.getChildren()[1]->getTags().count("child2") == 1);
+            }
+        }
+
+        WHEN("two children are appended and one is prepended")
+        {
+            nonConstParent.append(gim::Element({"child1"}));
+            nonConstParent.append(gim::Element({"child2"}));
+            nonConstParent.prepend(gim::Element({"child3"}));
+
+            THEN("they are accessible in correct order")
+            {
+                REQUIRE(parent.getChildren().size() == 3);
+                CHECK(parent.getChildren()[0]->getTags().count("child3") == 1);
+                CHECK(parent.getChildren()[1]->getTags().count("child1") == 1);
+                CHECK(parent.getChildren()[2]->getTags().count("child2") == 1);
+            }
+        }
+
+        WHEN("two children are appended and one is inserted in between")
+        {
+            nonConstParent.append(gim::Element({"child1"}));
+            nonConstParent.append(gim::Element({"child2"}));
+            nonConstParent.insert(1, gim::Element({"child3"}));
+
+            THEN("they are accessible in correct order")
+            {
+                REQUIRE(parent.getChildren().size() == 3);
+                CHECK(parent.getChildren()[0]->getTags().count("child1") == 1);
+                CHECK(parent.getChildren()[1]->getTags().count("child3") == 1);
+                CHECK(parent.getChildren()[2]->getTags().count("child2") == 1);
+            }
+        }
+    }
+}
+
 SCENARIO("Elements can be created with tags and attached to other elements, and then accessed with those tags in both a non const and a const way", "[data]")
 {
     //non const

@@ -7,7 +7,12 @@ namespace gim
     {
         public:
             Element(const TagSet& tags);
+            const TagSet& getTags() const;
             Element* append(Element&& child);
+            Element* prepend(Element&& child);
+            Element* insert(size_t index, Element&& child);
+            ElementList& getChildren();
+            const ElementList& getChildren() const;
             ElementPtrList find(const TagSet& tags);
             ElementConstPtrList find(const TagSet& tags) const;
         private:

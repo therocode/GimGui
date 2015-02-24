@@ -15,6 +15,34 @@ namespace gim
         return &**mChildren.end();
     }
 
+    Element* Element::prepend(Element&& child)
+    {
+        mChildren.push_front(std::unique_ptr<Element>(new Element(std::move(child))));
+        return &**mChildren.end();
+    }
+
+    Element* Element::insert(size_t index, Element&& child)
+    {
+        GIM_ASSERT(index < mChildren.size(), "Index out of bounds");
+        mChildren.insert(mChildren.begin() + index, std::unique_ptr<Element>(new Element(std::move(child))));
+        return &**mChildren.end();
+    }
+
+    ElementList& Element::getChildren()
+    {
+        return mChildren;
+    }
+
+    const ElementList& Element::getChildren() const
+    {
+        return mChildren;
+    }
+            
+    const TagSet& Element::getTags() const
+    {
+        return mTags;
+    }
+
     ElementPtrList Element::find(const TagSet& tags)
     {
         GIM_ASSERT(!tags.empty(), "No tags given");
