@@ -22,6 +22,48 @@ SCENARIO("Elements can be created with tags that can be accessed again", "[data]
     }
 }
 
+SCENARIO("Child elements can be appended or prepended or inserted at any index and a pointer to the new child is returned", "[data]")
+{
+    GIVEN("A parent element with some children")
+    {
+        gim::Element parent({"parent"});
+
+        parent.append(gim::Element({"wrong"}));
+        parent.append(gim::Element({"wrong"}));
+        parent.append(gim::Element({"wrong"}));
+
+        WHEN("a child is appended")
+        {
+            auto* child = parent.append(gim::Element({"right"}));
+
+            THEN("the returned child is the newly created one")
+            {
+                CHECK(child->getTags().count("right") == 1);
+            }
+        }
+
+        WHEN("a child is prepended")
+        {
+            auto* child = parent.prepend(gim::Element({"right"}));
+
+            THEN("the returned child is the newly created one")
+            {
+                CHECK(child->getTags().count("right") == 1);
+            }
+        }
+
+        WHEN("a child is inserted")
+        {
+            auto* child = parent.insert(2, gim::Element({"right"}));
+
+            THEN("the returned child is the newly created one")
+            {
+                CHECK(child->getTags().count("right") == 1);
+            }
+        }
+    }
+}
+
 SCENARIO("Child elements can be appended or prepended or inserted at any index and the order is retained", "[data]")
 {
     //non const
@@ -252,6 +294,58 @@ SCENARIO("Elements can be created with tags and attached to other elements, and 
             THEN("only elements with both tags are returned")
             {
                 CHECK(childList.size() == 2);
+            }
+        }
+    }
+}
+
+SCENARIO("Elements can be searched for recursively depending on tags", "[data]")
+{
+    //non const
+    GIVEN("An element tree where a tag is existant on more than one level")
+    {
+        gim::Element root({"container"});
+
+        auto subContainer1 = root.append(gim::Element({"sub_container", "target"}));
+        subContainer1->append(gim::Element({"leaf_of_first", "target"}));
+        subContainer1->append(gim::Element({"leaf_of_first"}));
+
+        auto subContainer2 = root.append(gim::Element({"sub_container"}));
+        subContainer2->append(gim::Element({"leaf_of_second", "target"}));
+        subContainer2->append(gim::Element({"leaf_of_second"}));
+        
+        WHEN("that tag is searched for recursively")
+        {
+            gim::ElementPtrList childList = root.recursiveFind({"target"});
+
+            THEN("all elements with that tag are returned")
+            {
+                CHECK(childList.size() == 3);
+            }
+        }
+    }
+    
+    //const
+    GIVEN("A const element tree where a tag is existant on more than one level")
+    {
+        gim::Element nonConstRoot({"container"});
+        const gim::Element& root = nonConstRoot;
+
+        auto subContainer1 = nonConstRoot.append(gim::Element({"sub_container", "target"}));
+        subContainer1->append(gim::Element({"leaf_of_first", "target"}));
+        subContainer1->append(gim::Element({"leaf_of_first"}));
+
+        auto subContainer2 = nonConstRoot.append(gim::Element({"sub_container"}));
+        subContainer2->append(gim::Element({"leaf_of_second", "target"}));
+        subContainer2->append(gim::Element({"leaf_of_second"}));
+        
+        WHEN("that tag is searched for recursively")
+        {
+            gim::ElementConstPtrList childList = root.recursiveFind({"target"});
+
+            THEN("all elements with that tag are returned")
+            {
+                CHECK(childList.size() == 3);
             }
         }
     }

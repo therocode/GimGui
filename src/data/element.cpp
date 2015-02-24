@@ -12,20 +12,20 @@ namespace gim
     Element* Element::append(Element&& child)
     {
         mChildren.push_back(std::unique_ptr<Element>(new Element(std::move(child))));
-        return &**mChildren.end();
+        return &*mChildren.back();
     }
 
     Element* Element::prepend(Element&& child)
     {
         mChildren.push_front(std::unique_ptr<Element>(new Element(std::move(child))));
-        return &**mChildren.end();
+        return &*mChildren.front();
     }
 
     Element* Element::insert(size_t index, Element&& child)
     {
         GIM_ASSERT(index < mChildren.size(), "Index out of bounds");
-        mChildren.insert(mChildren.begin() + index, std::unique_ptr<Element>(new Element(std::move(child))));
-        return &**mChildren.end();
+        auto iterator = mChildren.insert(mChildren.begin() + index, std::unique_ptr<Element>(new Element(std::move(child))));
+        return &**iterator;
     }
 
     ElementList& Element::getChildren()
@@ -57,6 +57,20 @@ namespace gim
         return ElementConstPtrList(elements.begin(), elements.end());
     }
 
+    ElementPtrList Element::recursiveFind(const TagSet& tags)
+    {
+        GIM_ASSERT(!tags.empty(), "No tags given");
+        return recursiveFindHelper(tags);
+    }
+
+    ElementConstPtrList Element::recursiveFind(const TagSet& tags) const
+    {
+        GIM_ASSERT(!tags.empty(), "No tags given");
+        ElementPtrList elements = recursiveFindHelper(tags);
+
+        return ElementConstPtrList(elements.begin(), elements.end());
+    }
+
     ElementPtrList Element::findHelper(const TagSet& tags) const
     {
         ElementPtrList result;
@@ -67,6 +81,24 @@ namespace gim
             {
                 result.push_back(&*child);
             }
+        }
+
+        return result;
+    }
+    
+    ElementPtrList Element::recursiveFindHelper(const TagSet& tags) const
+    {
+        ElementPtrList result;
+
+        if(std::includes(mTags.begin(), mTags.end(), tags.begin(), tags.end()))
+        {
+            result.push_back(&*const_cast<Element*>(this));
+        }
+
+        for(auto& child : mChildren)
+        {
+            ElementPtrList childResults = child->recursiveFindHelper(tags);
+            result.insert(result.end(), childResults.begin(), childResults.end());
         }
 
         return result;

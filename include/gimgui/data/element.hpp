@@ -15,8 +15,11 @@ namespace gim
             const ElementList& getChildren() const;
             ElementPtrList find(const TagSet& tags);
             ElementConstPtrList find(const TagSet& tags) const;
+            ElementPtrList recursiveFind(const TagSet& tags);
+            ElementConstPtrList recursiveFind(const TagSet& tags) const;
         private:
             ElementPtrList findHelper(const TagSet& tags) const;
+            ElementPtrList recursiveFindHelper(const TagSet& tags) const;
             TagSet mTags;
             ElementList mChildren;
     };
