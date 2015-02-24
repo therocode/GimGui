@@ -30,6 +30,7 @@ set(source_files
     )
 
 set(header_files
+    include/gimgui/assert.hpp
     include/gimgui/data/element.hpp
     include/gimgui/data/types.hpp
 )
