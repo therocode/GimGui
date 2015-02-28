@@ -64,12 +64,12 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
     }
 }
 
-SCENARIO("Child elements can be appended or prepended or inserted at any index and the order is retained", "[data]")
+SCENARIO("Child elements can be appended or prepended or inserted at any index and the order is retained, both const and non const access", "[data]")
 {
-    //non const
     GIVEN("A parent element")
     {
         gim::Element parent({"parent"});
+        const gim::Element& constParent = parent;
 
         WHEN("a single child is added")
         {
@@ -78,6 +78,7 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
             THEN("that child is accessible at the first index")
             {
                 CHECK(parent.getChildren()[0]->getTags().count("child") == 1);
+                CHECK(constParent.getChildren() == parent.getChildren());
             }
         }
 
@@ -91,6 +92,7 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
                 REQUIRE(parent.getChildren().size() == 2);
                 CHECK(parent.getChildren()[0]->getTags().count("child1") == 1);
                 CHECK(parent.getChildren()[1]->getTags().count("child2") == 1);
+                CHECK(constParent.getChildren() == parent.getChildren());
             }
         }
 
@@ -106,6 +108,7 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
                 CHECK(parent.getChildren()[0]->getTags().count("child3") == 1);
                 CHECK(parent.getChildren()[1]->getTags().count("child1") == 1);
                 CHECK(parent.getChildren()[2]->getTags().count("child2") == 1);
+                CHECK(constParent.getChildren() == parent.getChildren());
             }
         }
 
@@ -121,66 +124,7 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
                 CHECK(parent.getChildren()[0]->getTags().count("child1") == 1);
                 CHECK(parent.getChildren()[1]->getTags().count("child3") == 1);
                 CHECK(parent.getChildren()[2]->getTags().count("child2") == 1);
-            }
-        }
-    }
-
-    //const
-    GIVEN("A const parent element")
-    {
-        gim::Element nonConstParent({"parent"});
-        const gim::Element& parent = nonConstParent;
-
-        WHEN("a single child is added")
-        {
-            nonConstParent.append(gim::Element({"child"}));
-
-            THEN("that child is accessible at the first index")
-            {
-                CHECK(parent.getChildren()[0]->getTags().count("child") == 1);
-            }
-        }
-
-        WHEN("two children are appended")
-        {
-            nonConstParent.append(gim::Element({"child1"}));
-            nonConstParent.append(gim::Element({"child2"}));
-
-            THEN("they are accessible in correct order")
-            {
-                REQUIRE(parent.getChildren().size() == 2);
-                CHECK(parent.getChildren()[0]->getTags().count("child1") == 1);
-                CHECK(parent.getChildren()[1]->getTags().count("child2") == 1);
-            }
-        }
-
-        WHEN("two children are appended and one is prepended")
-        {
-            nonConstParent.append(gim::Element({"child1"}));
-            nonConstParent.append(gim::Element({"child2"}));
-            nonConstParent.prepend(gim::Element({"child3"}));
-
-            THEN("they are accessible in correct order")
-            {
-                REQUIRE(parent.getChildren().size() == 3);
-                CHECK(parent.getChildren()[0]->getTags().count("child3") == 1);
-                CHECK(parent.getChildren()[1]->getTags().count("child1") == 1);
-                CHECK(parent.getChildren()[2]->getTags().count("child2") == 1);
-            }
-        }
-
-        WHEN("two children are appended and one is inserted in between")
-        {
-            nonConstParent.append(gim::Element({"child1"}));
-            nonConstParent.append(gim::Element({"child2"}));
-            nonConstParent.insert(1, gim::Element({"child3"}));
-
-            THEN("they are accessible in correct order")
-            {
-                REQUIRE(parent.getChildren().size() == 3);
-                CHECK(parent.getChildren()[0]->getTags().count("child1") == 1);
-                CHECK(parent.getChildren()[1]->getTags().count("child3") == 1);
-                CHECK(parent.getChildren()[2]->getTags().count("child2") == 1);
+                CHECK(constParent.getChildren() == parent.getChildren());
             }
         }
     }
@@ -188,10 +132,10 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
 
 SCENARIO("Elements can be created with tags and attached to other elements, and then accessed with those tags in both a non const and a const way", "[data]")
 {
-    //non const
     GIVEN("A parent element with children with unique tags appended to it")
     {
         gim::Element parent({"container"});
+        const gim::Element& constParent = parent;
 
         parent.append(gim::Element({"child1", "element", "health_bar", "gold_meter"}));
         parent.append(gim::Element({"child2", "element", "gold_meter"}));
@@ -208,6 +152,9 @@ SCENARIO("Elements can be created with tags and attached to other elements, and 
             {
                 CHECK(child1List.size() == 1);
                 CHECK(child2List.size() == 1);
+
+                CHECK(std::equal(child1List.begin(), child1List.end(), constParent.find({"child1"}).begin()));
+                CHECK(std::equal(child2List.begin(), child2List.end(), constParent.find({"child2"}).begin()));
             }
         }
 
@@ -218,6 +165,7 @@ SCENARIO("Elements can be created with tags and attached to other elements, and 
             THEN("all of those elements are retreived")
             {
                 CHECK(childList.size() == 5);
+                CHECK(std::equal(childList.begin(), childList.end(), constParent.find({"element"}).begin()));
             }
         }
 
@@ -228,6 +176,7 @@ SCENARIO("Elements can be created with tags and attached to other elements, and 
             THEN("an empty list is returned")
             {
                 CHECK(childList.empty());
+                CHECK(std::equal(childList.begin(), childList.end(), constParent.find({"invalid"}).begin()));
             }
         }
 
@@ -238,62 +187,7 @@ SCENARIO("Elements can be created with tags and attached to other elements, and 
             THEN("only elements with both tags are returned")
             {
                 CHECK(childList.size() == 2);
-            }
-        }
-    }
-    
-    //const
-    GIVEN("A const parent element with children with unique tags appended to it")
-    {
-        gim::Element nonConstParent({"container"});
-
-        nonConstParent.append(gim::Element({"child1", "element", "health_bar", "gold_meter"}));
-        nonConstParent.append(gim::Element({"child2", "element", "gold_meter"}));
-        nonConstParent.append(gim::Element({"child3", "element", "gold_meter"}));
-        nonConstParent.append(gim::Element({"child4", "element", "health_bar"}));
-        nonConstParent.append(gim::Element({"child5", "element", "health_bar", "gold_meter"}));
-
-        const gim::Element& parent = nonConstParent;
-
-        WHEN("a unique tag is used")
-        {
-            gim::ElementConstPtrList child1List = parent.find({"child1"});
-            gim::ElementConstPtrList child2List = parent.find({"child2"});
-
-            THEN("only one element is returned")
-            {
-                CHECK(child1List.size() == 1);
-                CHECK(child2List.size() == 1);
-            }
-        }
-
-        WHEN("a tag belonging to many elements is used")
-        {
-            gim::ElementConstPtrList childList = parent.find({"element"});
-
-            THEN("all of those elements are retreived")
-            {
-                CHECK(childList.size() == 5);
-            }
-        }
-
-        WHEN("a tag belonging to no elements is used")
-        {
-            gim::ElementConstPtrList childList = parent.find({"invalid"});
-
-            THEN("an empty list is returned")
-            {
-                CHECK(childList.empty());
-            }
-        }
-
-        WHEN("two tags are used")
-        {
-            gim::ElementConstPtrList childList = parent.find({"health_bar", "gold_meter"});
-
-            THEN("only elements with both tags are returned")
-            {
-                CHECK(childList.size() == 2);
+                CHECK(std::equal(childList.begin(), childList.end(), constParent.find({"health_bar", "gold_meter"}).begin()));
             }
         }
     }
@@ -305,6 +199,7 @@ SCENARIO("Elements can be searched for recursively depending on tags", "[data]")
     GIVEN("An element tree where a tag is existant on more than one level")
     {
         gim::Element root({"container"});
+        const gim::Element& constRoot = root;
 
         auto subContainer1 = root.append(gim::Element({"sub_container", "target"}));
         subContainer1->append(gim::Element({"leaf_of_first", "target"}));
@@ -321,31 +216,7 @@ SCENARIO("Elements can be searched for recursively depending on tags", "[data]")
             THEN("all elements with that tag are returned")
             {
                 CHECK(childList.size() == 3);
-            }
-        }
-    }
-    
-    //const
-    GIVEN("A const element tree where a tag is existant on more than one level")
-    {
-        gim::Element nonConstRoot({"container"});
-        const gim::Element& root = nonConstRoot;
-
-        auto subContainer1 = nonConstRoot.append(gim::Element({"sub_container", "target"}));
-        subContainer1->append(gim::Element({"leaf_of_first", "target"}));
-        subContainer1->append(gim::Element({"leaf_of_first"}));
-
-        auto subContainer2 = nonConstRoot.append(gim::Element({"sub_container"}));
-        subContainer2->append(gim::Element({"leaf_of_second", "target"}));
-        subContainer2->append(gim::Element({"leaf_of_second"}));
-        
-        WHEN("that tag is searched for recursively")
-        {
-            gim::ElementConstPtrList childList = root.recursiveFind({"target"});
-
-            THEN("all elements with that tag are returned")
-            {
-                CHECK(childList.size() == 3);
+                CHECK(std::equal(childList.begin(), childList.end(), constRoot.recursiveFind({"target"}).begin()));
             }
         }
     }
