@@ -2,6 +2,12 @@
 
 #include <gimgui/data/element.hpp>
 
+struct Point
+{
+    int32_t x;
+    int32_t y;
+};
+
 SCENARIO("Elements can be created with tags that can be accessed again", "[data]")
 {
     GIVEN("An element with tags")
@@ -195,7 +201,6 @@ SCENARIO("Elements can be created with tags and attached to other elements, and 
 
 SCENARIO("Elements can be searched for recursively depending on tags", "[data]")
 {
-    //non const
     GIVEN("An element tree where a tag is existant on more than one level")
     {
         gim::Element root({"container"});
@@ -217,6 +222,93 @@ SCENARIO("Elements can be searched for recursively depending on tags", "[data]")
             {
                 CHECK(childList.size() == 3);
                 CHECK(std::equal(childList.begin(), childList.end(), constRoot.recursiveFind({"target"}).begin()));
+            }
+        }
+    }
+}
+
+SCENARIO("Element attributes can be created, accessed and modified", "[data]")
+{
+    GIVEN("An element")
+    {
+        gim::Element element;
+
+        WHEN("an attribute is created")
+        {
+            element.createAttribute<int32_t>("gold");
+
+            THEN("the attribute is existant")
+            {
+                CHECK(element.hasAttribute("gold"));
+                CHECK(element.findAttribute<int32_t>("gold") != nullptr);
+            }
+        }
+
+        WHEN("a non-existant attribute is accessed")
+        {
+            const int32_t* invalid = element.findAttribute<int32_t>("gold");
+            bool hasAttribute = element.hasAttribute("gold");
+
+            THEN("nothing is returned")
+            {
+                CHECK_FALSE(hasAttribute);
+                CHECK(invalid == nullptr);
+            }
+        }
+    }
+
+    GIVEN("an element with an attribute created")
+    {
+        gim::Element element;
+        element.createAttribute<int32_t>("gold");
+
+        WHEN("the attribute is set to a value")
+        {
+            element.setAttribute("gold", 35);
+
+            THEN("the value is stored")
+            {
+                CHECK(element.getAttribute<int32_t>("gold") == 35);
+                CHECK(*element.findAttribute<int32_t>("gold") == 35);
+            }
+        }
+    }
+
+    GIVEN("an element with an attribute created with a default value")
+    {
+        gim::Element element;
+        element.createAttribute("gold", 42);
+
+        WHEN("the attribute is retreived")
+        {
+            THEN("the correct value is gotten")
+            {
+                CHECK(element.getAttribute<int32_t>("gold") == 42);
+                CHECK(*element.findAttribute<int32_t>("gold") == 42);
+            }
+        }
+    }
+
+    GIVEN("an element with attributes of different types created")
+    {
+        gim::Element element;
+        element.createAttribute("gold", 10);
+        element.createAttribute("name", std::string("xalle"));
+        element.createAttribute("position", Point{35, 53});
+        element.createAttribute("id_list", std::vector<uint32_t>{4u, 5u, 6u, 7u});
+
+        WHEN("the values are accessed")
+        {
+            THEN("they are all correct")
+            {
+                CHECK(element.getAttribute<int32_t>("gold") == 10);
+                CHECK(element.getAttribute<std::string>("name") == "xalle");
+                CHECK(element.getAttribute<Point>("position") == Point{35, 53});
+                CHECK(element.getAttribute<std::vector<uint32_t>>("id_list") == std::vector<uint32_t>{4u, 5u, 6u, 7u});
+                CHECK(*element.findAttribute<int32_t>("gold") == 10);
+                CHECK(*element.findAttribute<std::string>("name") == "xalle");
+                CHECK(*element.findAttribute<Point>("position") == Point{35, 53});
+                CHECK(*element.findAttribute<std::vector<uint32_t>>("id_list") == std::vector<uint32_t>{4u, 5u, 6u, 7u});
             }
         }
     }
