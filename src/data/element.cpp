@@ -107,4 +107,9 @@ namespace gim
 
         return result;
     }
+
+    bool Element::hasAttribute(const std::string& name)
+    {
+        return false;
+    }
 }

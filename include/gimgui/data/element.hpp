@@ -34,13 +34,15 @@ namespace gim
             template <typename AttributeType>
             const AttributeType* findAttribute(const std::string& name) const;
             template <typename AttributeType>
-            void setAttribute(const std::string& name, const AttributeType& value);
-            template <typename AttributeType>
             const AttributeType& getAttribute(const std::string& name) const;
+            template <typename AttributeType>
+            void setAttribute(const std::string& name, const AttributeType& value);
         private:
             ElementPtrList findHelper(const TagSet& tags) const;
             ElementPtrList recursiveFindHelper(const TagSet& tags) const;
             TagSet mTags;
             ElementList mChildren;
     };
+
+#include <gimgui/data/element.inl>
 }
