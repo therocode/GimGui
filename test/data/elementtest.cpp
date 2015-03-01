@@ -11,7 +11,7 @@ SCENARIO("Elements can be created with tags that can be accessed again", "[data]
 
         WHEN("the tags are accessed")
         {
-            const gim::TagSet& tags = element.getTags();
+            const gim::TagSet& tags = element.tags();
 
             THEN("the proper tags are returned")
             {
@@ -39,7 +39,7 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
 
             THEN("the returned child is the newly created one")
             {
-                CHECK(child.getTags().count("right") == 1);
+                CHECK(child.tags().count("right") == 1);
             }
         }
 
@@ -49,7 +49,7 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
 
             THEN("the returned child is the newly created one")
             {
-                CHECK(child.getTags().count("right") == 1);
+                CHECK(child.tags().count("right") == 1);
             }
         }
 
@@ -59,7 +59,7 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
 
             THEN("the returned child is the newly created one")
             {
-                CHECK(child.getTags().count("right") == 1);
+                CHECK(child.tags().count("right") == 1);
             }
         }
     }
@@ -78,8 +78,8 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
 
             THEN("that child is accessible at the first index")
             {
-                CHECK(parent.getChildren()[0]->getTags().count("child") == 1);
-                CHECK(constParent.getChildren() == parent.getChildren());
+                CHECK(parent.children()[0]->tags().count("child") == 1);
+                CHECK(constParent.children() == parent.children());
             }
         }
 
@@ -90,10 +90,10 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
 
             THEN("they are accessible in correct order")
             {
-                REQUIRE(parent.getChildren().size() == 2);
-                CHECK(parent.getChildren()[0]->getTags().count("child1") == 1);
-                CHECK(parent.getChildren()[1]->getTags().count("child2") == 1);
-                CHECK(constParent.getChildren() == parent.getChildren());
+                REQUIRE(parent.children().size() == 2);
+                CHECK(parent.children()[0]->tags().count("child1") == 1);
+                CHECK(parent.children()[1]->tags().count("child2") == 1);
+                CHECK(constParent.children() == parent.children());
             }
         }
 
@@ -105,11 +105,11 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
 
             THEN("they are accessible in correct order")
             {
-                REQUIRE(parent.getChildren().size() == 3);
-                CHECK(parent.getChildren()[0]->getTags().count("child3") == 1);
-                CHECK(parent.getChildren()[1]->getTags().count("child1") == 1);
-                CHECK(parent.getChildren()[2]->getTags().count("child2") == 1);
-                CHECK(constParent.getChildren() == parent.getChildren());
+                REQUIRE(parent.children().size() == 3);
+                CHECK(parent.children()[0]->tags().count("child3") == 1);
+                CHECK(parent.children()[1]->tags().count("child1") == 1);
+                CHECK(parent.children()[2]->tags().count("child2") == 1);
+                CHECK(constParent.children() == parent.children());
             }
         }
 
@@ -121,11 +121,11 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
 
             THEN("they are accessible in correct order")
             {
-                REQUIRE(parent.getChildren().size() == 3);
-                CHECK(parent.getChildren()[0]->getTags().count("child1") == 1);
-                CHECK(parent.getChildren()[1]->getTags().count("child3") == 1);
-                CHECK(parent.getChildren()[2]->getTags().count("child2") == 1);
-                CHECK(constParent.getChildren() == parent.getChildren());
+                REQUIRE(parent.children().size() == 3);
+                CHECK(parent.children()[0]->tags().count("child1") == 1);
+                CHECK(parent.children()[1]->tags().count("child3") == 1);
+                CHECK(parent.children()[2]->tags().count("child2") == 1);
+                CHECK(constParent.children() == parent.children());
             }
         }
     }
@@ -218,9 +218,9 @@ SCENARIO("Children added to an element can access the parent element")
             THEN("the parent is set to the parent")
             {
                 REQUIRE(child.parent() != nullptr);
-                CHECK(child.parent()->getTags().count("parent") != 0);
+                CHECK(child.parent()->tags().count("parent") != 0);
                 REQUIRE(constChild.parent() != nullptr);
-                CHECK(constChild.parent()->getTags().count("parent") != 0);
+                CHECK(constChild.parent()->tags().count("parent") != 0);
             }
         }
 
@@ -232,9 +232,9 @@ SCENARIO("Children added to an element can access the parent element")
             THEN("the parent is set to the parent")
             {
                 REQUIRE(child.parent() != nullptr);
-                CHECK(child.parent()->getTags().count("parent") != 0);
+                CHECK(child.parent()->tags().count("parent") != 0);
                 REQUIRE(constChild.parent() != nullptr);
-                CHECK(constChild.parent()->getTags().count("parent") != 0);
+                CHECK(constChild.parent()->tags().count("parent") != 0);
             }
         }
 
@@ -246,9 +246,9 @@ SCENARIO("Children added to an element can access the parent element")
             THEN("the parent is set to the parent")
             {
                 REQUIRE(child.parent() != nullptr);
-                CHECK(child.parent()->getTags().count("parent") != 0);
+                CHECK(child.parent()->tags().count("parent") != 0);
                 REQUIRE(constChild.parent() != nullptr);
-                CHECK(constChild.parent()->getTags().count("parent") != 0);
+                CHECK(constChild.parent()->tags().count("parent") != 0);
             }
         }
     }

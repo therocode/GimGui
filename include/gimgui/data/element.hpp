@@ -12,15 +12,15 @@ namespace gim
             Element();
             Element(const TagSet& tags);
             //tags
-            const TagSet& getTags() const;
-            //children
+            const TagSet& tags() const;
+            //hierarchy
             Element* parent();
             const Element* parent() const;
             Element& append(Element&& child);
             Element& prepend(Element&& child);
             Element& insert(size_t index, Element&& child);
-            ElementList& getChildren();
-            const ElementList& getChildren() const;
+            ElementList& children();
+            const ElementList& children() const;
             ElementPtrList find(const TagSet& tags);
             ElementConstPtrList find(const TagSet& tags) const;
             ElementPtrList recursiveFind(const TagSet& tags);

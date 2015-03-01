@@ -37,17 +37,17 @@ namespace gim
         return **iterator;
     }
 
-    ElementList& Element::getChildren()
+    ElementList& Element::children()
     {
         return mChildren;
     }
 
-    const ElementList& Element::getChildren() const
+    const ElementList& Element::children() const
     {
         return mChildren;
     }
             
-    const TagSet& Element::getTags() const
+    const TagSet& Element::tags() const
     {
         return mTags;
     }
