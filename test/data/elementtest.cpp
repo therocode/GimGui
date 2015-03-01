@@ -35,31 +35,31 @@ SCENARIO("Child elements can be appended or prepended or inserted at any index a
 
         WHEN("a child is appended")
         {
-            auto* child = parent.append(gim::Element({"right"}));
+            gim::Element& child = parent.append(gim::Element({"right"}));
 
             THEN("the returned child is the newly created one")
             {
-                CHECK(child->getTags().count("right") == 1);
+                CHECK(child.getTags().count("right") == 1);
             }
         }
 
         WHEN("a child is prepended")
         {
-            auto* child = parent.prepend(gim::Element({"right"}));
+            gim::Element& child = parent.prepend(gim::Element({"right"}));
 
             THEN("the returned child is the newly created one")
             {
-                CHECK(child->getTags().count("right") == 1);
+                CHECK(child.getTags().count("right") == 1);
             }
         }
 
         WHEN("a child is inserted")
         {
-            auto* child = parent.insert(2, gim::Element({"right"}));
+            gim::Element& child = parent.insert(2, gim::Element({"right"}));
 
             THEN("the returned child is the newly created one")
             {
-                CHECK(child->getTags().count("right") == 1);
+                CHECK(child.getTags().count("right") == 1);
             }
         }
     }
@@ -194,6 +194,66 @@ SCENARIO("Elements can be created with tags and attached to other elements, and 
     }
 }
 
+SCENARIO("Children added to an element can access the parent element")
+{
+    GIVEN("A parent element and a child element")
+    {
+        gim::Element parent({"parent"});
+        const gim::Element& constParent = parent;
+
+        WHEN("the parent is not added to any other element")
+        {
+            THEN("its parent is nullptr")
+            {
+                CHECK(parent.parent() == nullptr);
+                CHECK(constParent.parent() == nullptr);
+            }
+        }
+
+        WHEN("a child is added with append")
+        {
+            gim::Element& child = parent.append(gim::Element({"child"}));
+            const gim::Element& constChild = child;
+
+            THEN("the parent is set to the parent")
+            {
+                REQUIRE(child.parent() != nullptr);
+                CHECK(child.parent()->getTags().count("parent") != 0);
+                REQUIRE(constChild.parent() != nullptr);
+                CHECK(constChild.parent()->getTags().count("parent") != 0);
+            }
+        }
+
+        WHEN("a child is added with prepend")
+        {
+            gim::Element& child = parent.prepend(gim::Element({"child"}));
+            const gim::Element& constChild = child;
+
+            THEN("the parent is set to the parent")
+            {
+                REQUIRE(child.parent() != nullptr);
+                CHECK(child.parent()->getTags().count("parent") != 0);
+                REQUIRE(constChild.parent() != nullptr);
+                CHECK(constChild.parent()->getTags().count("parent") != 0);
+            }
+        }
+
+        WHEN("a child is added with insert")
+        {
+            gim::Element& child = parent.insert(0, gim::Element({"child"}));
+            const gim::Element& constChild = child;
+
+            THEN("the parent is set to the parent")
+            {
+                REQUIRE(child.parent() != nullptr);
+                CHECK(child.parent()->getTags().count("parent") != 0);
+                REQUIRE(constChild.parent() != nullptr);
+                CHECK(constChild.parent()->getTags().count("parent") != 0);
+            }
+        }
+    }
+}
+
 SCENARIO("Elements can be searched for recursively depending on tags", "[data]")
 {
     GIVEN("An element tree where a tag is existant on more than one level")
@@ -201,13 +261,13 @@ SCENARIO("Elements can be searched for recursively depending on tags", "[data]")
         gim::Element root({"container"});
         const gim::Element& constRoot = root;
 
-        auto subContainer1 = root.append(gim::Element({"sub_container", "target"}));
-        subContainer1->append(gim::Element({"leaf_of_first", "target"}));
-        subContainer1->append(gim::Element({"leaf_of_first"}));
+        auto& subContainer1 = root.append(gim::Element({"sub_container", "target"}));
+        subContainer1.append(gim::Element({"leaf_of_first", "target"}));
+        subContainer1.append(gim::Element({"leaf_of_first"}));
 
-        auto subContainer2 = root.append(gim::Element({"sub_container"}));
-        subContainer2->append(gim::Element({"leaf_of_second", "target"}));
-        subContainer2->append(gim::Element({"leaf_of_second"}));
+        auto& subContainer2 = root.append(gim::Element({"sub_container"}));
+        subContainer2.append(gim::Element({"leaf_of_second", "target"}));
+        subContainer2.append(gim::Element({"leaf_of_second"}));
         
         WHEN("that tag is searched for recursively")
         {

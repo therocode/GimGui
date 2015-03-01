@@ -14,9 +14,11 @@ namespace gim
             //tags
             const TagSet& getTags() const;
             //children
-            Element* append(Element&& child);
-            Element* prepend(Element&& child);
-            Element* insert(size_t index, Element&& child);
+            Element* parent();
+            const Element* parent() const;
+            Element& append(Element&& child);
+            Element& prepend(Element&& child);
+            Element& insert(size_t index, Element&& child);
             ElementList& getChildren();
             const ElementList& getChildren() const;
             ElementPtrList find(const TagSet& tags);
@@ -43,6 +45,7 @@ namespace gim
             ElementPtrList findHelper(const TagSet& tags) const;
             ElementPtrList recursiveFindHelper(const TagSet& tags) const;
             TagSet mTags;
+            Element* mParent;
             ElementList mChildren;
             std::unordered_map<std::string, Variant> mAttributes;
     };

@@ -4,32 +4,37 @@
 
 namespace gim
 {
-    Element::Element()
+    Element::Element():
+        mParent(nullptr)
     {
     }
 
     Element::Element(const TagSet& tags) :
-        mTags(tags)
+        mTags(tags),
+        mParent(nullptr)
     {
     }
 
-    Element* Element::append(Element&& child)
+    Element& Element::append(Element&& child)
     {
+        child.mParent = this;
         mChildren.push_back(std::unique_ptr<Element>(new Element(std::move(child))));
-        return &*mChildren.back();
+        return *mChildren.back();
     }
 
-    Element* Element::prepend(Element&& child)
+    Element& Element::prepend(Element&& child)
     {
+        child.mParent = this;
         mChildren.push_front(std::unique_ptr<Element>(new Element(std::move(child))));
-        return &*mChildren.front();
+        return *mChildren.front();
     }
 
-    Element* Element::insert(size_t index, Element&& child)
+    Element& Element::insert(size_t index, Element&& child)
     {
-        GIM_ASSERT(index < mChildren.size(), "Index out of bounds");
+        GIM_ASSERT(index <= mChildren.size(), "Index out of bounds. Trying to insert element at " + std::to_string(index) + " but element only has " + std::to_string(mChildren.size()) + " children");
+        child.mParent = this;
         auto iterator = mChildren.insert(mChildren.begin() + index, std::unique_ptr<Element>(new Element(std::move(child))));
-        return &**iterator;
+        return **iterator;
     }
 
     ElementList& Element::getChildren()
@@ -45,6 +50,16 @@ namespace gim
     const TagSet& Element::getTags() const
     {
         return mTags;
+    }
+
+    Element* Element::parent()
+    {
+        return mParent;
+    }
+
+    const Element* Element::parent() const
+    {
+        return mParent;
     }
 
     ElementPtrList Element::find(const TagSet& tags)
