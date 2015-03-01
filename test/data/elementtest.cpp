@@ -1,22 +1,7 @@
 #include "../catch.hpp"
 
 #include <gimgui/data/element.hpp>
-
-struct Point
-{
-    bool operator==(const Point& other) const
-    {
-        return x == other.x && y == other.y;
-    }
-
-    bool operator!=(const Point& other) const
-    {
-        return !(other == *this);
-    }
-
-    int32_t x;
-    int32_t y;
-};
+#include <helpers/point.hpp>
 
 TEST_CASE("Point helper struct", "[test]")
 {
