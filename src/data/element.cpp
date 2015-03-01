@@ -4,6 +4,10 @@
 
 namespace gim
 {
+    Element::Element()
+    {
+    }
+
     Element::Element(const TagSet& tags) :
         mTags(tags)
     {

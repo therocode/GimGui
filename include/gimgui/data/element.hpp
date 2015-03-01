@@ -6,6 +6,7 @@ namespace gim
     class Element
     {
         public:
+            Element();
             Element(const TagSet& tags);
             const TagSet& getTags() const;
             Element* append(Element&& child);

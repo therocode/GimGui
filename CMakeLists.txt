@@ -51,7 +51,7 @@ target_link_libraries(${project_name})
 #tests
 if(BUILD_TESTS)
     add_executable(tests "test/main.cpp"
-        "test/data/element.cpp"
+        "test/data/elementtest.cpp"
         )
 
     target_link_libraries(tests ${project_name})
