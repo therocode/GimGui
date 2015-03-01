@@ -282,7 +282,7 @@ SCENARIO("Elements can be searched for recursively depending on tags", "[data]")
     }
 }
 
-SCENARIO("Element attributes can be created, accessed and modified", "[data]")
+SCENARIO("Element attributes can be created, accessed, modified and deleted", "[data]")
 {
     GIVEN("An element with an attribute created")
     {
@@ -347,6 +347,29 @@ SCENARIO("Element attributes can be created, accessed and modified", "[data]")
                 const gim::Element& constElement = element;
                 CHECK(element.findAttribute<int32_t>("gold") == constElement.findAttribute<int32_t>("gold"));
                 CHECK(element.findAttribute<int32_t>("health") == constElement.findAttribute<int32_t>("health"));
+            }
+        }
+
+        WHEN("a non-existing attribute is deleted")
+        {
+            bool deleted = element.deleteAttribute("health");
+
+            THEN("the returned value is false")
+            {
+                CHECK_FALSE(deleted);
+            }
+        }
+
+        WHEN("the existing attribute is deleted")
+        {
+            bool deleted = element.deleteAttribute("gold");
+
+            THEN("the attribute is no more there and the return value is true")
+            {
+                CHECK(deleted);
+                CHECK_FALSE(element.hasAttribute("gold"));
+                CHECK_FALSE(element.hasAttribute<int32_t>("gold"));
+                CHECK(element.findAttribute<int32_t>("gold") == nullptr);
             }
         }
     }

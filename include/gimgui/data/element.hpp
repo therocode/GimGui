@@ -30,6 +30,7 @@ namespace gim
             void createAttribute(const std::string& name);
             template <typename AttributeType>
             void createAttribute(const std::string& name, const AttributeType& value);
+            bool deleteAttribute(const std::string& name);
             bool hasAttribute(const std::string& name);
             template <typename AttributeType>
             bool hasAttribute(const std::string& name);

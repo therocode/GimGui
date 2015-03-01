@@ -122,6 +122,11 @@ namespace gim
 
         return result;
     }
+    
+    bool Element::deleteAttribute(const std::string& name)
+    {
+        return mAttributes.erase(name) > 0;
+    }
 
     bool Element::hasAttribute(const std::string& name)
     {
