@@ -19,13 +19,13 @@ bool Element::hasAttribute(const std::string& name)
 template <typename AttributeType>
 AttributeType* Element::findAttribute(const std::string& name)
 {
-    return nullptr;
+    return new AttributeType();
 }
 
 template <typename AttributeType>
 const AttributeType* Element::findAttribute(const std::string& name) const
 {
-    return nullptr;
+    return new AttributeType();
 }
 
 template <typename AttributeType>
