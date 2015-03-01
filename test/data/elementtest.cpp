@@ -23,47 +23,230 @@ SCENARIO("Elements can be created with tags that can be accessed again", "[data]
     }
 }
 
-SCENARIO("Child elements can be appended or prepended or inserted at any index and a pointer to the new child is returned", "[data]")
-{
-    GIVEN("A parent element with some children")
-    {
-        gim::Element parent({"parent"});
+//SCENARIO("Child elements can be appended or prepended or inserted at any index and a pointer to the new child is returned", "[data]")
+//{
+//    GIVEN("A parent element with some children")
+//    {
+//        gim::Element parent({"parent"});
+//
+//        parent.append(gim::Element({"wrong"}));
+//        parent.append(gim::Element({"wrong"}));
+//        parent.append(gim::Element({"wrong"}));
+//
+//        WHEN("a child is appended")
+//        {
+//            gim::Element& child = parent.append(gim::Element({"right"}));
+//
+//            THEN("the returned child is the newly created one")
+//            {
+//                CHECK(child.tags().count("right") == 1);
+//            }
+//        }
+//
+//        WHEN("a child is prepended")
+//        {
+//            gim::Element& child = parent.prepend(gim::Element({"right"}));
+//
+//            THEN("the returned child is the newly created one")
+//            {
+//                CHECK(child.tags().count("right") == 1);
+//            }
+//        }
+//
+//        WHEN("a child is inserted")
+//        {
+//            gim::Element& child = parent.insert(2, gim::Element({"right"}));
+//
+//            THEN("the returned child is the newly created one")
+//            {
+//                CHECK(child.tags().count("right") == 1);
+//            }
+//        }
+//    }
+//}
 
-        parent.append(gim::Element({"wrong"}));
-        parent.append(gim::Element({"wrong"}));
-        parent.append(gim::Element({"wrong"}));
+//SCENARIO("Element hierarchies can be created inline using the constructor of element", "[data]")
+//{
+//    GIVEN("an inline created hierarchy")
+//    {
+//        gim::Element root({"root"}, 
+//        {
+//            gim::Element({"container"},
+//            {
+//                gim::Element({"leaf1"})
+//            }),
+//            gim::Element({"container"},
+//            {
+//                gim::Element({"leaf2"}),
+//                gim::Element({"leaf2"}),
+//                gim::Element({"leaf2"})
+//            })
+//        });
+//
+//        WHEN("elements are accessed")
+//        {
+//            THEN("they are retreived according to the hierarchy")
+//            {
+//                auto containers = root.findChildren({"container"});
+//                auto firstContainerChildren = containers[0]->findChildren({"leaf1"});
+//                auto secondContainerChildren = containers[1]->findChildren({"leaf2"});
+//
+//                CHECK(containers.size() == 2);
+//                CHECK(firstContainerChildren.size() == 1);
+//                CHECK(secondContainerChildren.size() == 3);
+//                CHECK(containers[1]->parent()->tags().count("root") == 1);
+//                CHECK(firstContainerChildren[0]->parent()->tags().count("container") == 1);
+//                CHECK(secondContainerChildren[2]->parent()->parent()->tags().count("root") == 1);
+//            }
+//        }
+//    }
+//}
 
-        WHEN("a child is appended")
-        {
-            gim::Element& child = parent.append(gim::Element({"right"}));
-
-            THEN("the returned child is the newly created one")
-            {
-                CHECK(child.tags().count("right") == 1);
-            }
-        }
-
-        WHEN("a child is prepended")
-        {
-            gim::Element& child = parent.prepend(gim::Element({"right"}));
-
-            THEN("the returned child is the newly created one")
-            {
-                CHECK(child.tags().count("right") == 1);
-            }
-        }
-
-        WHEN("a child is inserted")
-        {
-            gim::Element& child = parent.insert(2, gim::Element({"right"}));
-
-            THEN("the returned child is the newly created one")
-            {
-                CHECK(child.tags().count("right") == 1);
-            }
-        }
-    }
-}
+//SCENARIO("Elements can be copied and moved")
+//{
+//    GIVEN("an element with a parent, some attributes and some children with attributes")
+//    {
+//        gim::Element root({"root"});
+//
+//        gim::Element& element = root.append(gim::Element({"element"}));
+//        const gim::Element& constElement = element; 
+//
+//        gim::Element& child1 = element.append(gim::Element({"child"}));
+//        gim::Element& child2 = element.append(gim::Element({"child"}));
+//
+//        root.createAttribute("name", std::string("the_root"));
+//        element.createAttribute("name", std::string("middle"));
+//        element.createAttribute("star_amount", 10);
+//        child1.createAttribute("name", std::string("child_1"));
+//        child1.createAttribute("child_number", 1);
+//        child2.createAttribute("name", std::string("child_2"));
+//        child2.createAttribute("child_number", 2);
+//
+//        WHEN("the element is copied using the copy constructor, and any modifications only apply to the copy and unmodified values are the same value as the original")
+//        {
+//            gim::Element copy = constElement;
+//
+//            copy.setAttribute("star_amount", 5);
+//
+//            copy.children()[0]->setAttribute("child_number", 105);
+//
+//            THEN("the copy has a copy of all tags and the parent is set to nullptr")
+//            {
+//                CHECK(copy.tags() == element.tags());
+//                CHECK(copy.parent() == nullptr);
+//            }
+//
+//            THEN("copied attributes are the correct value")
+//            {
+//                CHECK(copy.getAttribute<std::string>("name") == "middle");
+//            }
+//
+//            THEN("modified values do not modify the original")
+//            {
+//                CHECK(element.getAttribute<int32_t>("star_amount") == 10);
+//            }
+//
+//            THEN("copied unmodified children have the same value as the original")
+//            {
+//                CHECK(copy.children()[1]->tags() == element.children()[1]->tags());
+//                CHECK(copy.children()[1]->getAttribute<int32_t>("child_number") == 2);
+//            }
+//            
+//            THEN("copied modified children do not modify the original")
+//            {
+//                CHECK(element.children()[0]->getAttribute<int32_t>("child_number") == 1);
+//            }
+//        }
+//
+//        WHEN("the element is copied using copy assignment, and any modifications only apply to the copy and unmodified values are the same value as the original")
+//        {
+//            gim::Element copy;
+//            copy = constElement;
+//
+//            copy.setAttribute("star_amount", 5);
+//
+//            copy.children()[0]->setAttribute("child_number", 105);
+//
+//            THEN("the copy has a copy of all tags and the parent is set to nullptr")
+//            {
+//                CHECK(copy.tags() == element.tags());
+//                CHECK(copy.parent() == nullptr);
+//            }
+//
+//            THEN("copied attributes are the correct value")
+//            {
+//                CHECK(copy.getAttribute<std::string>("name") == "middle");
+//            }
+//
+//            THEN("modified values do not modify the original")
+//            {
+//                CHECK(element.getAttribute<int32_t>("star_amount") == 10);
+//            }
+//
+//            THEN("copied unmodified children have the same value as the original")
+//            {
+//                CHECK(copy.children()[1]->tags() == element.children()[1]->tags());
+//                CHECK(copy.children()[1]->getAttribute<int32_t>("child_number") == 2);
+//            }
+//            
+//            THEN("copied modified children do not modify the original")
+//            {
+//                CHECK(element.children()[0]->getAttribute<int32_t>("child_number") == 1);
+//            }
+//        }
+//
+//        WHEN("the element is moved using the move constructor")
+//        {
+//            gim::Element moved = std::move(element);
+//
+//            THEN("the moved element has the right tags and parent")
+//            {
+//                CHECK(moved.tags() == gim::TagSet({"element"}));
+//                CHECK(moved.parent() == &root);
+//            }
+//
+//            THEN("the moved attributes are the correct value")
+//            {
+//                CHECK(moved.getAttribute<std::string>("name") == "middle");
+//                CHECK(moved.getAttribute<int32_t>("star_amount") == 10);
+//            }
+//
+//            THEN("the moved children have the same values as the original")
+//            {
+//                CHECK(moved.children()[0]->tags() == gim::TagSet({"child"}));
+//                CHECK(moved.children()[0]->getAttribute<int32_t>("child_number") == 1);
+//                CHECK(moved.children()[1]->tags() == gim::TagSet({"child"}));
+//                CHECK(moved.children()[1]->getAttribute<int32_t>("child_number") == 2);
+//            }
+//        }
+//
+//        WHEN("the element is moved using move assignment")
+//        {
+//            gim::Element moved;
+//            moved = std::move(element);
+//
+//            THEN("the moved element has the right tags and parent")
+//            {
+//                CHECK(moved.tags() == gim::TagSet({"element"}));
+//                CHECK(moved.parent() == &root);
+//            }
+//
+//            THEN("the moved attributes are the correct value")
+//            {
+//                CHECK(moved.getAttribute<std::string>("name") == "middle");
+//                CHECK(moved.getAttribute<int32_t>("star_amount") == 10);
+//            }
+//
+//            THEN("the moved children have the same values as the original")
+//            {
+//                CHECK(moved.children()[0]->tags() == gim::TagSet({"child"}));
+//                CHECK(moved.children()[0]->getAttribute<int32_t>("child_number") == 1);
+//                CHECK(moved.children()[1]->tags() == gim::TagSet({"child"}));
+//                CHECK(moved.children()[1]->getAttribute<int32_t>("child_number") == 2);
+//            }
+//        }
+//    }
+//}
 
 SCENARIO("Child elements can be appended or prepended or inserted at any index and the order is retained, both const and non const access", "[data]")
 {
@@ -194,7 +377,7 @@ SCENARIO("Elements can be created with tags and attached to other elements, and 
     }
 }
 
-SCENARIO("Children added to an element can access the parent element")
+SCENARIO("Parents of elements can be accessed")
 {
     GIVEN("A parent element and a child element")
     {
@@ -251,6 +434,14 @@ SCENARIO("Children added to an element can access the parent element")
                 CHECK(constChild.parent()->tags().count("parent") != 0);
             }
         }
+    }
+
+    GIVEN("a structure of elements with tags added")
+    {
+        //gim::Element root({"root", "container"});
+        //gim::Element& subA = root.append(gim::Element({"sub_a", "container"}));
+        //gim::Element& subB = root.append(gim::Element({"sub_b", "container"}));
+
     }
 }
 

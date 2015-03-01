@@ -75,3 +75,67 @@ SCENARIO("Variants can be given values and accessed", "[data]")
     }
 }
 
+SCENARIO("Variants can be copied and moved", "[data]")
+{
+    GIVEN("a variant with data set")
+    {
+        using StringList = std::vector<std::string>;
+        gim::Variant variant(StringList({"kalle", "nalle", "valle"}));
+
+        WHEN("the variant is copied using copy construction and the copy is modified")
+        {
+            gim::Variant copy = variant;
+            StringList& copiedStrings = copy.get<StringList>();
+
+            copiedStrings[0] = "malle";
+            copiedStrings[1] = "dalle";
+            copiedStrings[2] = "falle";
+
+            THEN("the copied one retains its new values and the original's values are unmodified")
+            {
+                CHECK(variant.get<StringList>() == StringList({"kalle", "nalle", "valle"}));
+                CHECK(copy.get<StringList>() == StringList({"malle", "dalle", "falle"}));
+            }
+        }
+
+        WHEN("the variant is copied using copy assignment and the copy is modified")
+        {
+            gim::Variant copy;
+            copy = variant;
+            StringList& copiedStrings = copy.get<StringList>();
+
+            copiedStrings[0] = "malle";
+            copiedStrings[1] = "dalle";
+            copiedStrings[2] = "falle";
+
+            THEN("the copied one retains its new values and the original's values are unmodified")
+            {
+                CHECK(variant.get<StringList>() == StringList({"kalle", "nalle", "valle"}));
+                CHECK(copy.get<StringList>() == StringList({"malle", "dalle", "falle"}));
+            }
+        }
+
+        WHEN("the variant is moved to another variant using the move constructor")
+        {
+            gim::Variant moved = std::move(variant);
+            StringList& movedStrings = moved.get<StringList>();
+
+            THEN("the moved variant retains all values")
+            {
+                CHECK(moved.get<StringList>() == StringList({"kalle", "nalle", "valle"}));
+            }
+        }
+
+        WHEN("the variant is moved to another variant using move assignment")
+        {
+            gim::Variant moved;
+            moved = std::move(variant);
+            StringList& movedStrings = moved.get<StringList>();
+
+            THEN("the moved variant retains all values")
+            {
+                CHECK(moved.get<StringList>() == StringList({"kalle", "nalle", "valle"}));
+            }
+        }
+    }
+}

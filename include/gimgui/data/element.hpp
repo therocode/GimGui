@@ -10,12 +10,18 @@ namespace gim
         public:
             //creation
             Element();
-            Element(const TagSet& tags);
+            Element(const TagSet& tags, std::deque<Element>&& children = std::deque<Element>());
+            Element(Element&& other);
+            Element& operator=(Element&& other);
+            Element(const Element& other);
+            Element& operator=(const Element& other);
             //tags
             const TagSet& tags() const;
             //hierarchy
             Element* parent();
             const Element* parent() const;
+            ElementPtrList findParents(const TagSet& tags);
+            ElementConstPtrList findParents(const TagSet& tags) const;
             Element& append(Element&& child);
             Element& prepend(Element&& child);
             Element& insert(size_t index, Element&& child);
@@ -45,6 +51,7 @@ namespace gim
         private:
             ElementPtrList findChildrenHelper(const TagSet& tags) const;
             ElementPtrList recursiveFindChildrenHelper(const TagSet& tags) const;
+
             TagSet mTags;
             Element* mParent;
             ElementList mChildren;

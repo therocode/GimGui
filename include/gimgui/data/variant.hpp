@@ -1,6 +1,7 @@
 #pragma once
 #include <typeindex>
 #include <memory>
+#include <functional>
 #include <gimgui/assert.hpp>
 
 namespace gim
@@ -11,8 +12,8 @@ namespace gim
             Variant();
             Variant(Variant&& other);
             Variant& operator=(Variant&& other);
-            Variant(const Variant& other) = delete;
-            Variant& operator=(const Variant& other) = delete;
+            Variant(const Variant& other);
+            Variant& operator=(const Variant& other);
             template<typename Type>
             Variant(const Type& data);
             template<typename Type>
@@ -25,8 +26,9 @@ namespace gim
             bool isOfType() const;
             bool isSameTypeAs(const Variant& other) const;
         private:
-            std::type_index storedType;
-            std::shared_ptr<void> storedData;
+            std::type_index mStoredType;
+            std::shared_ptr<void> mStoredData;
+            std::function<std::shared_ptr<void>()> mCopier;
     };
 #include <gimgui/data/variant.inl>
 }

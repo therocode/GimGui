@@ -3,27 +3,48 @@
 namespace gim
 {
     Variant::Variant():
-        storedType(typeid(void))
+        mStoredType(typeid(void))
     {
+        mCopier = [this]()
+        {
+            return mStoredData;
+        };
     }
 
     Variant::Variant(Variant&& other):
-        storedType(typeid(void))
+        mStoredType(typeid(void))
     {
-        std::swap(other.storedData, storedData);
-        std::swap(storedType, other.storedType);
+        std::swap(other.mStoredData, mStoredData);
+        std::swap(mStoredType, other.mStoredType);
+        std::swap(mCopier, other.mCopier);
     }
 
     Variant& Variant::operator=(Variant&& other)
     {
-        std::swap(storedData, other.storedData);
-        std::swap(storedType, other.storedType);
+        std::swap(mStoredData, other.mStoredData);
+        std::swap(mStoredType, other.mStoredType);
+        std::swap(mCopier, other.mCopier);
 
+        return *this;
+    }
+
+    Variant::Variant(const Variant& other):
+        mStoredType(other.mStoredType)
+    {
+        mStoredData = other.mCopier();
+        mCopier = other.mCopier;
+    }
+
+    Variant& Variant::operator=(const Variant& other)
+    {
+        mStoredType = other.mStoredType;
+        mStoredData = other.mCopier();
+        mCopier = other.mCopier;
         return *this;
     }
     
     bool Variant::isSameTypeAs(const Variant& other) const
     {
-        return storedType == other.storedType;
+        return mStoredType == other.mStoredType;
     }
 }

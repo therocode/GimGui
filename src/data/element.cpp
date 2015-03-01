@@ -9,10 +9,28 @@ namespace gim
     {
     }
 
-    Element::Element(const TagSet& tags) :
+    Element::Element(const TagSet& tags, std::deque<Element>&& children) :
         mTags(tags),
         mParent(nullptr)
     {
+    }
+
+    Element::Element(Element&& other)
+    {
+    }
+
+    Element& Element::operator=(Element&& other)
+    {
+        return *this;
+    }
+
+    Element::Element(const Element& other)
+    {
+    }
+
+    Element& Element::operator=(const Element& other)
+    {
+        return *this;
     }
 
     Element& Element::append(Element&& child)
