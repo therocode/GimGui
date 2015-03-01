@@ -1,20 +1,7 @@
-#include "../catch.hpp"
+#include <catch.hpp>
 
 #include <gimgui/data/element.hpp>
 #include <helpers/point.hpp>
-
-TEST_CASE("Point helper struct", "[test]")
-{
-    Point pointA{45, 54};
-    Point pointB{45, 54};
-    Point pointC{45, 53};
-    Point pointD{46, 53};
-
-    CHECK(pointA == pointB);
-    CHECK(pointA != pointC);
-    CHECK(pointA != pointD);
-    CHECK(pointC != pointD);
-}
 
 SCENARIO("Elements can be created with tags that can be accessed again", "[data]")
 {
