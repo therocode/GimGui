@@ -21,10 +21,10 @@ namespace gim
             Element& insert(size_t index, Element&& child);
             ElementList& children();
             const ElementList& children() const;
-            ElementPtrList find(const TagSet& tags);
-            ElementConstPtrList find(const TagSet& tags) const;
-            ElementPtrList recursiveFind(const TagSet& tags);
-            ElementConstPtrList recursiveFind(const TagSet& tags) const;
+            ElementPtrList findChildren(const TagSet& tags);
+            ElementConstPtrList findChildren(const TagSet& tags) const;
+            ElementPtrList recursiveFindChildren(const TagSet& tags);
+            ElementConstPtrList recursiveFindChildren(const TagSet& tags) const;
             //attributes
             template <typename AttributeType>
             void createAttribute(const std::string& name);
@@ -43,8 +43,8 @@ namespace gim
             template <typename AttributeType>
             void setAttribute(const std::string& name, const AttributeType& value);
         private:
-            ElementPtrList findHelper(const TagSet& tags) const;
-            ElementPtrList recursiveFindHelper(const TagSet& tags) const;
+            ElementPtrList findChildrenHelper(const TagSet& tags) const;
+            ElementPtrList recursiveFindChildrenHelper(const TagSet& tags) const;
             TagSet mTags;
             Element* mParent;
             ElementList mChildren;

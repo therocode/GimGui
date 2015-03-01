@@ -62,35 +62,35 @@ namespace gim
         return mParent;
     }
 
-    ElementPtrList Element::find(const TagSet& tags)
+    ElementPtrList Element::findChildren(const TagSet& tags)
     {
         GIM_ASSERT(!tags.empty(), "No tags given");
-        return findHelper(tags);
+        return findChildrenHelper(tags);
     }
 
-    ElementConstPtrList Element::find(const TagSet& tags) const
+    ElementConstPtrList Element::findChildren(const TagSet& tags) const
     {
         GIM_ASSERT(!tags.empty(), "No tags given");
-        ElementPtrList elements = findHelper(tags);
+        ElementPtrList elements = findChildrenHelper(tags);
 
         return ElementConstPtrList(elements.begin(), elements.end());
     }
 
-    ElementPtrList Element::recursiveFind(const TagSet& tags)
+    ElementPtrList Element::recursiveFindChildren(const TagSet& tags)
     {
         GIM_ASSERT(!tags.empty(), "No tags given");
-        return recursiveFindHelper(tags);
+        return recursiveFindChildrenHelper(tags);
     }
 
-    ElementConstPtrList Element::recursiveFind(const TagSet& tags) const
+    ElementConstPtrList Element::recursiveFindChildren(const TagSet& tags) const
     {
         GIM_ASSERT(!tags.empty(), "No tags given");
-        ElementPtrList elements = recursiveFindHelper(tags);
+        ElementPtrList elements = recursiveFindChildrenHelper(tags);
 
         return ElementConstPtrList(elements.begin(), elements.end());
     }
 
-    ElementPtrList Element::findHelper(const TagSet& tags) const
+    ElementPtrList Element::findChildrenHelper(const TagSet& tags) const
     {
         ElementPtrList result;
 
@@ -105,7 +105,7 @@ namespace gim
         return result;
     }
     
-    ElementPtrList Element::recursiveFindHelper(const TagSet& tags) const
+    ElementPtrList Element::recursiveFindChildrenHelper(const TagSet& tags) const
     {
         ElementPtrList result;
 
@@ -116,7 +116,7 @@ namespace gim
 
         for(auto& child : mChildren)
         {
-            ElementPtrList childResults = child->recursiveFindHelper(tags);
+            ElementPtrList childResults = child->recursiveFindChildrenHelper(tags);
             result.insert(result.end(), childResults.begin(), childResults.end());
         }
 

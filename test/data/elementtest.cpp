@@ -146,49 +146,49 @@ SCENARIO("Elements can be created with tags and attached to other elements, and 
 
         WHEN("a unique tag is used")
         {
-            gim::ElementPtrList child1List = parent.find({"child1"});
-            gim::ElementPtrList child2List = parent.find({"child2"});
+            gim::ElementPtrList child1List = parent.findChildren({"child1"});
+            gim::ElementPtrList child2List = parent.findChildren({"child2"});
 
             THEN("only one element is returned")
             {
                 CHECK(child1List.size() == 1);
                 CHECK(child2List.size() == 1);
 
-                CHECK(std::equal(child1List.begin(), child1List.end(), constParent.find({"child1"}).begin()));
-                CHECK(std::equal(child2List.begin(), child2List.end(), constParent.find({"child2"}).begin()));
+                CHECK(std::equal(child1List.begin(), child1List.end(), constParent.findChildren({"child1"}).begin()));
+                CHECK(std::equal(child2List.begin(), child2List.end(), constParent.findChildren({"child2"}).begin()));
             }
         }
 
         WHEN("a tag belonging to many elements is used")
         {
-            gim::ElementPtrList childList = parent.find({"element"});
+            gim::ElementPtrList childList = parent.findChildren({"element"});
 
             THEN("all of those elements are retreived")
             {
                 CHECK(childList.size() == 5);
-                CHECK(std::equal(childList.begin(), childList.end(), constParent.find({"element"}).begin()));
+                CHECK(std::equal(childList.begin(), childList.end(), constParent.findChildren({"element"}).begin()));
             }
         }
 
         WHEN("a tag belonging to no elements is used")
         {
-            gim::ElementPtrList childList = parent.find({"invalid"});
+            gim::ElementPtrList childList = parent.findChildren({"invalid"});
 
             THEN("an empty list is returned")
             {
                 CHECK(childList.empty());
-                CHECK(std::equal(childList.begin(), childList.end(), constParent.find({"invalid"}).begin()));
+                CHECK(std::equal(childList.begin(), childList.end(), constParent.findChildren({"invalid"}).begin()));
             }
         }
 
         WHEN("two tags are used")
         {
-            gim::ElementPtrList childList = parent.find({"health_bar", "gold_meter"});
+            gim::ElementPtrList childList = parent.findChildren({"health_bar", "gold_meter"});
 
             THEN("only elements with both tags are returned")
             {
                 CHECK(childList.size() == 2);
-                CHECK(std::equal(childList.begin(), childList.end(), constParent.find({"health_bar", "gold_meter"}).begin()));
+                CHECK(std::equal(childList.begin(), childList.end(), constParent.findChildren({"health_bar", "gold_meter"}).begin()));
             }
         }
     }
@@ -271,12 +271,12 @@ SCENARIO("Elements can be searched for recursively depending on tags", "[data]")
         
         WHEN("that tag is searched for recursively")
         {
-            gim::ElementPtrList childList = root.recursiveFind({"target"});
+            gim::ElementPtrList childList = root.recursiveFindChildren({"target"});
 
             THEN("all elements with that tag are returned")
             {
                 CHECK(childList.size() == 3);
-                CHECK(std::equal(childList.begin(), childList.end(), constRoot.recursiveFind({"target"}).begin()));
+                CHECK(std::equal(childList.begin(), childList.end(), constRoot.recursiveFindChildren({"target"}).begin()));
             }
         }
     }
