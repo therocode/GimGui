@@ -110,6 +110,6 @@ namespace gim
 
     bool Element::hasAttribute(const std::string& name)
     {
-        return false;
+        return mAttributes.count(name) != 0;
     }
 }

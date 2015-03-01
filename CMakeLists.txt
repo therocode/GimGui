@@ -27,12 +27,16 @@ project(${project_name})
 #Set source files.
 set(source_files
     src/data/element.cpp
+    src/data/variant.cpp
     )
 
 set(header_files
     include/gimgui/assert.hpp
     include/gimgui/data/element.hpp
+    include/gimgui/data/element.inl
     include/gimgui/data/types.hpp
+    include/gimgui/data/variant.hpp
+    include/gimgui/data/variant.inl
 )
 
 include_directories(include)
@@ -52,6 +56,7 @@ target_link_libraries(${project_name})
 if(BUILD_TESTS)
     add_executable(tests "test/main.cpp"
         "test/data/elementtest.cpp"
+        "test/data/varianttest.cpp"
         )
 
     target_link_libraries(tests ${project_name})

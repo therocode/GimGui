@@ -1,5 +1,7 @@
 #pragma once
 #include <gimgui/data/types.hpp>
+#include <gimgui/data/variant.hpp>
+#include <unordered_map>
 
 namespace gim
 {
@@ -42,6 +44,7 @@ namespace gim
             ElementPtrList recursiveFindHelper(const TagSet& tags) const;
             TagSet mTags;
             ElementList mChildren;
+            std::unordered_map<std::string, Variant> mAttributes;
     };
 
 #include <gimgui/data/element.inl>
