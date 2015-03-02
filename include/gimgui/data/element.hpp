@@ -25,6 +25,7 @@ namespace gim
             Element& append(Element&& child);
             Element& prepend(Element&& child);
             Element& insert(size_t index, Element&& child);
+            Element detachChild(size_t index);
             ElementList& children();
             const ElementList& children() const;
             ElementPtrList findChildren(const TagSet& tags);

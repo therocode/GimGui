@@ -92,12 +92,23 @@ namespace gim
 
     Element& Element::insert(size_t index, Element&& child)
     {
-        GIM_ASSERT(index <= mChildren.size(), "Index out of bounds. Trying to insert element at " + std::to_string(index) + " but element only has " + std::to_string(mChildren.size()) + " children");
+        GIM_ASSERT(index <= mChildren.size(), "Index out of bounds. Trying to insert element at " + std::to_string(index) + " but this element only has " + std::to_string(mChildren.size()) + " children");
         child.mParent = this;
         auto iterator = mChildren.insert(mChildren.begin() + index, std::unique_ptr<Element>(new Element(std::move(child))));
         Element& newChild = **iterator;
         newChild.mParent = this;
         return newChild;
+    }
+
+    Element Element::detachChild(size_t index)
+    {
+        GIM_ASSERT(index <= mChildren.size(), "Index out of bounds. Trying to detach child index " + std::to_string(index) + " but this element only has " + std::to_string(mChildren.size()) + " children");
+
+        gim::Element detached = std::move(*mChildren[index]);
+        detached.mParent = nullptr;
+        mChildren.erase(mChildren.begin() + index);
+
+        return detached;
     }
 
     ElementList& Element::children()

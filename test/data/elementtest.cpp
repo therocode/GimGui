@@ -632,3 +632,51 @@ SCENARIO("Element attributes can be created, accessed, modified and deleted", "[
         }
     }
 }
+
+SCENARIO("Elements in a hierarchy can be detached to remove them from the hierarchy", "[data]")
+{
+    GIVEN("an inline created hierarchy")
+    {
+        gim::Element root({"root"}, 
+        {
+            gim::Element({"container", "spec"},
+            {
+                gim::Element({"leaf1"})
+            }),
+            gim::Element({"container"},
+            {
+                gim::Element({"leaf2"}),
+                gim::Element({"leaf2"}),
+                gim::Element({"leaf2"})
+            })
+        });
+
+        WHEN("an element is detached")
+        {
+            gim::Element detached = root.detachChild(1);
+
+            THEN("previous owner no longer has that child")
+            {
+                CHECK(root.children().size() == 1);
+                CHECK(root.recursiveFindChildren({"leaf2"}).size() == 0);
+            }
+
+            THEN("the other children of the previous owner are intact")
+            {
+                CHECK(root.children()[0]->tags().count("container") == 1);
+                CHECK(root.recursiveFindChildren({"leaf1"}).size() == 1);
+            }
+
+            THEN("the detached element has no parent")
+            {
+                CHECK(detached.parent() == nullptr);
+            }
+
+            THEN("the detached element's children are intact")
+            {
+                CHECK(detached.children().size() == 3);
+                CHECK(detached.findChildren({"leaf2"}).size() == 3);
+            }
+        }
+    }
+}
