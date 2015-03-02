@@ -29,7 +29,8 @@ set(source_files
     src/data/element.cpp
     src/data/variant.cpp
     src/gui/gui.cpp
-    )
+    src/logic/attributepopulator.cpp
+)
 
 set(header_files
     include/gimgui/assert.hpp
@@ -39,6 +40,7 @@ set(header_files
     include/gimgui/data/variant.hpp
     include/gimgui/data/variant.inl
     include/gimgui/gui/gui.hpp
+    include/gimgui/logic/attributepopulator.hpp
 )
 
 include_directories(include)
@@ -59,8 +61,9 @@ if(BUILD_TESTS)
     include_directories(test)
     add_executable(tests "test/main.cpp"
         "test/data/elementtest.cpp"
-        "test/gui/guitest.cpp"
         "test/data/varianttest.cpp"
+        "test/gui/guitest.cpp"
+        "test/logic/attributepopulatortest.cpp"
         "test/helpers/point.cpp"
         )
 
