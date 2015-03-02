@@ -58,7 +58,7 @@ target_link_libraries(${project_name})
 if(BUILD_TESTS)
     include_directories(test)
     add_executable(tests "test/main.cpp"
-        #"test/data/elementtest.cpp"
+        "test/data/elementtest.cpp"
         "test/gui/guitest.cpp"
         "test/data/varianttest.cpp"
         "test/helpers/point.cpp"

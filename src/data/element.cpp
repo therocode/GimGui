@@ -1,6 +1,7 @@
 #include <gimgui/data/element.hpp>
 #include <gimgui/assert.hpp>
 #include <algorithm>
+#include <iostream>
 
 namespace gim
 {
@@ -13,38 +14,81 @@ namespace gim
         mTags(tags),
         mParent(nullptr)
     {
+        for(int32_t i = 0; i < children.size(); i++)
+        {
+            const Element& child = children[i];
+            auto& created = append(std::move(children[i]));
+        }
     }
 
     Element::Element(Element&& other)
     {
+        std::swap(mParent, other.mParent);
+        std::swap(mTags, other.mTags);
+        std::swap(mAttributes, other.mAttributes);
+        std::swap(mChildren, other.mChildren);
+
+        for(auto& child : mChildren)
+        {
+            child->mParent = this;
+        }
     }
 
     Element& Element::operator=(Element&& other)
     {
+        std::swap(mParent, other.mParent);
+        std::swap(mTags, other.mTags);
+        std::swap(mAttributes, other.mAttributes);
+        std::swap(mChildren, other.mChildren);
+
+        for(auto& child : mChildren)
+        {
+            child->mParent = this;
+        }
+
         return *this;
     }
 
-    Element::Element(const Element& other)
+    Element::Element(const Element& other) :
+        mParent(nullptr),
+        mTags(other.mTags),
+        mAttributes(other.mAttributes)
     {
+        for(const auto& child : other.mChildren)
+        {
+            append(gim::Element(*child));
+        }
     }
 
     Element& Element::operator=(const Element& other)
     {
+        mParent = nullptr;
+        mTags = other.mTags;
+        mAttributes = other.mAttributes;
+
+        for(const auto& child : other.mChildren)
+        {
+            append(gim::Element(*child));
+        }
+
         return *this;
     }
 
     Element& Element::append(Element&& child)
     {
-        child.mParent = this;
         mChildren.push_back(std::unique_ptr<Element>(new Element(std::move(child))));
-        return *mChildren.back();
+        Element& newChild = *mChildren.back();
+        newChild.mParent = this;
+        return newChild;
     }
 
     Element& Element::prepend(Element&& child)
     {
         child.mParent = this;
         mChildren.push_front(std::unique_ptr<Element>(new Element(std::move(child))));
-        return *mChildren.front();
+        Element& newChild = *mChildren.front();
+        newChild.mParent = this;
+        return newChild;
     }
 
     Element& Element::insert(size_t index, Element&& child)
@@ -52,7 +96,9 @@ namespace gim
         GIM_ASSERT(index <= mChildren.size(), "Index out of bounds. Trying to insert element at " + std::to_string(index) + " but element only has " + std::to_string(mChildren.size()) + " children");
         child.mParent = this;
         auto iterator = mChildren.insert(mChildren.begin() + index, std::unique_ptr<Element>(new Element(std::move(child))));
-        return **iterator;
+        Element& newChild = **iterator;
+        newChild.mParent = this;
+        return newChild;
     }
 
     ElementList& Element::children()

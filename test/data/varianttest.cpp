@@ -2,6 +2,7 @@
 
 #include <gimgui/data/variant.hpp>
 
+#include<vector>
 SCENARIO("Variants can be given values and accessed", "[data]")
 {
     GIVEN("An empty variant")

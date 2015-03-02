@@ -6,9 +6,9 @@ Variant::Variant(const Type& data) :
 {
     mStoredData = std::static_pointer_cast<void>(std::make_shared<Type>(data));
 
-    mCopier = [this]()
+    mCopier = [](std::shared_ptr<void> data)
     {
-        std::shared_ptr<Type> toCopy = std::static_pointer_cast<Type>(mStoredData);
+        std::shared_ptr<Type> toCopy = std::static_pointer_cast<Type>(data);
         std::shared_ptr<Type> copy = std::make_shared<Type>(*toCopy);
         return std::static_pointer_cast<void>(copy);
     };

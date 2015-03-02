@@ -5,9 +5,9 @@ namespace gim
     Variant::Variant():
         mStoredType(typeid(void))
     {
-        mCopier = [this]()
+        mCopier = [](std::shared_ptr<void> data)
         {
-            return mStoredData;
+            return data;
         };
     }
 
@@ -31,14 +31,14 @@ namespace gim
     Variant::Variant(const Variant& other):
         mStoredType(other.mStoredType)
     {
-        mStoredData = other.mCopier();
+        mStoredData = other.mCopier(other.mStoredData);
         mCopier = other.mCopier;
     }
 
     Variant& Variant::operator=(const Variant& other)
     {
         mStoredType = other.mStoredType;
-        mStoredData = other.mCopier();
+        mStoredData = other.mCopier(other.mStoredData);
         mCopier = other.mCopier;
         return *this;
     }

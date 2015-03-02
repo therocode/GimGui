@@ -28,7 +28,7 @@ namespace gim
         private:
             std::type_index mStoredType;
             std::shared_ptr<void> mStoredData;
-            std::function<std::shared_ptr<void>()> mCopier;
+            std::function<std::shared_ptr<void>(std::shared_ptr<void>)> mCopier;
     };
 #include <gimgui/data/variant.inl>
 }
