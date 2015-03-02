@@ -438,12 +438,38 @@ SCENARIO("Parents of elements can be accessed")
         }
     }
 
-    GIVEN("a structure of elements with tags added")
+    GIVEN("a structure of elements")
     {
-        //gim::Element root({"root", "container"});
-        //gim::Element& subA = root.append(gim::Element({"sub_a", "container"}));
-        //gim::Element& subB = root.append(gim::Element({"sub_b", "container"}));
+        gim::TagSet NoTags;
 
+        gim::Element root({"root"},
+        {
+            gim::Element(NoTags,
+            {
+                gim::Element(NoTags)
+            }),
+            gim::Element({"grandfather"},
+            {
+                gim::Element(NoTags),
+                gim::Element({"parent"}, 
+                {
+                    gim::Element({"innermost"})
+                }),
+                gim::Element(NoTags)
+            })
+        });
+
+        WHEN("the parent structure from the innermost element is checked")
+        {
+            THEN("it is correct")
+            {
+                const gim::Element* innermost = root.recursiveFindChildren({"innermost"})[0];
+
+                CHECK(innermost->parent() == root.recursiveFindChildren({"parent"})[0]);
+                CHECK(innermost->parent()->parent() == root.recursiveFindChildren({"grandfather"})[0]);
+                CHECK(innermost->parent()->parent()->parent() == &root);
+            }
+        }
     }
 }
 

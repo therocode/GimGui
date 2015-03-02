@@ -16,8 +16,7 @@ namespace gim
     {
         for(int32_t i = 0; i < children.size(); i++)
         {
-            const Element& child = children[i];
-            auto& created = append(std::move(children[i]));
+            append(std::move(children[i]));
         }
     }
 
