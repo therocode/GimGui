@@ -503,10 +503,19 @@ SCENARIO("Elements can be searched for recursively depending on tags", "[data]")
 
 SCENARIO("Element attributes can be created, accessed, modified and deleted", "[data]")
 {
-    GIVEN("An element with an attribute created")
+    GIVEN("an element with an attribute created with a default value")
     {
         gim::Element element;
-        element.createAttribute<int32_t>("gold");
+        element.createAttribute("gold", 42);
+
+        WHEN("the attribute is retreived")
+        {
+            THEN("the correct value is gotten")
+            {
+                CHECK(element.getAttribute<int32_t>("gold") == 42);
+                CHECK(*element.findAttribute<int32_t>("gold") == 42);
+            }
+        }
 
         WHEN("the attribute's existence is checked for")
         {
@@ -589,21 +598,6 @@ SCENARIO("Element attributes can be created, accessed, modified and deleted", "[
                 CHECK_FALSE(element.hasAttribute("gold"));
                 CHECK_FALSE(element.hasAttribute<int32_t>("gold"));
                 CHECK(element.findAttribute<int32_t>("gold") == nullptr);
-            }
-        }
-    }
-
-    GIVEN("an element with an attribute created with a default value")
-    {
-        gim::Element element;
-        element.createAttribute("gold", 42);
-
-        WHEN("the attribute is retreived")
-        {
-            THEN("the correct value is gotten")
-            {
-                CHECK(element.getAttribute<int32_t>("gold") == 42);
-                CHECK(*element.findAttribute<int32_t>("gold") == 42);
             }
         }
     }

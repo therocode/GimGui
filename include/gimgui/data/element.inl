@@ -1,14 +1,6 @@
 #pragma once
 
 template <typename AttributeType>
-void Element::createAttribute(const std::string& name)
-{
-    GIM_ASSERT(mAttributes.count(name) == 0, "Trying to create attribute '" + name + "' when such an attribute is already present");
-
-    mAttributes[name] = Variant(AttributeType());
-}
-
-template <typename AttributeType>
 void Element::createAttribute(const std::string& name, const AttributeType& value)
 {
     GIM_ASSERT(mAttributes.count(name) == 0, "Trying to create attribute '" + name + "' when such an attribute is already present");
