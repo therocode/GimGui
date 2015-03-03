@@ -9,9 +9,22 @@ namespace gim
 
         for(auto elementIterator = elementList.begin(); elementIterator != elementList.end(); elementIterator++)
         {
-            for(auto attributeCreator : mAttributeCreators)
+            for(auto attributeCreator : mGlobalAttributeCreators)
             {
                 attributeCreator.second(**elementIterator);
+            }
+
+            for(const auto& tag : (*elementIterator)->tags())
+            {
+                auto specificCreatorsIterator = mSpecificAttributeCreators.find(tag);
+
+                if(specificCreatorsIterator != mSpecificAttributeCreators.end())
+                {
+                    for(auto attributeCreator : specificCreatorsIterator->second)
+                    {
+                        attributeCreator.second(**elementIterator);
+                    }
+                }
             }
 
             for(auto& child : (*elementIterator)->children())

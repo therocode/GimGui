@@ -77,11 +77,37 @@ SCENARIO("Attribute populator can be used to give attributes to elements in a hi
 {
     GIVEN("An element hierarchy with tags")
     {
-        gim::Element root({"root"});
-        WHEN()
+        gim::Element root(gim::TagSet(), 
         {
-            THEN()
+            gim::Element({"label"}),
+            gim::Element({"image"}),
+            gim::Element({"label", "image"})
+        });
+
+        WHEN("a populator populates the hierarchy with configurations specific to certain tags")
+        {
+            gim::AttributePopulator populator;
+
+            populator.addConfiguration("text", std::string("default_text"), {"label"});
+            populator.addConfiguration("image_id", 0, {"image"});
+            populator.addConfiguration("position", Point({0, 0}), {"image", "label"});
+
+            populator.populate(root);
+
+            THEN("relevant attributes are only given to the correct elements")
             {
+                CHECK_FALSE(root.hasAttribute("text"));
+                CHECK_FALSE(root.hasAttribute("image_id"));
+                CHECK_FALSE(root.hasAttribute("position"));
+                CHECK(root.children()[0]->hasAttribute("text"));
+                CHECK_FALSE(root.children()[0]->hasAttribute("image_id"));
+                CHECK(root.children()[0]->hasAttribute("position"));
+                CHECK_FALSE(root.children()[1]->hasAttribute("text"));
+                CHECK(root.children()[1]->hasAttribute("image_id"));
+                CHECK(root.children()[1]->hasAttribute("position"));
+                CHECK(root.children()[2]->hasAttribute("text"));
+                CHECK(root.children()[2]->hasAttribute("image_id"));
+                CHECK(root.children()[2]->hasAttribute("position"));
             }
         }
     }
