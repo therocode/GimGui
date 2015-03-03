@@ -202,7 +202,7 @@ namespace gim
         return mAttributes.erase(name) > 0;
     }
 
-    bool Element::hasAttribute(const std::string& name)
+    bool Element::hasAttribute(const std::string& name) const
     {
         return mAttributes.count(name) != 0;
     }

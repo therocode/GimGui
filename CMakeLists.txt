@@ -41,6 +41,7 @@ set(header_files
     include/gimgui/data/variant.inl
     include/gimgui/gui/gui.hpp
     include/gimgui/logic/attributepopulator.hpp
+    include/gimgui/logic/attributepopulator.inl
 )
 
 include_directories(include)

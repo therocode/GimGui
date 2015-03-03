@@ -9,7 +9,7 @@ void Element::createAttribute(const std::string& name, const AttributeType& valu
 }
 
 template <typename AttributeType>
-bool Element::hasAttribute(const std::string& name)
+bool Element::hasAttribute(const std::string& name) const
 {
     auto variantIterator = mAttributes.find(name);
     if(variantIterator != mAttributes.end())
