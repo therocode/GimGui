@@ -11,8 +11,17 @@ SCENARIO("Gui instances can be created and given a root element", "[gui]")
 
         WHEN("a gui instance is created with the root element given to it")
         {
-            //gim::Gui gui(rootElement);
+            gim::Gui gui(std::move(rootElement));
+            const gim::Gui& constGui = gui;
+        
+            THEN("the element is accessible through the root function")
+            {
+                CHECK(gui.root().tags().count("root") == 1);
+                CHECK(constGui.root().tags().count("root") == 1);
+            }
 
+            
         }
     }
 }
+
