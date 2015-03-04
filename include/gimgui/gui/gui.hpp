@@ -1,5 +1,6 @@
 #pragma once
 #include <gimgui/data/element.hpp>
+#include <gimgui/logic/event.hpp>
 
 namespace gim
 {
@@ -9,7 +10,11 @@ namespace gim
             Gui(gim::Element&& element);       
             Element& root();
             const Element& root() const;
+            template <typename Propagator>
+            void sendEvent(const Event& event);
         private:
             gim::Element mRoot;
     };
+
+#include <gimgui/gui/gui.inl>
 }

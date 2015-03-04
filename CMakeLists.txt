@@ -29,6 +29,7 @@ set(source_files
     src/data/element.cpp
     src/data/variant.cpp
     src/gui/gui.cpp
+    src/logic/allpropagator.cpp
     src/logic/attributepopulator.cpp
 )
 
@@ -40,8 +41,11 @@ set(header_files
     include/gimgui/data/variant.hpp
     include/gimgui/data/variant.inl
     include/gimgui/gui/gui.hpp
+    include/gimgui/gui/gui.inl
+    include/gimgui/logic/allpropagator.hpp
     include/gimgui/logic/attributepopulator.hpp
     include/gimgui/logic/attributepopulator.inl
+    include/gimgui/logic/event.hpp
 )
 
 include_directories(include)
@@ -64,6 +68,7 @@ if(BUILD_TESTS)
         "test/data/elementtest.cpp"
         "test/data/varianttest.cpp"
         "test/gui/guitest.cpp"
+        "test/logic/allpropagatortest.cpp"
         "test/logic/attributepopulatortest.cpp"
         "test/helpers/point.cpp"
         )
