@@ -5,9 +5,12 @@ if(NOT CMAKE_BUILD_TYPE )
         set(CMAKE_BUILD_TYPE Release CACHE STRING "Select if you want to build Debug or Release" FORCE )
 endif()
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake/modules/")
+
 set(SHARED_BUILD TRUE CACHE BOOL "Set this to false if you want a static build")
 
 set(BUILD_TESTS TRUE CACHE BOOL "build the tests")
+set(BUILD_EXAMPLES TRUE CACHE BOOL "build the examples - requires GLFW")
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)  #for shared libs 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)  #for static libs 
@@ -75,6 +78,21 @@ if(BUILD_TESTS)
 
     target_link_libraries(tests ${project_name})
 endif(BUILD_TESTS)
+
+#examples
+if(BUILD_EXAMPLES)
+    find_package(GLFW3 REQUIRED)
+    if(${GLFW_FOUND})
+        include_directories(${GLFW_INCLUDE_DIRS})
+    endif()
+
+    set(simple_src "examples/simple_rendering/src")
+    add_executable(simple_rendering
+        ${simple_src}/main.cpp
+        )
+
+    target_link_libraries(simple_rendering ${project_name} ${GLFW_LIBRARIES})
+endif()
 	
 #installation
 if(WIN32)
