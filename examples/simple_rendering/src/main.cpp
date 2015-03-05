@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "simplerendering.hpp"
+#include <memory>
 
 GLFWwindow* window;
 const int32_t windowWidth = 800;
@@ -61,6 +62,8 @@ int main()
         exit(1);
     }
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_DEPTH_BITS, 16);
 
     window = glfwCreateWindow(800, 600, "GimGui", NULL, NULL);
@@ -85,13 +88,13 @@ int main()
     glfwGetFramebufferSize(window, &width, &height);
     reshape(window, width, height);
 
-    SimpleRendering simple;
+    std::unique_ptr<SimpleRendering> simple = std::unique_ptr<SimpleRendering>(new SimpleRendering());
 
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
-        simple.loop();
+        simple->loop();
         // Swap buffers
         glfwSwapBuffers(window);
     }

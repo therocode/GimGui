@@ -90,8 +90,17 @@ if(BUILD_EXAMPLES)
         include_directories(${GLFW_INCLUDE_DIRS})
     endif()
 
-    include_directories("examples/include")
-    set(common_src "examples/include/gl_core_3_3.c")
+    set(common "examples/common")
+    include_directories(${common})
+    set(common_src 
+        ${common}/gl_core_3_3.c
+        ${common}/glutils/baseshader.cpp
+        ${common}/glutils/buffer.cpp
+        ${common}/glutils/shader.cpp
+        ${common}/glutils/uniform.cpp
+        ${common}/glutils/vao.cpp
+        ${common}/glutils/vertexattribute.cpp
+        )
 
     set(simple_src "examples/simple_rendering/src")
     add_executable(simple_rendering
