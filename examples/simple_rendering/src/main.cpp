@@ -1,6 +1,7 @@
 #include <gl_core_3_3.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "simplerendering.hpp"
 
 GLFWwindow* window;
 const int32_t windowWidth = 800;
@@ -84,11 +85,15 @@ int main()
     glfwGetFramebufferSize(window, &width, &height);
     reshape(window, width, height);
 
+    SimpleRendering simple;
+
     while(!glfwWindowShouldClose(window))
     {
+        glfwPollEvents();
+
+        simple.loop();
         // Swap buffers
         glfwSwapBuffers(window);
-        glfwPollEvents();
     }
 
     glfwTerminate();

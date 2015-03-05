@@ -97,6 +97,7 @@ if(BUILD_EXAMPLES)
     add_executable(simple_rendering
         ${common_src}
         ${simple_src}/main.cpp
+        ${simple_src}/simplerendering.cpp
         )
 
     target_link_libraries(simple_rendering ${project_name} ${GLFW_LIBRARIES} ${OPENGL_LIBRARIES})
