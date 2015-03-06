@@ -10,9 +10,9 @@ SCENARIO("Attribute populator can be used to give attributes to elements in a hi
     {
         gim::TagSet NoTags;
 
-        gim::Element root(NoTags, 
+        gim::Element root(NoTags,  {},
         {
-            gim::Element(NoTags, 
+            gim::Element(NoTags,  {},
             {
                 gim::Element(NoTags),
                 gim::Element(NoTags)
@@ -77,7 +77,7 @@ SCENARIO("Attribute populator can be used to give attributes to elements in a hi
 {
     GIVEN("An element hierarchy with tags")
     {
-        gim::Element root(gim::TagSet(), 
+        gim::Element root(gim::TagSet(),  {},
         {
             gim::Element({"label"}),
             gim::Element({"image"}),

@@ -31,9 +31,9 @@ SCENARIO("Events can be sent to all elements of a tree using the all propagator"
     {
         gim::Gui gui(
         {
-            gim::Element({"root"},
+            gim::Element({"root"}, {},
             {
-                gim::Element({"container"},
+                gim::Element({"container"}, {},
                 {
                     gim::Element({"child"})
                 }),

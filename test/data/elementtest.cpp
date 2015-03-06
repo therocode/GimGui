@@ -69,13 +69,13 @@ SCENARIO("Element hierarchies can be created inline using the constructor of ele
 {
     GIVEN("an inline created hierarchy")
     {
-        gim::Element root({"root"}, 
+        gim::Element root({"root"}, {},
         {
-            gim::Element({"container", "spec"},
+            gim::Element({"container", "spec"}, {},
             {
                 gim::Element({"leaf1"})
             }),
-            gim::Element({"container"},
+            gim::Element({"container"}, {},
             {
                 gim::Element({"leaf2"}),
                 gim::Element({"leaf2"}),
@@ -442,16 +442,16 @@ SCENARIO("Parents of elements can be accessed")
     {
         gim::TagSet NoTags;
 
-        gim::Element root({"root"},
+        gim::Element root({"root"}, {},
         {
-            gim::Element(NoTags,
+            gim::Element(NoTags, {},
             {
                 gim::Element(NoTags)
             }),
-            gim::Element({"grandfather"},
+            gim::Element({"grandfather"}, {},
             {
                 gim::Element(NoTags),
-                gim::Element({"parent"}, 
+                gim::Element({"parent"},  {},
                 {
                     gim::Element({"innermost"})
                 }),
@@ -625,19 +625,33 @@ SCENARIO("Element attributes can be created, accessed, modified and deleted", "[
             }
         }
     }
+
+    GIVEN("an element with attributes set in the constructor")
+    {
+        gim::Element element({}, {{"gold", 10}, {"name", std::string("kalle")}}, {});
+
+        WHEN("the values are accessed")
+        {
+            THEN("they are all correct")
+            {
+                CHECK(element.getAttribute<int32_t>("gold") == 10);
+                CHECK(element.getAttribute<std::string>("name") == "kalle");
+            }
+        }
+    }
 }
 
 SCENARIO("Elements in a hierarchy can be detached to remove them from the hierarchy", "[data]")
 {
     GIVEN("an inline created hierarchy")
     {
-        gim::Element root({"root"}, 
+        gim::Element root({"root"},  {},
         {
-            gim::Element({"container", "spec"},
+            gim::Element({"container", "spec"}, {},
             {
                 gim::Element({"leaf1"})
             }),
-            gim::Element({"container"},
+            gim::Element({"container"}, {},
             {
                 gim::Element({"leaf2"}),
                 gim::Element({"leaf2"}),

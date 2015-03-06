@@ -44,7 +44,7 @@ SimpleRendering::SimpleRendering():
     //gui
     gim::Gui gui(
     {
-        gim::Element({"container", "yellow"},
+        gim::Element({"container", "yellow"}, {},
         {
             gim::Element({"child", "green"}),
             gim::Element({"child", "blue"}),

@@ -10,7 +10,7 @@ namespace gim
         public:
             //creation
             Element();
-            Element(const TagSet& tags, std::deque<Element>&& children = std::deque<Element>());
+            Element(const TagSet& tags, const std::deque<std::pair<std::string, Variant>>& attributes = std::deque<std::pair<std::string, Variant>>(), std::deque<Element>&& children = std::deque<Element>());
             Element(Element&& other);
             Element& operator=(Element&& other);
             Element(const Element& other);

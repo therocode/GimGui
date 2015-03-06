@@ -10,10 +10,14 @@ namespace gim
     {
     }
 
-    Element::Element(const TagSet& tags, std::deque<Element>&& children) :
+    Element::Element(const TagSet& tags, const std::deque<std::pair<std::string, Variant>>& attributes, std::deque<Element>&& children) :
         mTags(tags),
         mParent(nullptr)
     {
+        for(const auto& attribute : attributes)
+        {
+            mAttributes.emplace(attribute.first, attribute.second);
+        }
         for(int32_t i = 0; i < children.size(); i++)
         {
             append(std::move(children[i]));

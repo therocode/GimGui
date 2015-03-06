@@ -9,9 +9,9 @@ SCENARIO("AllPropagator propagates through all elements of a gui hierarchy", "[l
     {
         gim::TagSet NoTags;
 
-            gim::Element root(NoTags,
+            gim::Element root(NoTags, {},
             {
-                gim::Element(NoTags,
+                gim::Element(NoTags, {},
                 {
                     gim::Element(NoTags)
                 }),
