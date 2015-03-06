@@ -44,31 +44,33 @@ SimpleRendering::SimpleRendering():
     //gui
     gim::Gui gui(
     {
-        gim::Element({"container", "yellow"}, {},
+        gim::Element({"container"},
         {
-            gim::Element({"child", "green"}),
-            gim::Element({"child", "blue"}),
-            gim::Element({"child", "red"})
+            {"color", Color({140, 35, 24})},
+            {"position", Vec2({1, 1})},
+            {"size", Vec2({8, 8})}
+        },
+        {
+            gim::Element({"child"},
+            {
+                {"color", Color({94, 140, 106})},
+                {"position", Vec2({3, 3})},
+                {"size", Vec2({5, 5})}
+            }),
+            gim::Element({"child"},
+            {
+                {"color", Color({136, 166, 94})},
+                {"position", Vec2({5, 5})},
+                {"size", Vec2({5, 5})}
+            }),
+            gim::Element({"child"},
+            {
+                {"color", Color({191, 179, 90})},
+                {"position", Vec2({7, 7})},
+                {"size", Vec2({5, 5})}
+            })
         })
     });
-
-    gim::AttributePopulator populator;
-    populator.addConfiguration("position", Vec2({0, 0}));
-    populator.addConfiguration("size", Vec2({10, 10}));
-    populator.populate(gui.root());
-
-    gui.root().createAttribute("color", Color({255, 255, 0}));
-    gui.root().children()[0]->createAttribute("color", Color({0, 255, 0}));
-    gui.root().children()[1]->createAttribute("color", Color({0, 0, 255}));
-    gui.root().children()[2]->createAttribute("color", Color({255, 0, 0}));
-    gui.root().setAttribute("position", Vec2({1, 1}));
-    gui.root().children()[0]->setAttribute("position", Vec2({3, 3}));
-    gui.root().children()[1]->setAttribute("position", Vec2({6, 6}));
-    gui.root().children()[2]->setAttribute("position", Vec2({9, 9}));
-    gui.root().setAttribute("size", Vec2({8, 8}));
-    gui.root().children()[0]->setAttribute("size", Vec2({5, 5}));
-    gui.root().children()[1]->setAttribute("size", Vec2({5, 5}));
-    gui.root().children()[2]->setAttribute("size", Vec2({5, 5}));
 
     gim::AllPropagator all(gui.root());
 
