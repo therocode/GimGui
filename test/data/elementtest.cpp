@@ -1,7 +1,7 @@
 #include <catch.hpp>
 
 #include <gimgui/data/element.hpp>
-#include <helpers/point.hpp>
+#include <helpers/vec2.hpp>
 
 SCENARIO("Elements can be created with tags that can be accessed again", "[data]")
 {
@@ -607,7 +607,7 @@ SCENARIO("Element attributes can be created, accessed, modified and deleted", "[
         gim::Element element;
         element.createAttribute("gold", 10);
         element.createAttribute("name", std::string("xalle"));
-        element.createAttribute("position", Point{35, 53});
+        element.createAttribute("position", Vec2{35, 53});
         element.createAttribute("id_list", std::vector<uint32_t>{4u, 5u, 6u, 7u});
 
         WHEN("the values are accessed")
@@ -616,11 +616,11 @@ SCENARIO("Element attributes can be created, accessed, modified and deleted", "[
             {
                 CHECK(element.getAttribute<int32_t>("gold") == 10);
                 CHECK(element.getAttribute<std::string>("name") == "xalle");
-                CHECK(element.getAttribute<Point>("position") == Point({35, 53}));
+                CHECK(element.getAttribute<Vec2>("position") == Vec2({35, 53}));
                 CHECK(element.getAttribute<std::vector<uint32_t>>("id_list") == std::vector<uint32_t>({4u, 5u, 6u, 7u}));
                 CHECK(*element.findAttribute<int32_t>("gold") == 10);
                 CHECK(*element.findAttribute<std::string>("name") == "xalle");
-                CHECK(*element.findAttribute<Point>("position") == Point({35, 53}));
+                CHECK(*element.findAttribute<Vec2>("position") == Vec2({35, 53}));
                 CHECK(*element.findAttribute<std::vector<uint32_t>>("id_list") == std::vector<uint32_t>({4u, 5u, 6u, 7u}));
             }
         }

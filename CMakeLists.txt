@@ -76,7 +76,10 @@ if(BUILD_TESTS)
         "test/logic/allpropagatortest.cpp"
         "test/logic/attributepopulatortest.cpp"
         "test/logic/absolutemaptest.cpp"
-        "test/helpers/point.cpp"
+        "test/logic/renderdatageneratortest.cpp"
+        "test/helpers/helperstest.cpp"
+        "test/helpers/color.cpp"
+        "test/helpers/vec2.cpp"
         )
 
     target_link_libraries(tests ${project_name})
@@ -112,6 +115,8 @@ if(BUILD_EXAMPLES)
         ${common_src}
         ${simple_src}/main.cpp
         ${simple_src}/simplerendering.cpp
+        test/helpers/vec2.cpp
+        test/helpers/color.cpp
         )
 
     target_link_libraries(simple_rendering ${project_name} ${GLFW_LIBRARIES} ${OPENGL_LIBRARIES})

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "simplerendering.hpp"
 #include <memory>
-#include <vec2.hpp>
+#include <helpers/vec2.hpp>
 #include <window.hpp>
 
 int main()

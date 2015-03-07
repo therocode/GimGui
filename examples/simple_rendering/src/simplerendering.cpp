@@ -6,8 +6,8 @@
 #include <gimgui/logic/attributepopulator.hpp>
 #include <gimgui/logic/allpropagator.hpp>
 #include <gimgui/logic/absolutemap.hpp>
-#include <vec2.hpp>
-#include <color.hpp>
+#include <helpers/vec2.hpp>
+#include <helpers/color.hpp>
 #include <glutils/projection.hpp>
 #include <GLFW/glfw3.h>
 #include <window.hpp>
