@@ -55,31 +55,6 @@ void Window::key(GLFWwindow* window, int32_t key, int32_t s, int32_t action, int
 {
       if(action != GLFW_PRESS) return;
 
-      switch(key) {
-          case GLFW_KEY_Z:
-              if(mods & GLFW_MOD_SHIFT)
-                  ;
-              else
-                  ;
-              break;
-          case GLFW_KEY_ESCAPE:
-              break;
-          case GLFW_KEY_UP:
-              ;
-              break;
-          case GLFW_KEY_DOWN:
-              ;
-              break;
-          case GLFW_KEY_LEFT:
-              ;
-              break;
-          case GLFW_KEY_RIGHT:
-              ;
-              break;
-          default:
-              return;
-      }
-
       Window* thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
       thisWindow->mKeyEvents.push_back(key);

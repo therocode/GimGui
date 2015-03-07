@@ -3,7 +3,6 @@
 #include <glutils/uniform.hpp>
 #include <gl_core_3_3.h>
 #include <iostream>
-#include <gimgui/gui/gui.hpp>
 #include <gimgui/logic/attributepopulator.hpp>
 #include <gimgui/logic/allpropagator.hpp>
 #include <gimgui/logic/absolutemap.hpp>
@@ -16,7 +15,36 @@
 SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mQuit(false),
     mTriangles(Buffer::ARRAY_BUFFER),
-    mColors(Buffer::ARRAY_BUFFER)
+    mColors(Buffer::ARRAY_BUFFER),
+    mGui(
+    {
+        gim::Element({"container"},
+        {
+            {"color",    Color({140, 35, 24})},
+            {"position", Vec2({200, 150})},
+            {"size",     Vec2({400, 300})}
+        },
+        {
+            gim::Element({"child"},
+            {
+                {"color",    Color({94, 140, 106})},
+                {"position", Vec2({20, 20})},
+                {"size",     Vec2({50, 50})}
+            }),
+            gim::Element({"child"},
+            {
+                {"color",    Color({136, 166, 94})},
+                {"position", Vec2({90, 20})},
+                {"size",     Vec2({50, 50})}
+            }),
+            gim::Element({"child"},
+            {
+                {"color",    Color({191, 179, 90})},
+                {"position", Vec2({20, 90})},
+                {"size",     Vec2({120, 50})}
+            })
+        })
+    })
 {
     //rendering
     mVao.bind();
@@ -47,38 +75,14 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mBaseShader.setSource(BaseShader::vertexSource, BaseShader::fragmentSource);
     mBaseShader.compile();
 
-    //gui
-    gim::Gui gui(
-    {
-        gim::Element({"container"},
-        {
-            {"color",    Color({140, 35, 24})},
-            {"position", Vec2({200, 150})},
-            {"size",     Vec2({400, 300})}
-        },
-        {
-            gim::Element({"child"},
-            {
-                {"color",    Color({94, 140, 106})},
-                {"position", Vec2({20, 20})},
-                {"size",     Vec2({50, 50})}
-            }),
-            gim::Element({"child"},
-            {
-                {"color",    Color({136, 166, 94})},
-                {"position", Vec2({90, 20})},
-                {"size",     Vec2({50, 50})}
-            }),
-            gim::Element({"child"},
-            {
-                {"color",    Color({191, 179, 90})},
-                {"position", Vec2({20, 90})},
-                {"size",     Vec2({120, 50})}
-            })
-        })
-    });
+    Projection proj;
+    mProjection = proj.createOrthoProjection(0.0f, (GLfloat)viewSize.x, 0.0f, (GLfloat)viewSize.y, 0.000000001f, 100.0f);
+}
 
-    gim::AllPropagator all(gui.root());
+void SimpleRendering::loop()
+{
+    //guiing
+    gim::AllPropagator all(mGui.root());
 
     std::vector<float> triangles;
     std::vector<float> colors;
@@ -119,13 +123,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
 
     mTriangles.setData(triangles);
     mColors.setData(colors);
-
-    Projection proj;
-    mProjection = proj.createOrthoProjection(0.0f, (GLfloat)viewSize.x, 0.0f, (GLfloat)viewSize.y, 0.000000001f, 100.0f);
-}
-
-void SimpleRendering::loop()
-{
+    
+    //rendering
     mVao.bind();
     mBaseShader.activate();
     mBaseShader.setUniform("projection", UniformType::MAT4X4, &mProjection[0]);
@@ -163,6 +162,11 @@ void SimpleRendering::handleEvents(const Events& events)
     {
         if(key == GLFW_KEY_ESCAPE)
             quit();
+        else if(key == GLFW_KEY_D)
+        {
+            Vec2 pos = mGui.root().getAttribute<Vec2>("position") + Vec2({20, 20});
+            mGui.root().setAttribute("position", pos);
+        }
     }
 }
 

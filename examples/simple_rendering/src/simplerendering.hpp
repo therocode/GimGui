@@ -3,6 +3,7 @@
 #include <glutils/vao.hpp>
 #include <glutils/shader.hpp>
 #include <array>
+#include <gimgui/gui/gui.hpp>
 
 struct Vec2;
 struct Events;
@@ -25,4 +26,5 @@ class SimpleRendering
         Buffer mColors;
         Shader mBaseShader;
         std::array<float, 16> mProjection;
+        gim::Gui mGui;
 };
