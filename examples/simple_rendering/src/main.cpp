@@ -3,10 +3,12 @@
 #include <iostream>
 #include "simplerendering.hpp"
 #include <memory>
+#include <vec2.hpp>
 
 GLFWwindow* window;
 const int32_t windowWidth = 800;
 const int32_t windowHeight = 600;
+SimpleRendering* globalSimple = nullptr;
 
 void key(GLFWwindow* window, int32_t key, int32_t s, int32_t action, int32_t mods)
 {
@@ -46,6 +48,9 @@ void reshape(GLFWwindow* window, int width, int height)
     GLfloat h = (GLfloat) height / (GLfloat) width;
 
     glViewport(0, 0, (GLint) width, (GLint) height);
+
+    if(globalSimple)
+        globalSimple->setViewSize(Vec2({width, height}));
 }
 
 int main()
@@ -88,7 +93,8 @@ int main()
     glfwGetFramebufferSize(window, &width, &height);
     reshape(window, width, height);
 
-    std::unique_ptr<SimpleRendering> simple = std::unique_ptr<SimpleRendering>(new SimpleRendering());
+    std::unique_ptr<SimpleRendering> simple = std::unique_ptr<SimpleRendering>(new SimpleRendering(Vec2({800, 600})));
+    globalSimple = &*simple;
 
     while(!glfwWindowShouldClose(window))
     {

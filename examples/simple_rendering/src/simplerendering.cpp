@@ -1,14 +1,17 @@
 #include "simplerendering.hpp"
 #include <glutils/baseshader.hpp>
+#include <glutils/uniform.hpp>
 #include <gl_core_3_3.h>
 #include <iostream>
 #include <gimgui/gui/gui.hpp>
 #include <gimgui/logic/attributepopulator.hpp>
 #include <gimgui/logic/allpropagator.hpp>
+#include <gimgui/logic/absolutemap.hpp>
 #include <vec2.hpp>
 #include <color.hpp>
+#include <glutils/projection.hpp>
 
-SimpleRendering::SimpleRendering():
+SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mTriangles(Buffer::ARRAY_BUFFER),
     mColors(Buffer::ARRAY_BUFFER)
 {
@@ -47,27 +50,27 @@ SimpleRendering::SimpleRendering():
         gim::Element({"container"},
         {
             {"color",    Color({140, 35, 24})},
-            {"position", Vec2({1, 1})},
-            {"size",     Vec2({8, 8})}
+            {"position", Vec2({200, 150})},
+            {"size",     Vec2({400, 300})}
         },
         {
             gim::Element({"child"},
             {
                 {"color",    Color({94, 140, 106})},
-                {"position", Vec2({3, 3})},
-                {"size",     Vec2({5, 5})}
+                {"position", Vec2({20, 20})},
+                {"size",     Vec2({50, 50})}
             }),
             gim::Element({"child"},
             {
                 {"color",    Color({136, 166, 94})},
-                {"position", Vec2({5, 5})},
-                {"size",     Vec2({5, 5})}
+                {"position", Vec2({90, 20})},
+                {"size",     Vec2({50, 50})}
             }),
             gim::Element({"child"},
             {
                 {"color",    Color({191, 179, 90})},
-                {"position", Vec2({7, 7})},
-                {"size",     Vec2({5, 5})}
+                {"position", Vec2({20, 90})},
+                {"size",     Vec2({120, 50})}
             })
         })
     });
@@ -77,18 +80,21 @@ SimpleRendering::SimpleRendering():
     std::vector<float> triangles;
     std::vector<float> colors;
     gim::Element* element;
+
+    gim::AbsoluteMap<Vec2> absolutePositions("position");
+
     while((element = all.next()))
     {
-        const Vec2& position = element->getAttribute<Vec2>("position");
+        const Vec2& position = absolutePositions.getAbsoluteOf(*element);
         const Vec2& size = element->getAttribute<Vec2>("size");
         std::vector<float> triangle(
         {
-            position.x / 10.0f                  ,  position.y / 10.0f                  , 0.0f,
-            position.x / 10.0f                  ,  position.y / 10.0f - size.y / 10.0f , 0.0f,
-            position.x / 10.0f + size.x / 10.0f ,  position.y / 10.0f - size.y / 10.0f , 0.0f,
-            position.x / 10.0f                  ,  position.y / 10.0f                  , 0.0f,
-            position.x / 10.0f + size.x / 10.0f ,  position.y / 10.0f                  , 0.0f,
-            position.x / 10.0f + size.x / 10.0f ,  position.y / 10.0f - size.y / 10.0f , 0.0f
+            (float)position.x         ,  (float)position.y         , 0.0f,
+            (float)position.x         ,  (float)position.y + size.y, 0.0f,
+            (float)position.x + size.x,  (float)position.y + size.y, 0.0f,
+            (float)position.x         ,  (float)position.y         , 0.0f,
+            (float)position.x + size.x,  (float)position.y         , 0.0f,
+            (float)position.x + size.x,  (float)position.y + size.y, 0.0f
         });
 
         triangles.insert(triangles.end(), triangle.begin(), triangle.end());
@@ -110,14 +116,24 @@ SimpleRendering::SimpleRendering():
 
     mTriangles.setData(triangles);
     mColors.setData(colors);
+
+    Projection proj;
+    mProjection = proj.createOrthoProjection(0.0f, (GLfloat)viewSize.x, 0.0f, (GLfloat)viewSize.y, 0.000000001f, 100.0f);
 }
 
 void SimpleRendering::loop()
 {
     mVao.bind();
     mBaseShader.activate();
+    mBaseShader.setUniform("projection", UniformType::MAT4X4, &mProjection[0]);
 
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
     glDrawArrays(GL_TRIANGLES, 0, mTriangles.getElementAmount());
+}
+
+void SimpleRendering::setViewSize(const Vec2& viewSize)
+{
+    Projection proj;
+    mProjection = proj.createOrthoProjection(0.0f, (GLfloat)viewSize.x, 0.0f, (GLfloat)viewSize.y, 0.000000001f, 100.0f);
 }
