@@ -46,28 +46,28 @@ SimpleRendering::SimpleRendering():
     {
         gim::Element({"container"},
         {
-            {"color", Color({140, 35, 24})},
+            {"color",    Color({140, 35, 24})},
             {"position", Vec2({1, 1})},
-            {"size", Vec2({8, 8})}
+            {"size",     Vec2({8, 8})}
         },
         {
             gim::Element({"child"},
             {
-                {"color", Color({94, 140, 106})},
+                {"color",    Color({94, 140, 106})},
                 {"position", Vec2({3, 3})},
-                {"size", Vec2({5, 5})}
+                {"size",     Vec2({5, 5})}
             }),
             gim::Element({"child"},
             {
-                {"color", Color({136, 166, 94})},
+                {"color",    Color({136, 166, 94})},
                 {"position", Vec2({5, 5})},
-                {"size", Vec2({5, 5})}
+                {"size",     Vec2({5, 5})}
             }),
             gim::Element({"child"},
             {
-                {"color", Color({191, 179, 90})},
+                {"color",    Color({191, 179, 90})},
                 {"position", Vec2({7, 7})},
-                {"size", Vec2({5, 5})}
+                {"size",     Vec2({5, 5})}
             })
         })
     });

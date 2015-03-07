@@ -45,6 +45,8 @@ set(header_files
     include/gimgui/data/variant.inl
     include/gimgui/gui/gui.hpp
     include/gimgui/gui/gui.inl
+    include/gimgui/logic/absolutemap.hpp
+    include/gimgui/logic/absolutemap.inl
     include/gimgui/logic/allpropagator.hpp
     include/gimgui/logic/attributepopulator.hpp
     include/gimgui/logic/attributepopulator.inl
@@ -73,6 +75,7 @@ if(BUILD_TESTS)
         "test/gui/guitest.cpp"
         "test/logic/allpropagatortest.cpp"
         "test/logic/attributepopulatortest.cpp"
+        "test/logic/absolutemaptest.cpp"
         "test/helpers/point.cpp"
         )
 
