@@ -10,8 +10,11 @@
 #include <vec2.hpp>
 #include <color.hpp>
 #include <glutils/projection.hpp>
+#include <GLFW/glfw3.h>
+#include <window.hpp>
 
 SimpleRendering::SimpleRendering(const Vec2& viewSize):
+    mQuit(false),
     mTriangles(Buffer::ARRAY_BUFFER),
     mColors(Buffer::ARRAY_BUFFER)
 {
@@ -136,4 +139,34 @@ void SimpleRendering::setViewSize(const Vec2& viewSize)
 {
     Projection proj;
     mProjection = proj.createOrthoProjection(0.0f, (GLfloat)viewSize.x, 0.0f, (GLfloat)viewSize.y, 0.000000001f, 100.0f);
+}
+
+void SimpleRendering::keyEvent(int32_t key)
+{
+    if(key == GLFW_KEY_ESCAPE)
+        quit();
+}
+
+bool SimpleRendering::isTerminated() const
+{
+    return mQuit;
+}
+
+void SimpleRendering::handleEvents(const Events& events)
+{
+    for(auto newSize : events.resizeEvents)
+    {
+        setViewSize(newSize);
+    }
+
+    for(int32_t key : events.keyEvents)
+    {
+        if(key == GLFW_KEY_ESCAPE)
+            quit();
+    }
+}
+
+void SimpleRendering::quit()
+{
+    mQuit = true;
 }

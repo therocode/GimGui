@@ -97,6 +97,7 @@ if(BUILD_EXAMPLES)
     include_directories(${common})
     set(common_src 
         ${common}/gl_core_3_3.c
+        ${common}/window.cpp
         ${common}/glutils/baseshader.cpp
         ${common}/glutils/buffer.cpp
         ${common}/glutils/projection.cpp
