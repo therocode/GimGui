@@ -1,6 +1,7 @@
 #include <catch.hpp>
 #include <helpers/vec2.hpp>
 #include <helpers/color.hpp>
+#include <helpers/closeenough.hpp>
 
 TEST_CASE("Vec2 helper struct equality", "[test]")
 {
@@ -36,4 +37,15 @@ TEST_CASE("Color helper struct equality", "[test]")
     CHECK(colorA == colorC);
     CHECK_FALSE(colorB == colorC);
     CHECK_FALSE(colorA == colorB);
+}
+
+TEST_CASE("Close enough function can be used to compare floats", "[test]")
+{
+    float a = 5.0f;
+    float b = 10.0f;
+
+    float c = a * b;
+
+    CHECK(closeEnough(c, 50.0f));
+    CHECK_FALSE(closeEnough(c, 49.0f));
 }

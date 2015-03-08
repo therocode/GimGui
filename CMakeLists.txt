@@ -40,6 +40,7 @@ set(header_files
     include/gimgui/assert.hpp
     include/gimgui/data/element.hpp
     include/gimgui/data/element.inl
+    include/gimgui/data/renderdata.hpp
     include/gimgui/data/types.hpp
     include/gimgui/data/variant.hpp
     include/gimgui/data/variant.inl
@@ -51,6 +52,8 @@ set(header_files
     include/gimgui/logic/attributepopulator.hpp
     include/gimgui/logic/attributepopulator.inl
     include/gimgui/logic/event.hpp
+    include/gimgui/logic/renderdatagenerator.hpp
+    include/gimgui/logic/renderdatagenerator.inl
 )
 
 include_directories(include)
@@ -78,7 +81,9 @@ if(BUILD_TESTS)
         "test/logic/absolutemaptest.cpp"
         "test/logic/renderdatageneratortest.cpp"
         "test/helpers/helperstest.cpp"
+
         "test/helpers/color.cpp"
+        "test/helpers/closeenough.cpp"
         "test/helpers/vec2.cpp"
         )
 
