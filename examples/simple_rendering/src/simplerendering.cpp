@@ -9,6 +9,7 @@
 #include <glutils/projection.hpp>
 #include <GLFW/glfw3.h>
 #include <window.hpp>
+#include "events.hpp"
 
 SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mQuit(false),
@@ -16,26 +17,26 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mColors(Buffer::ARRAY_BUFFER),
     mGui(
     {
-        gim::Element({"container"},
+        gim::Element({"container", "random"},
         {
             {"color",    Color({140, 35, 24})},
             {"position", Vec2({200, 150})},
             {"size",     Vec2({400, 300})}
         },
         {
-            gim::Element({"child"},
+            gim::Element({"child", "random"},
             {
                 {"color",    Color({94, 140, 106})},
                 {"position", Vec2({20, 20})},
                 {"size",     Vec2({50, 50})}
             }),
-            gim::Element({"child"},
+            gim::Element({"child", "random"},
             {
                 {"color",    Color({136, 166, 94})},
                 {"position", Vec2({90, 20})},
                 {"size",     Vec2({50, 50})}
             }),
-            gim::Element({"child"},
+            gim::Element({"child", "random"},
             {
                 {"color",    Color({191, 179, 90})},
                 {"position", Vec2({20, 90})},
@@ -79,17 +80,16 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
 
 void SimpleRendering::loop()
 {
-    //guiing
-    gim::RenderDataGenerator<Vec2, Color> generator;
+    mGui.sendEvent<gim::AllPropagator>(randomColorEvent());
 
-    auto renderDatas = generator.generate(mGui.root());
-
-    
     //rendering
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     mVao.bind();
     mBaseShader.activate();
     mBaseShader.setUniform("projection", UniformType::MAT4X4, &mProjection[0]);
+
+    gim::RenderDataGenerator<Vec2, Color> generator;
+    auto renderDatas = generator.generate(mGui.root());
 
     for(auto renderData : renderDatas)
     {

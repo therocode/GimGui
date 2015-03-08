@@ -120,6 +120,7 @@ if(BUILD_EXAMPLES)
         ${common_src}
         ${simple_src}/main.cpp
         ${simple_src}/simplerendering.cpp
+        ${simple_src}/events.cpp
         test/helpers/vec2.cpp
         test/helpers/color.cpp
         )
