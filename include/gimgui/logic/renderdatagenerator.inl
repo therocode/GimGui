@@ -13,6 +13,8 @@ std::vector<RenderData> RenderDataGenerator<Vec2, Color>::generate(const gim::El
     size_t currentIndex = 0;
     while((currentElement = all.next()))
     {
+        result[currentIndex].element = currentElement;
+
         auto& triangles = result[currentIndex].positions;
         auto& colors = result[currentIndex].colors;
         auto& texCoords = result[currentIndex].texCoords;

@@ -31,7 +31,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             gim::RenderDataGenerator<Vec2, Color> generator;
             generator.registerImageInfo(1, Vec2({64, 64}));
 
-            std::vector<RenderData> data = generator.generate(root);
+            std::vector<gim::RenderData> data = generator.generate(root);
 
             THEN("the data is correct")
             {
@@ -44,6 +44,8 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
                 REQUIRE(data[1].texCoords.size() == 0);
 
                 CHECK(data[0].imageId == 1);
+                CHECK(data[0].element == &root);
+                CHECK(data[1].element == root.children()[0].get());
 
                 CHECK(closeEnough(data[0].positions[0] ,  5.0f));//x
                 CHECK(closeEnough(data[0].positions[1] ,  5.0f));//y

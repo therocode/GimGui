@@ -1,10 +1,14 @@
 #pragma once
 #include <vector>
 
-struct RenderData
+namespace gim
 {
-    std::vector<float> positions;
-    std::vector<float> colors;
-    std::vector<float> texCoords;
-    int32_t imageId;
-};
+    struct RenderData
+    {
+        const Element* element;
+        std::vector<float> positions;
+        std::vector<float> colors;
+        std::vector<float> texCoords;
+        int32_t imageId;
+    };
+}
