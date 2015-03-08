@@ -3,9 +3,7 @@
 #include <glutils/uniform.hpp>
 #include <gl_core_3_3.h>
 #include <iostream>
-#include <gimgui/logic/attributepopulator.hpp>
-#include <gimgui/logic/allpropagator.hpp>
-#include <gimgui/logic/absolutemap.hpp>
+#include <gimgui/logic/renderdatagenerator.hpp>
 #include <helpers/vec2.hpp>
 #include <helpers/color.hpp>
 #include <glutils/projection.hpp>
@@ -82,56 +80,24 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
 void SimpleRendering::loop()
 {
     //guiing
-    gim::AllPropagator all(mGui.root());
+    gim::RenderDataGenerator<Vec2, Color> generator;
 
-    std::vector<float> triangles;
-    std::vector<float> colors;
-    gim::Element* element;
+    auto renderDatas = generator.generate(mGui.root());
 
-    gim::AbsoluteMap<Vec2> absolutePositions("position");
-
-    while((element = all.next()))
-    {
-        const Vec2& position = absolutePositions.getAbsoluteOf(*element);
-        const Vec2& size = element->getAttribute<Vec2>("size");
-        std::vector<float> triangle(
-        {
-            (float)position.x         ,  (float)position.y         , 0.0f,
-            (float)position.x         ,  (float)position.y + size.y, 0.0f,
-            (float)position.x + size.x,  (float)position.y + size.y, 0.0f,
-            (float)position.x         ,  (float)position.y         , 0.0f,
-            (float)position.x + size.x,  (float)position.y         , 0.0f,
-            (float)position.x + size.x,  (float)position.y + size.y, 0.0f
-        });
-
-        triangles.insert(triangles.end(), triangle.begin(), triangle.end());
-
-        const Color& color = element->getAttribute<Color>("color");
-
-        std::vector<float> colorList(
-        {
-            color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 
-            color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 
-            color.r / 255.0f, color.g / 255.0f, color.b / 255.0f,
-            color.r / 255.0f, color.g / 255.0f, color.b / 255.0f,
-            color.r / 255.0f, color.g / 255.0f, color.b / 255.0f,
-            color.r / 255.0f, color.g / 255.0f, color.b / 255.0f
-        });
-
-        colors.insert(colors.end(), colorList.begin(), colorList.end());
-    }
-
-    mTriangles.setData(triangles);
-    mColors.setData(colors);
     
     //rendering
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     mVao.bind();
     mBaseShader.activate();
     mBaseShader.setUniform("projection", UniformType::MAT4X4, &mProjection[0]);
 
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    for(auto renderData : renderDatas)
+    {
+        mTriangles.setData(renderData.positions);
+        mColors.setData(renderData.colors);
 
-    glDrawArrays(GL_TRIANGLES, 0, mTriangles.getElementAmount());
+        glDrawArrays(GL_TRIANGLES, 0, mTriangles.getElementAmount());
+    }
 }
 
 void SimpleRendering::setViewSize(const Vec2& viewSize)
