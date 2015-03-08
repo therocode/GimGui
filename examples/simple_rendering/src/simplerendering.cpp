@@ -17,26 +17,26 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mColors(Buffer::ARRAY_BUFFER),
     mGui(
     {
-        gim::Element({"container", "random"},
+        gim::Element({"container"},
         {
             {"color",    Color({140, 35, 24})},
             {"position", Vec2({200, 150})},
             {"size",     Vec2({400, 300})}
         },
         {
-            gim::Element({"child", "random"},
+            gim::Element({"child"},
             {
                 {"color",    Color({94, 140, 106})},
                 {"position", Vec2({20, 20})},
                 {"size",     Vec2({50, 50})}
             }),
-            gim::Element({"child", "random"},
+            gim::Element({"child"},
             {
                 {"color",    Color({136, 166, 94})},
                 {"position", Vec2({90, 20})},
                 {"size",     Vec2({50, 50})}
             }),
-            gim::Element({"child", "random"},
+            gim::Element({"child"},
             {
                 {"color",    Color({191, 179, 90})},
                 {"position", Vec2({20, 90})},

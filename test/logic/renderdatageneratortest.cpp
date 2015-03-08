@@ -13,7 +13,9 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
         {
             {"color",    Color({255, 0, 0})},
             {"position", Vec2({5, 5})},
-            {"size",     Vec2({40, 30})}
+            {"size",     Vec2({40, 30})},
+            {"image_id", 1},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
         },
         {
             gim::Element({"child"},
@@ -27,6 +29,8 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
         WHEN("a RenderDataGenerator is used to get rendering info from the tree")
         {
             gim::RenderDataGenerator<Vec2, Color> generator;
+            generator.registerImageInfo(1, Vec2({64, 64}));
+
             std::vector<RenderData> data = generator.generate(root);
 
             THEN("the data is correct")
@@ -34,8 +38,12 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
                 REQUIRE(data.size() == 2);
                 REQUIRE(data[0].positions.size() == 18);
                 REQUIRE(data[0].colors.size() == 18);
+                REQUIRE(data[0].texCoords.size() == 12);
                 REQUIRE(data[1].positions.size() == 18);
                 REQUIRE(data[1].colors.size() == 18);
+                REQUIRE(data[1].texCoords.size() == 0);
+
+                CHECK(data[0].imageId == 1);
 
                 CHECK(closeEnough(data[0].positions[0] ,  5.0f));//x
                 CHECK(closeEnough(data[0].positions[1] ,  5.0f));//y
@@ -112,6 +120,19 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
                 CHECK(closeEnough(data[1].colors[15], 0.0f));//r
                 CHECK(closeEnough(data[1].colors[16], 0.0f));//g
                 CHECK(closeEnough(data[1].colors[17], 1.0f));//b
+
+                CHECK(closeEnough(data[0].texCoords[0] , 0.0f));//u
+                CHECK(closeEnough(data[0].texCoords[1] , 0.0f));//v
+                CHECK(closeEnough(data[0].texCoords[2] , 0.0f));//u
+                CHECK(closeEnough(data[0].texCoords[3] , 0.5f));//v
+                CHECK(closeEnough(data[0].texCoords[4] , 0.5f));//u
+                CHECK(closeEnough(data[0].texCoords[5] , 0.5f));//v
+                CHECK(closeEnough(data[0].texCoords[6] , 0.5f));//u
+                CHECK(closeEnough(data[0].texCoords[7] , 0.5f));//v
+                CHECK(closeEnough(data[0].texCoords[8] , 0.5f));//u
+                CHECK(closeEnough(data[0].texCoords[9] , 0.0f));//v
+                CHECK(closeEnough(data[0].texCoords[10], 0.0f));//u
+                CHECK(closeEnough(data[0].texCoords[11], 0.0f));//v
             }
         }
     }

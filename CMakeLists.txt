@@ -41,6 +41,8 @@ set(header_files
     include/gimgui/data/element.hpp
     include/gimgui/data/element.inl
     include/gimgui/data/renderdata.hpp
+    include/gimgui/data/rectangle.hpp
+    include/gimgui/data/rectangle.inl
     include/gimgui/data/types.hpp
     include/gimgui/data/variant.hpp
     include/gimgui/data/variant.inl
@@ -74,6 +76,7 @@ if(BUILD_TESTS)
     include_directories(test)
     add_executable(tests "test/main.cpp"
         "test/data/elementtest.cpp"
+        "test/data/rectangletest.cpp"
         "test/data/varianttest.cpp"
         "test/gui/guitest.cpp"
         "test/logic/allpropagatortest.cpp"
