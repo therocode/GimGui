@@ -8,7 +8,7 @@ gim::Event randomColorEvent()
            {
                if(element.tags().count("random"))
                {
-                    element.setAttribute("color", Color({(uint8_t)(rand() % 256), (uint8_t)(rand() % 256u), (uint8_t)(rand() % 256u)}));
+                    element.setAttribute("color", Color((uint8_t)(rand() % 256), (uint8_t)(rand() % 256u), (uint8_t)(rand() % 256u)));
                }
            });
 };

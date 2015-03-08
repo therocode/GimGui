@@ -11,7 +11,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
     {
         gim::Element root({"container"},
         {
-            {"color",    Color({255, 0, 0})},
+            {"color",    Color(255, 0, 0)},
             {"position", Vec2({5, 5})},
             {"size",     Vec2({40, 30})},
             {"image_id", 1},
@@ -20,7 +20,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
         {
             gim::Element({"child"},
             {
-                {"color",    Color({0, 0, 255})},
+                {"color",    Color(0, 0, 255)},
                 {"position", Vec2({10, 10})},
                 {"size",     Vec2({10, 10})}
             })

@@ -109,10 +109,13 @@ if(BUILD_EXAMPLES)
     set(common_src 
         ${common}/gl_core_3_3.c
         ${common}/window.cpp
+        ${common}/lodepng.cpp
         ${common}/glutils/baseshader.cpp
         ${common}/glutils/buffer.cpp
         ${common}/glutils/projection.cpp
         ${common}/glutils/shader.cpp
+        ${common}/glutils/texture.cpp
+        ${common}/glutils/textureloader.cpp
         ${common}/glutils/uniform.cpp
         ${common}/glutils/vao.cpp
         ${common}/glutils/vertexattribute.cpp

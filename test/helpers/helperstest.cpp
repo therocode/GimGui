@@ -28,11 +28,20 @@ TEST_CASE("Vec2 helper struct addition", "[test]")
     CHECK(pointC == Vec2({6, 8}));
 }
 
+TEST_CASE("Color helper struct construction", "[test]")
+{
+    Color colorA(1, 2, 3);
+    Color colorB(1, 2, 3, 4);
+
+    CHECK(colorA == Color({1, 2, 3, 255}));
+    CHECK(colorB == Color({1, 2, 3, 4}));
+}
+
 TEST_CASE("Color helper struct equality", "[test]")
 {
-    Color colorA{12, 13, 11};
-    Color colorB{100, 100, 100};
-    Color colorC{12, 13, 11};
+    Color colorA{12, 13, 11, 5};
+    Color colorB{100, 100, 100, 100};
+    Color colorC{12, 13, 11, 5};
 
     CHECK(colorA == colorC);
     CHECK_FALSE(colorB == colorC);

@@ -3,48 +3,60 @@
 #include <glutils/uniform.hpp>
 #include <gl_core_3_3.h>
 #include <iostream>
-#include <gimgui/logic/renderdatagenerator.hpp>
-#include <helpers/vec2.hpp>
-#include <helpers/color.hpp>
 #include <glutils/projection.hpp>
 #include <GLFW/glfw3.h>
 #include <window.hpp>
 #include "events.hpp"
+#include <glutils/textureloader.hpp>
 
 SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mQuit(false),
     mTriangles(Buffer::ARRAY_BUFFER),
     mColors(Buffer::ARRAY_BUFFER),
+    mTexCoords(Buffer::ARRAY_BUFFER),
     mGui(
     {
         gim::Element({"container"},
         {
-            {"color",    Color({140, 35, 24})},
+            {"color",    Color(140, 35, 24)},
             {"position", Vec2({200, 150})},
-            {"size",     Vec2({400, 300})}
+            {"size",     Vec2({256, 256})},
+            {"image_id", 0},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))}
         },
         {
             gim::Element({"child"},
             {
-                {"color",    Color({94, 140, 106})},
+                {"color",    Color(94, 140, 106)},
                 {"position", Vec2({20, 20})},
-                {"size",     Vec2({50, 50})}
+                {"size",     Vec2({64, 64})},
+                {"image_id", 0},
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))}
             }),
             gim::Element({"child"},
             {
-                {"color",    Color({136, 166, 94})},
+                {"color",    Color(136, 166, 94)},
                 {"position", Vec2({90, 20})},
-                {"size",     Vec2({50, 50})}
+                {"size",     Vec2({64, 64})},
+                {"image_id", 0},
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))}
             }),
             gim::Element({"child"},
             {
-                {"color",    Color({191, 179, 90})},
+                {"color",    Color(191, 179, 90)},
                 {"position", Vec2({20, 90})},
-                {"size",     Vec2({120, 50})}
+                {"size",     Vec2({64, 64})},
+                {"image_id", 0},
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))}
             })
         })
     })
 {
+    //load textures
+
+    mTextures.emplace(0, loadTexture("examples/resources/xpattern.png"));
+
+    mRenderDataGenerator.registerImageInfo(0, {64, 64});
     //rendering
     mVao.bind();
 
@@ -68,6 +80,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
 
     mVao.setVertexAttribute(0, 3, mTriangles);
     mVao.setVertexAttribute(1, 3, mColors);
+    mVao.setVertexAttribute(2, 2, mTexCoords);
 
     mVao.unbind();
 
@@ -88,13 +101,15 @@ void SimpleRendering::loop()
     mBaseShader.activate();
     mBaseShader.setUniform("projection", UniformType::MAT4X4, &mProjection[0]);
 
-    gim::RenderDataGenerator<Vec2, Color> generator;
-    auto renderDatas = generator.generate(mGui.root());
+    auto renderDatas = mRenderDataGenerator.generate(mGui.root());
 
     for(auto renderData : renderDatas)
     {
+        GIM_ASSERT(mTextures.count(renderData.imageId) != 0, "invalid texture given");
+        mBaseShader.setUniform("texture", UniformType::TEXTURE, &mTextures.at(renderData.imageId));
         mTriangles.setData(renderData.positions);
         mColors.setData(renderData.colors);
+        mTexCoords.setData(renderData.texCoords);
 
         glDrawArrays(GL_TRIANGLES, 0, mTriangles.getElementAmount());
     }
