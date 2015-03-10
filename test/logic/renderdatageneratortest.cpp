@@ -80,7 +80,6 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
         {
             gim::Element({"child"},
             {
-                {"color",    Color(0, 0, 255)},
                 {"position", Vec2({10, 10})},
                 {"size",     Vec2({10, 10})}
             })
@@ -111,12 +110,232 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
                 checkQuadPositions(&data[1].positions[0], 15.0f, 15.0f, 25.0f, 25.0f);
 
                 checkQuadColors(&data[0].colors[0], 1.0f, 0.0f, 0.0f);
-                checkQuadColors(&data[1].colors[0], 0.0f, 0.0f, 1.0f);
+                checkQuadColors(&data[1].colors[0], 1.0f, 1.0f, 1.0f);
 
                 checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
             }
         }
     }
-}
 
-//write test for tiles
+    GIVEN("an element set to not be tiled")
+    {
+        gim::Element element({"non-tiled"},
+        {
+            {"position", Vec2({5, 5})},
+            {"size",     Vec2({40, 30})},
+            {"stretch_mode", gim::StretchMode::STRETCHED},
+            {"image_id", 1},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+        });
+
+        WHEN("a RenderDataGenerator is used to get rendering info from the element")
+        {
+            gim::RenderDataGenerator<Vec2, Color> generator;
+            generator.registerImageInfo(1, Vec2({64, 64}));
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the data is correct")
+            {
+                checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 45.0f, 35.0f);
+                checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+            }
+        }
+    }
+
+    GIVEN("an element bigger than one tile set to be fully tiled")
+    {
+        gim::Element element({"tiled"},
+        {
+            {"position", Vec2({5, 5})},
+            {"size",     Vec2({70, 37})},
+            {"stretch_mode", gim::StretchMode::TILED},
+            {"image_id", 1},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+        });
+
+        WHEN("a RenderDataGenerator is used to get rendering info from the element")
+        {
+            gim::RenderDataGenerator<Vec2, Color> generator;
+            generator.registerImageInfo(1, Vec2({64, 64}));
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the data is correct")
+            {
+                checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 37.0f, 37.0f);
+                checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+
+                checkQuadPositions(&data[0].positions[18], 37.0f, 5.0f, 69.0f, 37.0f);
+                checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[12], 0.0f, 0.0f, 0.5f, 0.5f);
+
+                checkQuadPositions(&data[0].positions[36], 69.0f, 5.0f, 75.0f, 37.0f);
+                checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[24], 0.0f, 0.0f, 0.5f, 0.5f);
+
+
+                checkQuadPositions(&data[0].positions[54], 5.0f, 37.0f, 37.0f, 42.0f);
+                checkQuadColors(&data[0].colors[54], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[36], 0.0f, 0.0f, 0.5f, 0.5f);
+
+                checkQuadPositions(&data[0].positions[72], 37.0f, 37.0f, 69.0f, 42.0f);
+                checkQuadColors(&data[0].colors[72], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[48], 0.0f, 0.0f, 0.5f, 0.5f);
+
+                checkQuadPositions(&data[0].positions[90], 69.0f, 37.0f, 75.0f, 42.0f);
+                checkQuadColors(&data[0].colors[90], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[60], 0.0f, 0.0f, 0.5f, 0.5f);
+            }
+        }
+    }
+
+    GIVEN("an element smaller than one tile set to be fully tiled")
+    {
+        gim::Element element({"tiled"},
+        {
+            {"position", Vec2({5, 5})},
+            {"size",     Vec2({20, 10})},
+            {"stretch_mode", gim::StretchMode::TILED},
+            {"image_id", 1},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+        });
+
+        WHEN("a RenderDataGenerator is used to get rendering info from the element")
+        {
+            gim::RenderDataGenerator<Vec2, Color> generator;
+            generator.registerImageInfo(1, Vec2({64, 64}));
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the data is correct")
+            {
+                checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 25.0f, 15.0f);
+                checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+            }
+        }
+    }
+
+    GIVEN("an element bigger than one tile set to be vertically tiled")
+    {
+        gim::Element element({"tiled"},
+        {
+            {"position", Vec2({5, 5})},
+            {"size",     Vec2({70, 37})},
+            {"stretch_mode", gim::StretchMode::V_TILED},
+            {"image_id", 1},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+        });
+
+        WHEN("a RenderDataGenerator is used to get rendering info from the element")
+        {
+            gim::RenderDataGenerator<Vec2, Color> generator;
+            generator.registerImageInfo(1, Vec2({64, 64}));
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the data is correct")
+            {
+                checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 75.0f, 37.0f);
+                checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+
+                checkQuadPositions(&data[0].positions[18], 5.0f, 37.0f, 75.0f, 42.0f);
+                checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[12], 0.0f, 0.0f, 0.5f, 0.5f);
+            }
+        }
+    }
+
+    GIVEN("an element smaller than one tile set to be vertically tiled")
+    {
+        gim::Element element({"tiled"},
+        {
+            {"position", Vec2({5, 5})},
+            {"size",     Vec2({20, 10})},
+            {"stretch_mode", gim::StretchMode::V_TILED},
+            {"image_id", 1},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+        });
+
+        WHEN("a RenderDataGenerator is used to get rendering info from the element")
+        {
+            gim::RenderDataGenerator<Vec2, Color> generator;
+            generator.registerImageInfo(1, Vec2({64, 64}));
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the data is correct")
+            {
+                checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 25.0f, 15.0f);
+                checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+            }
+        }
+    }
+
+    GIVEN("an element bigger than one tile set to be horizontally tiled")
+    {
+        gim::Element element({"tiled"},
+        {
+            {"position", Vec2({5, 5})},
+            {"size",     Vec2({70, 37})},
+            {"stretch_mode", gim::StretchMode::H_TILED},
+            {"image_id", 1},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+        });
+
+        WHEN("a RenderDataGenerator is used to get rendering info from the element")
+        {
+            gim::RenderDataGenerator<Vec2, Color> generator;
+            generator.registerImageInfo(1, Vec2({64, 64}));
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the data is correct")
+            {
+                checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 37.0f, 42.0f);
+                checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+
+                checkQuadPositions(&data[0].positions[18], 37.0f, 5.0f, 69.0f, 42.0f);
+                checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[12], 0.0f, 0.0f, 0.5f, 0.5f);
+
+                checkQuadPositions(&data[0].positions[36], 69.0f, 5.0f, 75.0f, 42.0f);
+                checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[24], 0.0f, 0.0f, 0.5f, 0.5f);
+            }
+        }
+    }
+
+    GIVEN("an element smaller than one tile set to be horizontally tiled")
+    {
+        gim::Element element({"tiled"},
+        {
+            {"position", Vec2({5, 5})},
+            {"size",     Vec2({20, 10})},
+            {"stretch_mode", gim::StretchMode::H_TILED},
+            {"image_id", 1},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+        });
+
+        WHEN("a RenderDataGenerator is used to get rendering info from the element")
+        {
+            gim::RenderDataGenerator<Vec2, Color> generator;
+            generator.registerImageInfo(1, Vec2({64, 64}));
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the data is correct")
+            {
+                checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 25.0f, 15.0f);
+                checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+            }
+        }
+    }
+}

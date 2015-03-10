@@ -33,8 +33,9 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
     const Vec2& position = absoluteMap.getAbsoluteOf(element);
     const Vec2& size = element.getAttribute<Vec2>("size");
 
-    //generate colors
-    const Color& color = element.getAttribute<Color>("color");
+    //generate colors, default white
+    const Color* colorPtr = element.findAttribute<Color>("color");
+    const Color& color = colorPtr ? *colorPtr : Color({255, 255, 255, 255});
 
     //generate texcoords if the element has an image
     const int32_t* imageIdPtr = element.findAttribute<int32_t>("image_id");
@@ -51,16 +52,60 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         const Rectangle<Vec2>& imageCoords = element.getAttribute<Rectangle<Vec2>>("image_coords");
         const Vec2& imageSize = mImageSizes.at(imageId);
 
-        //find out the amount of tiles it would have based on image size and size. Then based on border mode, set x, y or both, to 1. Then calculate underneath stuff and loop for all tiles
+        //find out the amount of tiles it would have based on image size and size. Then based on stretch mode, set x, y or both, to 1. Then calculate underneath stuff and loop for all tiles
+        Vec2 tileAmount({size.x / imageCoords.size.x + 1, size.y / imageCoords.size.y + 1});
 
-        FloatVec2 texCoordsStart;
-        texCoordsStart.x = (float)imageCoords.start.x / imageSize.x;
-        texCoordsStart.y = (float)imageCoords.start.y / imageSize.y;
-        FloatVec2 texCoordsSize;
-        texCoordsSize.x = (float)imageCoords.size.x / imageSize.x;
-        texCoordsSize.y = (float)imageCoords.size.y / imageSize.y;
+        if(stretchMode == StretchMode::STRETCHED)
+        {
+            tileAmount.x = 1;
+            tileAmount.y = 1;
+        }
+        else if(stretchMode == StretchMode::V_TILED)
+        {
+            tileAmount.x = 1;
+        }
+        else if(stretchMode == StretchMode::H_TILED)
+        {
+            tileAmount.y = 1;
+        }
 
-        generateQuadWithImage(position, size, color, texCoordsStart, texCoordsSize, renderData.positions, renderData.colors, renderData.texCoords);
+        for(int32_t y = 0; y < tileAmount.y; y++)
+        {
+            for(int32_t x = 0; x < tileAmount.x; x++)
+            {
+                Vec2 quadPosition;
+                quadPosition.x = position.x + x * imageCoords.size.x;
+                quadPosition.y = position.y + y * imageCoords.size.y;
+
+                Vec2 quadSize;
+
+                quadSize.x = (x < tileAmount.x - 1) ? (imageCoords.size.x) : (size.x % imageCoords.size.x);
+                quadSize.y = (y < tileAmount.y - 1) ? (imageCoords.size.y) : (size.y % imageCoords.size.y);
+
+                if(stretchMode == StretchMode::STRETCHED)
+                {
+                    quadSize.x = size.x;
+                    quadSize.y = size.y;
+                }
+                else if(stretchMode == StretchMode::V_TILED)
+                {
+                    quadSize.x = size.x;
+                }
+                else if(stretchMode == StretchMode::H_TILED)
+                {
+                    quadSize.y = size.y;
+                }
+
+                FloatVec2 texCoordsStart;
+                texCoordsStart.x = (float)imageCoords.start.x / imageSize.x;
+                texCoordsStart.y = (float)imageCoords.start.y / imageSize.y;
+                FloatVec2 texCoordsSize;
+                texCoordsSize.x = (float)imageCoords.size.x / imageSize.x;
+                texCoordsSize.y = (float)imageCoords.size.y / imageSize.y;
+
+                generateQuadWithImage(quadPosition, quadSize, color, texCoordsStart, texCoordsSize, renderData.positions, renderData.colors, renderData.texCoords);
+            }
+        }
 
         renderData.imageId = imageId;
     }

@@ -41,6 +41,7 @@ set(header_files
     include/gimgui/data/element.hpp
     include/gimgui/data/element.inl
     include/gimgui/data/renderdata.hpp
+    include/gimgui/data/rendermodes.hpp
     include/gimgui/data/rectangle.hpp
     include/gimgui/data/rectangle.inl
     include/gimgui/data/types.hpp

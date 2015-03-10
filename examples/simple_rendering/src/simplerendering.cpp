@@ -21,6 +21,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"color",    Color(140, 35, 24)},
             {"position", Vec2({200, 150})},
             {"size",     Vec2({256, 256})},
+            {"stretch_mode", gim::StretchMode::STRETCHED},
             {"image_id", 0},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))}
         },
