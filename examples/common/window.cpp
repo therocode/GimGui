@@ -33,6 +33,8 @@ Window::Window(const Vec2& size)
     //Set callback functions
     glfwSetFramebufferSizeCallback(mWindow, reshape);
     glfwSetKeyCallback(mWindow, key);
+    glfwSetMouseButtonCallback(mWindow, mouseButton);
+    glfwSetCursorPosCallback(mWindow, cursorPos);
 
     glfwMakeContextCurrent(mWindow);
     glfwSwapInterval( 1 );
@@ -71,6 +73,20 @@ void Window::reshape(GLFWwindow* window, int width, int height)
     thisWindow->mResizeEvents.push_back(Vec2({width, height}));
 }
 
+void Window::mouseButton(GLFWwindow* window, int32_t button, int32_t action, int32_t mods)
+{
+    Window* thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    thisWindow->mMouseButtonEvents.push_back(action);
+}
+
+void Window::cursorPos(GLFWwindow* window, double xPos, double yPos)
+{
+    Window* thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    thisWindow->mCursorPositionEvents.push_back(Vec2({(int32_t)xPos, (int32_t)yPos}));
+}
+
 void Window::pollEvents()
 {
     glfwPollEvents();
@@ -94,6 +110,8 @@ void Window::swapBuffers()
 
     mKeyEvents.clear();
     mResizeEvents.clear();
+    mMouseButtonEvents.clear();
+    mCursorPositionEvents.clear();
 }
 
 Events Window::fetchEvents()
@@ -101,6 +119,8 @@ Events Window::fetchEvents()
     Events toReturn;
     std::swap(toReturn.keyEvents, mKeyEvents);
     std::swap(toReturn.resizeEvents, mResizeEvents);
+    std::swap(toReturn.mouseButtonEvents, mMouseButtonEvents);
+    std::swap(toReturn.cursorPositionEvents, mCursorPositionEvents);
 
     return toReturn;
 }

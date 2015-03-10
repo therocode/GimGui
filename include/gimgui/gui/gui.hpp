@@ -11,7 +11,7 @@ namespace gim
             Element& root();
             const Element& root() const;
             template <typename Propagator>
-            void sendEvent(const Event& event);
+            void sendEvent(const Event& event, Propagator& propagator);
         private:
             gim::Element mRoot;
     };

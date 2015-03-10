@@ -8,6 +8,8 @@ struct Events
 {
     std::deque<Vec2> resizeEvents;
     std::deque<int32_t> keyEvents;
+    std::deque<int32_t> mouseButtonEvents;
+    std::deque<Vec2> cursorPositionEvents;
 };
 
 class Window
@@ -19,6 +21,8 @@ class Window
         Window& operator=(const Window& other) = delete;
         static void key(GLFWwindow* window, int32_t key, int32_t s, int32_t action, int32_t mods);
         static void reshape(GLFWwindow* window, int width, int height);
+        static void mouseButton(GLFWwindow* window, int32_t button, int32_t action, int32_t mods);
+        static void cursorPos(GLFWwindow* window, double xPos, double yPos);
         void pollEvents();
         bool isOpen() const;
         void close();
@@ -28,6 +32,8 @@ class Window
         GLFWwindow* mWindow;
         std::deque<Vec2> mResizeEvents;
         std::deque<int32_t> mKeyEvents;
+        std::deque<int32_t> mMouseButtonEvents;
+        std::deque<Vec2> mCursorPositionEvents;
 };
 //void key(GLFWwindow* window, int32_t key, int32_t s, int32_t action, int32_t mods)
 //{

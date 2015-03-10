@@ -8,6 +8,7 @@
 #include <window.hpp>
 #include "events.hpp"
 #include <glutils/textureloader.hpp>
+#include <gimgui/logic/boundarypropagator.hpp>
 
 SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mQuit(false),
@@ -94,7 +95,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
 
 void SimpleRendering::loop()
 {
-    mGui.sendEvent<gim::AllPropagator>(randomColorEvent());
+    gim::AllPropagator allPropagator(mGui.root());
+    mGui.sendEvent(randomColorEvent(), allPropagator);
 
     //rendering
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -149,6 +151,14 @@ void SimpleRendering::handleEvents(const Events& events)
             Vec2 pos = mGui.root().getAttribute<Vec2>("position") + Vec2({20, 20});
             mGui.root().setAttribute("position", pos);
         }
+    }
+
+    for(const Vec2& position : events.cursorPositionEvents)
+    {
+        gim::AllPropagator allPropagator(mGui.root());
+        mGui.sendEvent(nonFocusAllEvent(), allPropagator);
+        gim::BoundaryPropagator<Vec2> boundaryPropagator(mGui.root(), position);
+        mGui.sendEvent(focusEvent(position.x, position.y), boundaryPropagator);
     }
 }
 

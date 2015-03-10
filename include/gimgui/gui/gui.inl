@@ -1,10 +1,8 @@
 #pragma once
 
 template <typename Propagator>
-void Gui::sendEvent(const Event& event)
+void Gui::sendEvent(const Event& event, Propagator& propagator)
 {
-    Propagator propagator(mRoot);
-
     gim::Element* element;
 
     while((element = propagator.next()))

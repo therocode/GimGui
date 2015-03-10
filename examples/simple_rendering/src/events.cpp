@@ -13,3 +13,18 @@ gim::Event randomColorEvent()
            });
 };
 
+gim::Event nonFocusAllEvent()
+{
+    return gim::Event([=] (gim::Element& element)
+    {
+        element.setAttribute("color", Color(150, 150, 150));
+    });
+}
+
+gim::Event focusEvent(int32_t x, int32_t y)
+{
+    return gim::Event([=] (gim::Element& element)
+    {
+        element.setAttribute("color", Color(200, 200, 200));
+    });
+}

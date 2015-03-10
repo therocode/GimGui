@@ -51,7 +51,8 @@ SCENARIO("Events can be sent to all elements of a tree using the all propagator"
                 });
             };
 
-            gui.sendEvent<gim::AllPropagator>(createNameEventFactory("kalle"));
+            gim::AllPropagator allPropagator(gui.root());
+            gui.sendEvent<gim::AllPropagator>(createNameEventFactory("kalle"), allPropagator);
 
             THEN("all elements have such an attribute with the right value")
             {
