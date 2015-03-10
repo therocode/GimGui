@@ -54,6 +54,8 @@ set(header_files
     include/gimgui/logic/allpropagator.hpp
     include/gimgui/logic/attributepopulator.hpp
     include/gimgui/logic/attributepopulator.inl
+    include/gimgui/logic/boundarypropagator.hpp
+    include/gimgui/logic/boundarypropagator.inl
     include/gimgui/logic/event.hpp
     include/gimgui/logic/renderdatagenerator.hpp
     include/gimgui/logic/renderdatagenerator.inl
@@ -83,6 +85,7 @@ if(BUILD_TESTS)
         "test/logic/allpropagatortest.cpp"
         "test/logic/attributepopulatortest.cpp"
         "test/logic/absolutemaptest.cpp"
+        "test/logic/boundarypropagatortest.cpp"
         "test/logic/renderdatageneratortest.cpp"
         "test/helpers/helperstest.cpp"
 
