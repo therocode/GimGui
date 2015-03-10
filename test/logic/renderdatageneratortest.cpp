@@ -5,6 +5,28 @@
 #include <helpers/color.hpp>
 #include <helpers/closeenough.hpp>
 
+void checkQuadPositions(const float* firstPosition, float xMin, float yMin, float xMax, float yMax)
+{
+                CHECK(closeEnough(*(firstPosition + 0) ,  xMin));//x
+                CHECK(closeEnough(*(firstPosition + 1) ,  yMin));//y
+                CHECK(closeEnough(*(firstPosition + 2) ,  0.0f));
+                CHECK(closeEnough(*(firstPosition + 3) ,  xMin));//x
+                CHECK(closeEnough(*(firstPosition + 4) ,  yMax));//y
+                CHECK(closeEnough(*(firstPosition + 5) ,  0.0f));
+                CHECK(closeEnough(*(firstPosition + 6) ,  xMax));//x
+                CHECK(closeEnough(*(firstPosition + 7) ,  yMax));//y
+                CHECK(closeEnough(*(firstPosition + 8) ,  0.0f));
+                CHECK(closeEnough(*(firstPosition + 9) ,  xMax));//x
+                CHECK(closeEnough(*(firstPosition + 10),  yMax));//y
+                CHECK(closeEnough(*(firstPosition + 11),  0.0f));
+                CHECK(closeEnough(*(firstPosition + 12),  xMax));//x
+                CHECK(closeEnough(*(firstPosition + 13),  yMin));//y
+                CHECK(closeEnough(*(firstPosition + 14),  0.0f));
+                CHECK(closeEnough(*(firstPosition + 15),  xMin));//x
+                CHECK(closeEnough(*(firstPosition + 16),  yMin));//y
+                CHECK(closeEnough(*(firstPosition + 17),  0.0f));
+}
+
 SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffers and such data for rendering", "[logic]")
 {
     GIVEN("a gui tree with elements with the attributes width and height")
@@ -47,24 +69,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
                 CHECK(data[0].element == &root);
                 CHECK(data[1].element == root.children()[0].get());
 
-                CHECK(closeEnough(data[0].positions[0] ,  5.0f));//x
-                CHECK(closeEnough(data[0].positions[1] ,  5.0f));//y
-                CHECK(closeEnough(data[0].positions[2] ,  0.0f));
-                CHECK(closeEnough(data[0].positions[3] ,  5.0f));//x
-                CHECK(closeEnough(data[0].positions[4] , 35.0f));//y
-                CHECK(closeEnough(data[0].positions[5] ,  0.0f));
-                CHECK(closeEnough(data[0].positions[6] , 45.0f));//x
-                CHECK(closeEnough(data[0].positions[7] , 35.0f));//y
-                CHECK(closeEnough(data[0].positions[8] ,  0.0f));
-                CHECK(closeEnough(data[0].positions[9] , 45.0f));//x
-                CHECK(closeEnough(data[0].positions[10], 35.0f));//y
-                CHECK(closeEnough(data[0].positions[11],  0.0f));
-                CHECK(closeEnough(data[0].positions[12], 45.0f));//x
-                CHECK(closeEnough(data[0].positions[13],  5.0f));//y
-                CHECK(closeEnough(data[0].positions[14],  0.0f));
-                CHECK(closeEnough(data[0].positions[15],  5.0f));//x
-                CHECK(closeEnough(data[0].positions[16],  5.0f));//y
-                CHECK(closeEnough(data[0].positions[17],  0.0f));
+                checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 45.0f, 35.0f);
 
                 CHECK(closeEnough(data[1].positions[0] , 15.0f));//x
                 CHECK(closeEnough(data[1].positions[1] , 15.0f));//y
@@ -139,3 +144,5 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
         }
     }
 }
+
+//write test for tiles

@@ -10,6 +10,11 @@ namespace gim
     template <typename Vec2, typename Color>
     class RenderDataGenerator
     {
+        struct FloatVec2
+        {
+            float x;
+            float y;
+        };
         public:
             enum class StretchMode {STRETCHED, TILED, H_TILED, V_TILED};
             //"stretch_mode":StretchMode;
@@ -28,9 +33,12 @@ namespace gim
             std::vector<RenderData> generate(const gim::Element& element);
             void registerImageInfo(int32_t imageId, const Vec2& imageSize);
         private:
+            RenderData generateElementData(const Element& element, gim::AbsoluteMap<Vec2>& absoluteMap);
+            void generateQuadWithoutImage(const Vec2& position, const Vec2& size, const Color& color, std::vector<float>& outPositions, std::vector<float>& outColors);
+            void generateQuadWithImage(const Vec2& position, const Vec2& size, const Color& color, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords);
             void generateQuadPositions(const Vec2& position, const Vec2& size, std::vector<float>& outPositions);
             void generateQuadColors(const Color& color, std::vector<float>& outColors);
-            void generateQuadTexCoords(const std::array<float, 2>& texCoordStart, const std::array<float, 2>& texCoordSize, std::vector<float>& outTexCoords);
+            void generateQuadTexCoords(const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outTexCoords);
 
             std::unordered_map<int32_t, Vec2> mImageSizes;
     };

@@ -13,46 +13,63 @@ std::vector<RenderData> RenderDataGenerator<Vec2, Color>::generate(const gim::El
     size_t currentIndex = 0;
     while((currentElement = all.next()))
     {
-        RenderData& renderData = result[currentIndex];
-        //set the current element pointer
-        renderData.element = currentElement;
-
-        //generate positions
-        const Vec2& position = absolutePositions.getAbsoluteOf(*currentElement);
-        const Vec2& size = currentElement->getAttribute<Vec2>("size");
-        generateQuadPositions(position, size, renderData.positions);
-
-        //generate colors
-        const Color& color = currentElement->getAttribute<Color>("color");
-        generateQuadColors(color, renderData.colors);
-
-        //generate texcoords if the element has an image
-        if(currentElement->hasAttribute<int32_t>("image_id"))
-        {
-            int32_t imageId = currentElement->getAttribute<int32_t>("image_id");
-            GIM_ASSERT(currentElement->hasAttribute<Rectangle<Vec2>>("image_coords"), "currentElement has an image id registered but lacks 'image_coords'");
-            GIM_ASSERT(mImageSizes.count(imageId) != 0, "image_id " + std::to_string(imageId) + " given to an currentElement but that id has not been registered in the RenderDataGenerator");
-
-    const Rectangle<Vec2>& imageCoords = currentElement->getAttribute<Rectangle<Vec2>>("image_coords");
-
-            const Vec2& imageSize = mImageSizes.at(imageId);
-
-            renderData.imageId = imageId;
-
-            std::array<float, 2> texCoordsStart;
-            texCoordsStart[0] = (float)imageCoords.start.x / imageSize.x;
-            texCoordsStart[1] = (float)imageCoords.start.y / imageSize.y;
-            std::array<float, 2> texCoordsSize;
-            texCoordsSize[0] = (float)imageCoords.size.x / imageSize.x;
-            texCoordsSize[1] = (float)imageCoords.size.y / imageSize.y;
-
-            generateQuadTexCoords(texCoordsStart, texCoordsSize, renderData.texCoords);
-        }
+        result[currentIndex] = generateElementData(*currentElement, absolutePositions);
 
         currentIndex++;
     }
 
     return result;
+}
+
+template <typename Vec2, typename Color>
+RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& element, gim::AbsoluteMap<Vec2>& absoluteMap)
+{
+    RenderData renderData;
+
+    //set the current element pointer
+    renderData.element = &element;
+
+    //generate positions
+    const Vec2& position = absoluteMap.getAbsoluteOf(element);
+    const Vec2& size = element.getAttribute<Vec2>("size");
+
+    //generate colors
+    const Color& color = element.getAttribute<Color>("color");
+
+    //generate texcoords if the element has an image
+    const int32_t* imageIdPtr = element.findAttribute<int32_t>("image_id");
+    if(imageIdPtr != nullptr)
+    {
+        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("image_coords"), "currentElement has an image id registered but lacks 'image_coords'");
+        GIM_ASSERT(mImageSizes.count(*imageIdPtr) != 0, "image_id " + std::to_string(*imageIdPtr) + " given to an currentElement but that id has not been registered in the RenderDataGenerator");
+
+        int32_t imageId = *imageIdPtr;
+        const StretchMode* stretchModePtr = element.findAttribute<StretchMode>("stretch_mode");
+        StretchMode stretchMode = stretchModePtr ? *stretchModePtr : StretchMode::STRETCHED;
+        const BorderMode* borderModePtr = element.findAttribute<BorderMode>("border_mode");
+        BorderMode borderMode = borderModePtr ? *borderModePtr : BorderMode::NONE;
+        const Rectangle<Vec2>& imageCoords = element.getAttribute<Rectangle<Vec2>>("image_coords");
+        const Vec2& imageSize = mImageSizes.at(imageId);
+
+        //find out the amount of tiles it would have based on image size and size. Then based on border mode, set x, y or both, to 1. Then calculate underneath stuff and loop for all tiles
+
+        FloatVec2 texCoordsStart;
+        texCoordsStart.x = (float)imageCoords.start.x / imageSize.x;
+        texCoordsStart.y = (float)imageCoords.start.y / imageSize.y;
+        FloatVec2 texCoordsSize;
+        texCoordsSize.x = (float)imageCoords.size.x / imageSize.x;
+        texCoordsSize.y = (float)imageCoords.size.y / imageSize.y;
+
+        generateQuadWithImage(position, size, color, texCoordsStart, texCoordsSize, renderData.positions, renderData.colors, renderData.texCoords);
+
+        renderData.imageId = imageId;
+    }
+    else
+    {
+        generateQuadWithoutImage(position, size, color, renderData.positions, renderData.colors);
+    }
+
+    return renderData;
 }
 
 template <typename Vec2, typename Color>
@@ -62,6 +79,20 @@ void RenderDataGenerator<Vec2, Color>::registerImageInfo(int32_t imageId, const 
     GIM_ASSERT(imageSize.x > 0 && imageSize.y > 0, "trying to add an image of size (" + std::to_string(imageSize.x) + "," + std::to_string(imageSize.y) + "). Both components must be above zero");
 
     mImageSizes[imageId] = imageSize;
+}
+
+template <typename Vec2, typename Color>
+void RenderDataGenerator<Vec2, Color>::generateQuadWithoutImage(const Vec2& position, const Vec2& size, const Color& color, std::vector<float>& outPositions, std::vector<float>& outColors)
+{
+    generateQuadPositions(position, size, outPositions);
+    generateQuadColors(color, outColors);
+}
+
+template <typename Vec2, typename Color>
+void RenderDataGenerator<Vec2, Color>::generateQuadWithImage(const Vec2& position, const Vec2& size, const Color& color, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords)
+{
+    generateQuadWithoutImage(position, size, color, outPositions, outColors);
+    generateQuadTexCoords(texCoordStart, texCoordSize, outTexCoords);
 }
 
 template <typename Vec2, typename Color>
@@ -97,16 +128,16 @@ void RenderDataGenerator<Vec2, Color>::generateQuadColors(const Color& color, st
 }
 
 template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateQuadTexCoords(const std::array<float, 2>& texCoordStart, const std::array<float, 2>& texCoordSize, std::vector<float>& outTexCoords)
+void RenderDataGenerator<Vec2, Color>::generateQuadTexCoords(const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outTexCoords)
 {
     std::vector<float> texCoordList(
     {
-        texCoordStart[0]                     , texCoordStart[1]                  ,
-        texCoordStart[0]                     , texCoordStart[1] + texCoordSize[1],
-        texCoordStart[0] + texCoordSize[0]   , texCoordStart[1] + texCoordSize[1],
-        texCoordStart[0] + texCoordSize[0]   , texCoordStart[1] + texCoordSize[1],
-        texCoordStart[0] + texCoordSize[0]   , texCoordStart[1]                  ,
-        texCoordStart[0]                     , texCoordStart[1]                     
+        texCoordStart.x                 , texCoordStart.y                 ,
+        texCoordStart.x                 , texCoordStart.y + texCoordSize.y,
+        texCoordStart.x + texCoordSize.x, texCoordStart.y + texCoordSize.y,
+        texCoordStart.x + texCoordSize.x, texCoordStart.y + texCoordSize.y,
+        texCoordStart.x + texCoordSize.x, texCoordStart.y                 ,
+        texCoordStart.x                 , texCoordStart.y                     
     });
 
     outTexCoords.insert(outTexCoords.end(), texCoordList.begin(), texCoordList.end());
