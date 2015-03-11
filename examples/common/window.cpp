@@ -9,42 +9,31 @@ Window::Window(const Vec2& size)
         std::cout << "Could not initialize OpenGL\n";
     }
 
-    if(!glfwInit())
+    if(SDL_Init(SDL_INIT_VIDEO) != 0)
     {
-        std::cout << "Could not initialize GLFW\n";
+        std::cout << "Could not initialize SDL2: " + std::string(SDL_GetError()) + "\n";
         exit(1);
     }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_DEPTH_BITS, 16);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
-    mWindow = glfwCreateWindow(800, 600, "GimGui", NULL, NULL);
+    mWindow = SDL_CreateWindow("gimgui",
+            SDL_WINDOWPOS_CENTERED,
+            SDL_WINDOWPOS_CENTERED,
+            size.x, size.y,
+            SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    mGlContext = SDL_GL_CreateContext(mWindow);
 
-    if(!mWindow)
+
+    if(mWindow == nullptr)
     {
-        std::cout << "Could not create GLFW window\n";
-        glfwTerminate();
+        std::cout << "Could not create SDL2 window: " + std::string(SDL_GetError()) + "\n";
+        SDL_Quit();
         exit(1);
     }
 
-    glfwSetWindowUserPointer(mWindow, this);
-
-    //Set callback functions
-    glfwSetFramebufferSizeCallback(mWindow, reshape);
-    glfwSetKeyCallback(mWindow, key);
-    glfwSetMouseButtonCallback(mWindow, mouseButton);
-    glfwSetCursorPosCallback(mWindow, cursorPos);
-
-    glfwMakeContextCurrent(mWindow);
-    glfwSwapInterval( 1 );
-
-    int32_t width;
-    int32_t height;
-
-    glfwGetFramebufferSize(mWindow, &width, &height);
-    //reshape(window, width, height);
-
+    SDL_GL_SetSwapInterval(1); //VSYNC
 }
 
 Window::~Window()
@@ -53,43 +42,23 @@ Window::~Window()
         close();
 }
 
-void Window::key(GLFWwindow* window, int32_t key, int32_t s, int32_t action, int32_t mods)
+std::deque<SDL_Event> Window::pollEvents()
 {
-      if(action != GLFW_PRESS) return;
+    SDL_Event event;
+    std::deque<SDL_Event> result;
+    while(SDL_PollEvent(&event))
+    {
+        if(event.type == SDL_QUIT)
+        {
+            close();
+        }
+        else
+        {
+            result.push_back(event);
+        }
+    }
 
-      Window* thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
-
-      thisWindow->mKeyEvents.push_back(key);
-}
-
-void Window::reshape(GLFWwindow* window, int width, int height)
-{
-    GLfloat h = (GLfloat) height / (GLfloat) width;
-
-    glViewport(0, 0, (GLint) width, (GLint) height);
-
-    Window* thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
-
-    thisWindow->mResizeEvents.push_back(Vec2({width, height}));
-}
-
-void Window::mouseButton(GLFWwindow* window, int32_t button, int32_t action, int32_t mods)
-{
-    Window* thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
-
-    thisWindow->mMouseButtonEvents.push_back(action);
-}
-
-void Window::cursorPos(GLFWwindow* window, double xPos, double yPos)
-{
-    Window* thisWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
-
-    thisWindow->mCursorPositionEvents.push_back(Vec2({(int32_t)xPos, (int32_t)yPos}));
-}
-
-void Window::pollEvents()
-{
-    glfwPollEvents();
+    return result;
 }
 
 bool Window::isOpen() const
@@ -99,28 +68,12 @@ bool Window::isOpen() const
 
 void Window::close()
 {
-    glfwSetWindowShouldClose(mWindow, GL_TRUE);
-    glfwTerminate();
+    SDL_DestroyWindow(mWindow);
+    SDL_Quit();
     mWindow = nullptr;
 }
 
 void Window::swapBuffers()
 {
-    glfwSwapBuffers(mWindow);
-
-    mKeyEvents.clear();
-    mResizeEvents.clear();
-    mMouseButtonEvents.clear();
-    mCursorPositionEvents.clear();
-}
-
-Events Window::fetchEvents()
-{
-    Events toReturn;
-    std::swap(toReturn.keyEvents, mKeyEvents);
-    std::swap(toReturn.resizeEvents, mResizeEvents);
-    std::swap(toReturn.mouseButtonEvents, mMouseButtonEvents);
-    std::swap(toReturn.cursorPositionEvents, mCursorPositionEvents);
-
-    return toReturn;
+    SDL_GL_SwapWindow(mWindow);
 }

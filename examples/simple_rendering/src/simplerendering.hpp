@@ -10,7 +10,7 @@
 #include <helpers/color.hpp>
 
 struct Vec2;
-struct Events;
+union SDL_Event;
 
 class SimpleRendering
 {
@@ -19,9 +19,8 @@ class SimpleRendering
         SimpleRendering(const Vec2& viewSize);
         void loop();
         void setViewSize(const Vec2& viewSize);
-        void keyEvent(int32_t key);
         bool isTerminated() const;
-        void handleEvents(const Events& events);
+        void handleEvents(const std::deque<SDL_Event>& events);
     private:
         void quit();
         bool mQuit;

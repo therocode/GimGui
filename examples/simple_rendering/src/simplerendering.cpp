@@ -4,7 +4,7 @@
 #include <gl_core_3_3.h>
 #include <iostream>
 #include <glutils/projection.hpp>
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
 #include <window.hpp>
 #include "events.hpp"
 #include <glutils/textureloader.hpp>
@@ -123,12 +123,7 @@ void SimpleRendering::setViewSize(const Vec2& viewSize)
 {
     Projection proj;
     mProjection = proj.createOrthoProjection(0.0f, (GLfloat)viewSize.x, 0.0f, (GLfloat)viewSize.y, 0.000000001f, 100.0f);
-}
-
-void SimpleRendering::keyEvent(int32_t key)
-{
-    if(key == GLFW_KEY_ESCAPE)
-        quit();
+    glViewport(0, 0, viewSize.x, viewSize.y);
 }
 
 bool SimpleRendering::isTerminated() const
@@ -136,30 +131,32 @@ bool SimpleRendering::isTerminated() const
     return mQuit;
 }
 
-void SimpleRendering::handleEvents(const Events& events)
+void SimpleRendering::handleEvents(const std::deque<SDL_Event>& events)
 {
-    for(auto newSize : events.resizeEvents)
+    for(const auto& event : events)
     {
-        setViewSize(newSize);
-    }
-
-    for(int32_t key : events.keyEvents)
-    {
-        if(key == GLFW_KEY_ESCAPE)
-            quit();
-        else if(key == GLFW_KEY_D)
+        if(event.type == SDL_WINDOWEVENT)
         {
-            Vec2 pos = mGui.root().getAttribute<Vec2>("position") + Vec2({20, 20});
-            mGui.root().setAttribute("position", pos);
+            if(event.window.event == SDL_WINDOWEVENT_RESIZED)
+            {
+                setViewSize(Vec2({event.window.data1, event.window.data2}));
+            }
         }
-    }
+        if(event.type == SDL_KEYDOWN)
+        {
+            if(event.key.keysym.sym == SDLK_ESCAPE)
+            {
+                quit();
+            }
+        }
+        if(event.type == SDL_MOUSEMOTION)
+        {
+            Vec2 position = Vec2({event.motion.x, event.motion.y});
+            gim::BoundaryPropagator<Vec2> boundaryPropagator(mGui.root(), {position, mLastPosition});
+            mGui.sendEvent(mouseHoverEvent(position, mLastPosition), boundaryPropagator);
 
-    for(const Vec2& position : events.cursorPositionEvents)
-    {
-        gim::BoundaryPropagator<Vec2> boundaryPropagator(mGui.root(), {position, mLastPosition});
-        mGui.sendEvent(mouseHoverEvent(position, mLastPosition), boundaryPropagator);
-
-        mLastPosition = position;
+            mLastPosition = position;
+        }
     }
 }
 

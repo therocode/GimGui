@@ -10,7 +10,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake/modu
 set(SHARED_BUILD TRUE CACHE BOOL "Set this to false if you want a static build")
 
 set(BUILD_TESTS TRUE CACHE BOOL "build the tests")
-set(BUILD_EXAMPLES TRUE CACHE BOOL "build the examples - requires GLFW")
+set(BUILD_EXAMPLES TRUE CACHE BOOL "build the examples - requires SDL2")
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)  #for shared libs 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)  #for static libs 
@@ -103,9 +103,9 @@ if(BUILD_EXAMPLES)
     if(${OPENGL_FOUND})
         include_directories(${OPENGL_INCLUDE_DIRS})
     endif()
-    find_package(GLFW3 REQUIRED)
-    if(${GLFW_FOUND})
-        include_directories(${GLFW_INCLUDE_DIRS})
+    find_package(SDL2 REQUIRED)
+    if(SDL2_FOUND)
+        include_directories(${SDL2_INCLUDE_DIR})
     endif()
 
     set(common "examples/common")
@@ -135,7 +135,7 @@ if(BUILD_EXAMPLES)
         test/helpers/color.cpp
         )
 
-    target_link_libraries(simple_rendering ${project_name} ${GLFW_LIBRARIES} ${OPENGL_LIBRARIES})
+    target_link_libraries(simple_rendering ${project_name} ${SDL2_LIBRARY} ${OPENGL_LIBRARIES})
 endif()
 	
 #installation

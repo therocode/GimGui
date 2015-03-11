@@ -11,8 +11,7 @@ int main()
 
     while(window.isOpen())
     {
-        window.pollEvents();
-        simple->handleEvents(window.fetchEvents());
+        simple->handleEvents(window.pollEvents());
 
         simple->loop();
 
