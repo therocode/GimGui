@@ -157,7 +157,7 @@ void SimpleRendering::handleEvents(const Events& events)
     {
         gim::AllPropagator allPropagator(mGui.root());
         mGui.sendEvent(nonFocusAllEvent(), allPropagator);
-        gim::BoundaryPropagator<Vec2> boundaryPropagator(mGui.root(), position);
+        gim::BoundaryPropagator<Vec2> boundaryPropagator(mGui.root(), {position});
         mGui.sendEvent(focusEvent(position.x, position.y), boundaryPropagator);
     }
 }

@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <gimgui/logic/absolutemap.hpp>
 #include <gimgui/data/element.hpp>
+#include <deque>
+#include <algorithm>
 
 namespace gim
 {
@@ -12,11 +14,11 @@ namespace gim
     class BoundaryPropagator
     {
         public:
-            BoundaryPropagator(Element& first, const Vec2& position);
+            BoundaryPropagator(Element& first, const std::deque<Vec2>& positions);
             Element* next();
             size_t size() const;
         private:
-            bool pointWithinElement(const Vec2& point, const Element& element);
+            bool anyPointWithinElement(const std::deque<Vec2>& points, const Element& element);
             std::list<Element*> mElements;
             std::list<Element*>::iterator mCurrentElement;
             AbsoluteMap<Vec2> mAbsoluteMap;

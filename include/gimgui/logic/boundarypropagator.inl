@@ -1,12 +1,12 @@
 #pragma once
 
 template <typename Vec2>
-BoundaryPropagator<Vec2>::BoundaryPropagator(Element& first, const Vec2& position):
+BoundaryPropagator<Vec2>::BoundaryPropagator(Element& first, const std::deque<Vec2>& positions):
     mAbsoluteMap("position")
 {
     std::list<Element*> toInvestigate({&first});
 
-    if(pointWithinElement(position, first))
+    if(anyPointWithinElement(positions, first))
         mElements.push_back(&first);
 
     for(auto elementIterator = toInvestigate.begin(); elementIterator != toInvestigate.end(); elementIterator++)
@@ -14,7 +14,7 @@ BoundaryPropagator<Vec2>::BoundaryPropagator(Element& first, const Vec2& positio
         for(auto& child : (*elementIterator)->children())
         {
             toInvestigate.push_back(child.get());
-            if(pointWithinElement(position, *child))
+            if(anyPointWithinElement(positions, *child))
                 mElements.push_back(child.get());
         }
     }
@@ -44,7 +44,7 @@ size_t BoundaryPropagator<Vec2>::size() const
 }
 
 template <typename Vec2>
-bool BoundaryPropagator<Vec2>::pointWithinElement(const Vec2& point, const Element& element)
+bool BoundaryPropagator<Vec2>::anyPointWithinElement(const std::deque<Vec2>& points, const Element& element)
 {
     GIM_ASSERT(element.hasAttribute<Vec2>("position"), "BoundaryPropagator was given element which doesn't have the attribute 'position'");
     GIM_ASSERT(element.hasAttribute<Vec2>("size"), "BoundaryPropagator was given element which doesn't have the attribute 'size'");
@@ -52,8 +52,8 @@ bool BoundaryPropagator<Vec2>::pointWithinElement(const Vec2& point, const Eleme
     Vec2 position = mAbsoluteMap.getAbsoluteOf(element);
     const Vec2& size = element.getAttribute<Vec2>("size");
 
-    return point.x > position.x && 
+    return std::any_of(points.begin(), points.end(), [&] (const Vec2& point) { return point.x > position.x && 
            point.x < position.x + size.x &&
            point.y > position.y &&
-           point.y < position.y + size.y;
+           point.y < position.y + size.y;});
 }
