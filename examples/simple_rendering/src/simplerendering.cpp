@@ -15,6 +15,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mTriangles(Buffer::ARRAY_BUFFER),
     mColors(Buffer::ARRAY_BUFFER),
     mTexCoords(Buffer::ARRAY_BUFFER),
+    mLastPosition({-1000, -1000}),
     mGui(
     {
         gim::Element({"container"},
@@ -155,10 +156,10 @@ void SimpleRendering::handleEvents(const Events& events)
 
     for(const Vec2& position : events.cursorPositionEvents)
     {
-        gim::AllPropagator allPropagator(mGui.root());
-        mGui.sendEvent(nonFocusAllEvent(), allPropagator);
-        gim::BoundaryPropagator<Vec2> boundaryPropagator(mGui.root(), {position});
-        mGui.sendEvent(focusEvent(position.x, position.y), boundaryPropagator);
+        gim::BoundaryPropagator<Vec2> boundaryPropagator(mGui.root(), {position, mLastPosition});
+        mGui.sendEvent(mouseHoverEvent(position, mLastPosition), boundaryPropagator);
+
+        mLastPosition = position;
     }
 }
 

@@ -1,7 +1,6 @@
 #pragma once
 #include <gimgui/logic/event.hpp>
-
+#include <helpers/vec2.hpp>
 
 gim::Event randomColorEvent();
-gim::Event nonFocusAllEvent();
-gim::Event focusEvent(int32_t x, int32_t y);
+gim::Event mouseHoverEvent(const Vec2& currentPosition, const Vec2& lastPosition);

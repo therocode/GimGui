@@ -32,6 +32,7 @@ class SimpleRendering
         Shader mBaseShader;
         std::array<float, 16> mProjection;
         gim::RenderDataGenerator<Vec2, Color> mRenderDataGenerator;
+        Vec2 mLastPosition;
         gim::Gui mGui;
         std::unordered_map<int32_t, Texture> mTextures;
 };
