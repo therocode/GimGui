@@ -52,4 +52,5 @@ class CallbackExecutor
 
 void changeHealth(gim::Element& element, int32_t healthValue);
 void click(gim::Element& element, const Vec2& position);
+void mouseRelease(gim::Element& element, const Vec2& position);
 void moveMouse(gim::Element& element, const Vec2& currentPosition, const Vec2& lastPosition);

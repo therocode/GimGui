@@ -27,8 +27,19 @@ void click(gim::Element& element, const Vec2& position)
         CallbackExecutor<Vec2> executor("on_click");
         executor.execute(*currentElement, position);
 
-        if(bool* blocks = currentElement->findAttribute<bool>("block_click"))
+        if(bool* blocks = currentElement->findAttribute<bool>("block_event"))
             break;
+    }
+}
+
+void mouseRelease(gim::Element& element, const Vec2& position)
+{
+    gim::AllPropagator propagator(element);
+
+    while(gim::Element* currentElement = propagator.next())
+    {
+        CallbackExecutor<Vec2> executor("on_mouse_release");
+        executor.execute(*currentElement, position);
     }
 }
 
