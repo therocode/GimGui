@@ -44,6 +44,13 @@ size_t BoundaryPropagator<Vec2>::size() const
 }
 
 template <typename Vec2>
+void BoundaryPropagator<Vec2>::reverse()
+{
+    std::reverse(mElements.begin(), mElements.end());
+    mCurrentElement = mElements.begin();
+}
+
+template <typename Vec2>
 bool BoundaryPropagator<Vec2>::anyPointWithinElement(const std::deque<Vec2>& points, const Element& element)
 {
     GIM_ASSERT(element.hasAttribute<Vec2>("position"), "BoundaryPropagator was given element which doesn't have the attribute 'position'");

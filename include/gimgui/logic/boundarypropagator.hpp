@@ -17,6 +17,7 @@ namespace gim
             BoundaryPropagator(Element& first, const std::deque<Vec2>& positions);
             Element* next();
             size_t size() const;
+            void reverse();
         private:
             bool anyPointWithinElement(const std::deque<Vec2>& points, const Element& element);
             std::list<Element*> mElements;

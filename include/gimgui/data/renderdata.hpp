@@ -3,6 +3,8 @@
 
 namespace gim
 {
+    class Element;
+
     struct RenderData
     {
         const Element* element;

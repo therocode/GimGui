@@ -3,7 +3,6 @@
 #include <glutils/vao.hpp>
 #include <glutils/shader.hpp>
 #include <array>
-#include <gimgui/gui/gui.hpp>
 #include <glutils/texture.hpp>
 #include <gimgui/logic/renderdatagenerator.hpp>
 #include <helpers/vec2.hpp>
@@ -32,6 +31,6 @@ class SimpleRendering
         std::array<float, 16> mProjection;
         gim::RenderDataGenerator<Vec2, Color> mRenderDataGenerator;
         Vec2 mLastPosition;
-        gim::Gui mGui;
         std::unordered_map<int32_t, Texture> mTextures;
+        gim::Element mRoot;
 };

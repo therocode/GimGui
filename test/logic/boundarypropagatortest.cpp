@@ -87,5 +87,29 @@ SCENARIO("BoundaryPropagator propagates through the hierarchy based on which ele
                 CHECK(propagator.next() == nullptr);
             }
         }
+
+        WHEN("the hierarchy is given to a BoundaryPropagator and the order is reversed")
+        {
+            gim::BoundaryPropagator<Vec2> propagator(root, {Vec2({10, 10})});
+            gim::BoundaryPropagator<Vec2> reversePropagator(root, {Vec2({10, 10})});
+            reversePropagator.reverse();
+
+            THEN("the order is the opposite to that of a normal execution")
+            {
+                std::vector<gim::Element*> normal;
+
+                while(gim::Element* current = propagator.next())
+                    normal.push_back(current);
+
+                std::vector<gim::Element*> reversed;
+
+                while(gim::Element* current = reversePropagator.next())
+                    reversed.push_back(current);
+
+                std::reverse(reversed.begin(), reversed.end());
+
+                CHECK(normal == reversed);
+            }
+        }
     }
 }

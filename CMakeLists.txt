@@ -31,7 +31,6 @@ project(${project_name})
 set(source_files
     src/data/element.cpp
     src/data/variant.cpp
-    src/gui/gui.cpp
     src/logic/allpropagator.cpp
     src/logic/attributepopulator.cpp
 )
@@ -47,8 +46,6 @@ set(header_files
     include/gimgui/data/types.hpp
     include/gimgui/data/variant.hpp
     include/gimgui/data/variant.inl
-    include/gimgui/gui/gui.hpp
-    include/gimgui/gui/gui.inl
     include/gimgui/logic/absolutemap.hpp
     include/gimgui/logic/absolutemap.inl
     include/gimgui/logic/allpropagator.hpp
@@ -81,7 +78,6 @@ if(BUILD_TESTS)
         "test/data/elementtest.cpp"
         "test/data/rectangletest.cpp"
         "test/data/varianttest.cpp"
-        "test/gui/guitest.cpp"
         "test/logic/allpropagatortest.cpp"
         "test/logic/attributepopulatortest.cpp"
         "test/logic/absolutemaptest.cpp"

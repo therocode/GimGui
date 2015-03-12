@@ -16,16 +16,15 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mColors(Buffer::ARRAY_BUFFER),
     mTexCoords(Buffer::ARRAY_BUFFER),
     mLastPosition({-1000, -1000}),
-    mGui(
-    {
-        gim::Element({"container"},
+    mRoot({"container"},
         {
             {"color",    Color(140, 35, 24)},
             {"position", Vec2({200, 150})},
             {"size",     Vec2({256, 256})},
             {"stretch_mode", gim::StretchMode::STRETCHED},
             {"image_id", 0},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))}
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))},
+            {"on_click", Callback<>([] (gim::Element& self) {self.setAttribute("color", Color(0,255,0));})}
         },
         {
             gim::Element({"child"},
@@ -34,7 +33,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"position", Vec2({20, 20})},
                 {"size",     Vec2({64, 64})},
                 {"image_id", 0},
-                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))}
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))},
+                {"block_click", true}
             }),
             gim::Element({"child"},
             {
@@ -42,7 +42,9 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"position", Vec2({90, 20})},
                 {"size",     Vec2({64, 64})},
                 {"image_id", 0},
-                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))}
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))},
+                {"on_click", Callback<>([] (gim::Element& self) {self.setAttribute("color", Color(0,0,255));})},
+                {"block_click", true}
             }),
             gim::Element({"child"},
             {
@@ -53,7 +55,6 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))}
             })
         })
-    })
 {
     //load textures
 
@@ -96,16 +97,13 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
 
 void SimpleRendering::loop()
 {
-    gim::AllPropagator allPropagator(mGui.root());
-    mGui.sendEvent(randomColorEvent(), allPropagator);
-
     //rendering
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     mVao.bind();
     mBaseShader.activate();
     mBaseShader.setUniform("projection", UniformType::MAT4X4, &mProjection[0]);
 
-    auto renderDatas = mRenderDataGenerator.generate(mGui.root());
+    auto renderDatas = mRenderDataGenerator.generate(mRoot);
 
     for(auto renderData : renderDatas)
     {
@@ -152,10 +150,13 @@ void SimpleRendering::handleEvents(const std::deque<SDL_Event>& events)
         if(event.type == SDL_MOUSEMOTION)
         {
             Vec2 position = Vec2({event.motion.x, event.motion.y});
-            gim::BoundaryPropagator<Vec2> boundaryPropagator(mGui.root(), {position, mLastPosition});
-            mGui.sendEvent(mouseHoverEvent(position, mLastPosition), boundaryPropagator);
-
+            moveMouse(mRoot, position, mLastPosition);
             mLastPosition = position;
+        }
+        if(event.type == SDL_MOUSEBUTTONDOWN)
+        {
+            Vec2 position = Vec2({event.button.x, event.button.y});
+            click(mRoot, position);
         }
     }
 }
