@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <gl_core_3_3.h>
+#include <opengl.hpp>
 
 class Buffer
 {

@@ -1,6 +1,6 @@
 #pragma once
 #include <helpers/vec2.hpp>
-#include <gl_core_3_3.h>
+#include <opengl.hpp>
 #include <SDL2/SDL.h>
 #include <deque>
 

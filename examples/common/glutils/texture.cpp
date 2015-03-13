@@ -83,10 +83,10 @@ void Texture::create(uint32_t width, uint32_t height, const Color& color, bool s
     create(width, height, pixels.get(), smooth, interactive);
 }
 
-glm::uvec2 Texture::getSize() const
-{
-    return glm::uvec2(mWidth, mHeight);
-}
+//glm::uvec2 Texture::getSize() const
+//{
+//    return glm::uvec2(mWidth, mHeight);
+//}
 
 void Texture::destroy()
 {

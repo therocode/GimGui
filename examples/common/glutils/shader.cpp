@@ -1,9 +1,9 @@
 #include "shader.hpp"
-#include <fea/assert.hpp>
+#include <gimgui/assert.hpp>
 #include <vector>
 #include <sstream>
+#include <array>
 #define GLM_FORCE_RADIANS
-#include <glm/gtc/type_ptr.hpp>
 
 GLSLException::GLSLException(const std::string& message) : std::runtime_error(message)
 {
@@ -70,7 +70,7 @@ void Shader::deactivate() const
 
 void Shader::setUniform(const std::string& name, UniformType type, const void* value) const
 {
-    FEA_ASSERT(mUniformLocations.count(name) != 0, "No uniform named " + name + " exists in the shader");
+    GIM_ASSERT(mUniformLocations.count(name) != 0, "No uniform named " + name + " exists in the shader");
     switch(type)
     {
         case UniformType::FLOAT:
@@ -83,40 +83,40 @@ void Shader::setUniform(const std::string& name, UniformType type, const void* v
             glUniform1i(mUniformLocations.at(name), *((int32_t*)value));
             break;
         }
-        case UniformType::VEC2:
-        {
-            const glm::vec2& val2 = *((glm::vec2*)value);
-            glUniform2f(mUniformLocations.at(name), val2.x, val2.y);
-            break;
-        }
-        case UniformType::VEC3:
-        {
-            const glm::vec3& val3 = *((glm::vec3*)value);
-            glUniform3f(mUniformLocations.at(name), val3.x, val3.y, val3.z);
-            break;
-        }
-        case UniformType::VEC4:
-        {
-            const glm::vec4& val4 = *((glm::vec4*)value);
-            glUniform4f(mUniformLocations.at(name), val4[0], val4[1], val4[2], val4[3]);
-            break;
-        }
-        case UniformType::MAT2X2:
-        {
-            const glm::mat2x2 mat = *((glm::mat2x2*)value);
-            glUniformMatrix2fv(mUniformLocations.at(name), 1, GL_FALSE, glm::value_ptr(mat));
-            break;
-        }
-        case UniformType::MAT3X3:
-        {
-            const glm::mat3x3 mat = *((glm::mat3x3*)value);
-            glUniformMatrix3fv(mUniformLocations.at(name), 1, GL_FALSE, glm::value_ptr(mat));
-            break;
-        }
+        //case UniformType::VEC2:
+        //{
+        //    const glm::vec2& val2 = *((glm::vec2*)value);
+        //    glUniform2f(mUniformLocations.at(name), val2.x, val2.y);
+        //    break;
+        //}
+        //case UniformType::VEC3:
+        //{
+        //    const glm::vec3& val3 = *((glm::vec3*)value);
+        //    glUniform3f(mUniformLocations.at(name), val3.x, val3.y, val3.z);
+        //    break;
+        //}
+        //case UniformType::VEC4:
+        //{
+        //    const glm::vec4& val4 = *((glm::vec4*)value);
+        //    glUniform4f(mUniformLocations.at(name), val4[0], val4[1], val4[2], val4[3]);
+        //    break;
+        //}
+        //case UniformType::MAT2X2:
+        //{
+        //    const glm::mat2x2 mat = *((glm::mat2x2*)value);
+        //    glUniformMatrix2fv(mUniformLocations.at(name), 1, GL_FALSE, glm::value_ptr(mat));
+        //    break;
+        //}
+        //case UniformType::MAT3X3:
+        //{
+        //    const glm::mat3x3 mat = *((glm::mat3x3*)value);
+        //    glUniformMatrix3fv(mUniformLocations.at(name), 1, GL_FALSE, glm::value_ptr(mat));
+        //    break;
+        //}
         case UniformType::MAT4X4:
         {
-            const glm::mat4x4 mat = *((glm::mat4x4*)value);
-            glUniformMatrix4fv(mUniformLocations.at(name), 1, GL_FALSE, glm::value_ptr(mat));
+            const std::array<float,16> mat = *((std::array<float,16>*)value);
+            glUniformMatrix4fv(mUniformLocations.at(name), 1, GL_FALSE, mat.data());
             break;
         }
         case UniformType::TEXTURE:
@@ -135,7 +135,7 @@ void Shader::setUniform(const std::string& name, UniformType type, const void* v
         }
         case UniformType::NO_TYPE:
         {
-            FEA_ASSERT(false, "Cannot set null uniform on shader!\n");
+            GIM_ASSERT(false, "Cannot set null uniform on shader!\n");
             break;
         }
     }
@@ -143,7 +143,7 @@ void Shader::setUniform(const std::string& name, UniformType type, const void* v
 
 void Shader::setUniform(const std::string& name, UniformType type, int32_t count, const void* value) const
 {
-    FEA_ASSERT(mUniformLocations.count(name) != 0, "No uniform named " + name + " exists in the shader");
+    GIM_ASSERT(mUniformLocations.count(name) != 0, "No uniform named " + name + " exists in the shader");
     switch(type)
     {
         case UniformType::FLOAT:
@@ -156,37 +156,37 @@ void Shader::setUniform(const std::string& name, UniformType type, int32_t count
             glUniform1iv(mUniformLocations.at(name), count, ((int*)value));
             break;
         }
-        case UniformType::VEC2:
-        {
-            glUniform2fv(mUniformLocations.at(name), count, ((float*)value));
-            break;
-        }
-        case UniformType::VEC3:
-        {
-            glUniform3fv(mUniformLocations.at(name), count, ((float*)value));
-            break;
-        }
-        case UniformType::VEC4:
-        {
-            glUniform4fv(mUniformLocations.at(name), count, ((float*)value));
-            break;
-        }
-        case UniformType::MAT2X2:
-        {
-            const glm::mat2x2* mat = ((glm::mat2x2*)value);
-            glUniformMatrix2fv(mUniformLocations.at(name), count, GL_FALSE, glm::value_ptr(*mat));
-            break;
-        }
-        case UniformType::MAT3X3:
-        {
-            const glm::mat3x3* mat = ((glm::mat3x3*)value);
-            glUniformMatrix3fv(mUniformLocations.at(name), count, GL_FALSE, glm::value_ptr(*mat));
-            break;
-        }
+        //case UniformType::VEC2:
+        //{
+        //    glUniform2fv(mUniformLocations.at(name), count, ((float*)value));
+        //    break;
+        //}
+        //case UniformType::VEC3:
+        //{
+        //    glUniform3fv(mUniformLocations.at(name), count, ((float*)value));
+        //    break;
+        //}
+        //case UniformType::VEC4:
+        //{
+        //    glUniform4fv(mUniformLocations.at(name), count, ((float*)value));
+        //    break;
+        //}
+        //case UniformType::MAT2X2:
+        //{
+        //    const glm::mat2x2* mat = ((glm::mat2x2*)value);
+        //    glUniformMatrix2fv(mUniformLocations.at(name), count, GL_FALSE, glm::value_ptr(*mat));
+        //    break;
+        //}
+        //case UniformType::MAT3X3:
+        //{
+        //    const glm::mat3x3* mat = ((glm::mat3x3*)value);
+        //    glUniformMatrix3fv(mUniformLocations.at(name), count, GL_FALSE, glm::value_ptr(*mat));
+        //    break;
+        //}
         case UniformType::MAT4X4:
         {
-            const glm::mat4x4* mat = ((glm::mat4x4*)value);
-            glUniformMatrix4fv(mUniformLocations.at(name), count, GL_FALSE, glm::value_ptr(*mat));
+            const std::array<float,16>* mat = ((std::array<float,16>*)value);
+            glUniformMatrix4fv(mUniformLocations.at(name), count, GL_FALSE, mat->data());
             break;
         }
         case UniformType::TEXTURE:
@@ -205,7 +205,7 @@ void Shader::setUniform(const std::string& name, UniformType type, int32_t count
         }
         case UniformType::NO_TYPE:
         {
-            FEA_ASSERT(false, "Cannot set null uniform on shader!\n");
+            GIM_ASSERT(false, "Cannot set null uniform on shader!\n");
             break;
         }
     }
@@ -213,7 +213,7 @@ void Shader::setUniform(const std::string& name, UniformType type, int32_t count
 
 GLint Shader::getUniform(const std::string& name) const
 {
-    FEA_ASSERT(mUniformLocations.count(name) != 0, "No uniform named " + name + " exists in the shader");
+    GIM_ASSERT(mUniformLocations.count(name) != 0, "No uniform named " + name + " exists in the shader");
 
     return mUniformLocations.at(name);
 }

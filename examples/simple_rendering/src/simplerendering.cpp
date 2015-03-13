@@ -1,7 +1,7 @@
 #include "simplerendering.hpp"
 #include <glutils/baseshader.hpp>
 #include <glutils/uniform.hpp>
-#include <gl_core_3_3.h>
+#include <opengl.hpp>
 #include <iostream>
 #include <glutils/projection.hpp>
 #include <SDL2/SDL.h>
@@ -75,7 +75,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
 {
     //load textures
 
-    mTextures.emplace(0, loadTexture("examples/resources/xpattern.png"));
+    mTextures.emplace(0, loadTexture("resources/xpattern.png"));
 
     mRenderDataGenerator.registerImageInfo(0, {64, 64});
     //rendering

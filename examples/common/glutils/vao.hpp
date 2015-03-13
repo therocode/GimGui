@@ -1,5 +1,5 @@
 #pragma once
-#include <gl_core_3_3.h>
+#include <opengl.hpp>
 #include "buffer.hpp"
 
 class VAO

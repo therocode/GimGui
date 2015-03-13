@@ -3,11 +3,13 @@
 
 Window::Window(const Vec2& size)
 {
+#if !defined(__EMSCRIPTEN__)
     auto glStatus = ogl_LoadFunctions();
     if(glStatus == ogl_LOAD_FAILED)
     {
         std::cout << "Could not initialize OpenGL\n";
     }
+#endif
 
     if(SDL_Init(SDL_INIT_VIDEO) != 0)
     {
@@ -15,8 +17,11 @@ Window::Window(const Vec2& size)
         exit(1);
     }
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
     mWindow = SDL_CreateWindow("gimgui",
             SDL_WINDOWPOS_CENTERED,
@@ -25,6 +30,12 @@ Window::Window(const Vec2& size)
             SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     mGlContext = SDL_GL_CreateContext(mWindow);
 
+    if(mGlContext == nullptr)
+    {
+        std::cout << "Could not create gl context: " + std::string(SDL_GetError()) + "\n";
+        SDL_Quit();
+        exit(1);
+    }
 
     if(mWindow == nullptr)
     {

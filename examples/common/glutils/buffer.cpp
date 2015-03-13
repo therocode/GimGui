@@ -1,5 +1,5 @@
 #include "buffer.hpp"
-#include <fea/assert.hpp>
+#include <gimgui/assert.hpp>
 
 Buffer::Buffer(int32_t type, int32_t usage) :
     mType(type),
@@ -8,7 +8,7 @@ Buffer::Buffer(int32_t type, int32_t usage) :
 {
     glGenBuffers(1, &mBufferId);
 
-    FEA_ASSERT(mBufferId != 0, "Generated zero buffer");
+    GIM_ASSERT(mBufferId != 0, "Generated zero buffer");
 }
 
 Buffer::Buffer(const std::vector<float>& data, int32_t type, int32_t usage) :
@@ -17,7 +17,7 @@ Buffer::Buffer(const std::vector<float>& data, int32_t type, int32_t usage) :
 {
     glGenBuffers(1, &mBufferId);
 
-    FEA_ASSERT(mBufferId != 0, "Generated zero buffer");
+    GIM_ASSERT(mBufferId != 0, "Generated zero buffer");
 
     setData(data);
 }
@@ -28,7 +28,7 @@ Buffer::Buffer(const std::vector<uint32_t>& data, int32_t type, int32_t usage)  
 {
     glGenBuffers(1, &mBufferId);
 
-    FEA_ASSERT(mBufferId != 0, "Generated zero buffer");
+    GIM_ASSERT(mBufferId != 0, "Generated zero buffer");
 
     setData(data);
 }
@@ -39,7 +39,7 @@ Buffer::Buffer(const std::vector<uint8_t>& data, int32_t type, int32_t usage)  :
 {
     glGenBuffers(1, &mBufferId);
 
-    FEA_ASSERT(mBufferId != 0, "Generated zero buffer");
+    GIM_ASSERT(mBufferId != 0, "Generated zero buffer");
 
     setData(data);
 }
@@ -85,7 +85,7 @@ void Buffer::bind() const
 
 void Buffer::setData(const std::vector<float>& data)
 {
-    FEA_ASSERT(data.size() > 0, "Trying to generate an empty buffer!");
+    GIM_ASSERT(data.size() > 0, "Trying to generate an empty buffer!");
     mElementAmount = data.size();
     bind();
     int32_t glUsage;
@@ -98,7 +98,7 @@ void Buffer::setData(const std::vector<float>& data)
 
 void Buffer::setData(const std::vector<uint32_t>& data)
 {
-    FEA_ASSERT(data.size() > 0, "Trying to generate an empty buffer!");
+    GIM_ASSERT(data.size() > 0, "Trying to generate an empty buffer!");
     mElementAmount = data.size();
     bind();
     int32_t glUsage;
@@ -111,7 +111,7 @@ void Buffer::setData(const std::vector<uint32_t>& data)
 
 void Buffer::setData(const std::vector<uint8_t>& data)
 {
-    FEA_ASSERT(data.size() > 0, "Trying to generate an empty buffer!");
+    GIM_ASSERT(data.size() > 0, "Trying to generate an empty buffer!");
     mElementAmount = data.size();
     bind();
     int32_t glUsage;

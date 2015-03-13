@@ -1,12 +1,12 @@
 #include "vao.hpp"
-#include <fea/assert.hpp>
+#include <gimgui/assert.hpp>
 
 VAO::VAO() :
     mIsBound(false) 
 {
     glGenVertexArrays(1, &mVAOId);
 
-    FEA_ASSERT(mVAOId != 0, "Generated zero vao");
+    GIM_ASSERT(mVAOId != 0, "Generated zero vao");
 }
 
 VAO::~VAO()

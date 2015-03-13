@@ -27,6 +27,9 @@ endif(SHARED_BUILD)
 set(project_name gimgui)
 project(${project_name})
 
+if(EMSCRIPTEN)
+    message(hej)
+endif()
 #Set source files.
 set(source_files
     src/data/element.cpp

@@ -1,22 +1,22 @@
 #pragma once
 #include <cstdint>
 #include <string>
-#include <glm/glm.hpp>
-#include <gl_core_3_3.h>
+#include <opengl.hpp>
 
-enum class UniformType{NO_TYPE, FLOAT, INT, VEC2, VEC3, VEC4, MAT2X2, MAT3X3, MAT4X4, TEXTURE, TEXTURE_ARRAY};
+//enum class UniformType{NO_TYPE, FLOAT, INT, VEC2, VEC3, VEC4, MAT2X2, MAT3X3, MAT4X4, TEXTURE, TEXTURE_ARRAY};
+enum class UniformType{NO_TYPE, FLOAT, INT, MAT4X4, TEXTURE, TEXTURE_ARRAY};
 
 struct Uniform
 {
     Uniform();
     Uniform(const std::string& name, UniformType t, float val);
     Uniform(const std::string& name, UniformType t, int val);
-    Uniform(const std::string& name, UniformType t, glm::vec2 val);
-    Uniform(const std::string& name, UniformType t, glm::vec3 val);
-    Uniform(const std::string& name, UniformType t, glm::vec4 val);
-    Uniform(const std::string& name, UniformType t, glm::mat2x2 val);
-    Uniform(const std::string& name, UniformType t, glm::mat3x3 val);
-    Uniform(const std::string& name, UniformType t, glm::mat4x4 val);
+    //Uniform(const std::string& name, UniformType t, glm::vec2 val);
+    //Uniform(const std::string& name, UniformType t, glm::vec3 val);
+    //Uniform(const std::string& name, UniformType t, glm::vec4 val);
+    //Uniform(const std::string& name, UniformType t, glm::mat2x2 val);
+    //Uniform(const std::string& name, UniformType t, glm::mat3x3 val);
+    Uniform(const std::string& name, UniformType t, const std::array<float,16>& val);
     Uniform(const std::string& name, UniformType t, GLuint val);
     Uniform(const Uniform& other);
 
