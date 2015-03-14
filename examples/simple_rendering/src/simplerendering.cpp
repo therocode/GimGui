@@ -145,6 +145,7 @@ void SimpleRendering::loop()
         mTexCoords.setData(renderData.texCoords);
 
         glDrawArrays(GL_TRIANGLES, 0, mTriangles.getElementAmount());
+        std::cout << "triangles: " << mTriangles.getElementAmount() << "\n";
     }
 }
 
