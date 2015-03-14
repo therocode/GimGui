@@ -15,9 +15,9 @@ Callback<> setOriginalColor = [] (gim::Element& self) {self.setAttribute("color"
 
 SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mQuit(false),
-    mTriangles(Buffer::ARRAY_BUFFER),
-    mColors(Buffer::ARRAY_BUFFER),
-    mTexCoords(Buffer::ARRAY_BUFFER),
+    mTriangles(Buffer::ARRAY_BUFFER, Buffer::DYNAMIC),
+    mColors(Buffer::ARRAY_BUFFER, Buffer::DYNAMIC),
+    mTexCoords(Buffer::ARRAY_BUFFER, Buffer::DYNAMIC),
     mLastPosition({-1000, -1000}),
     mRoot({"container"},
         {
@@ -124,12 +124,12 @@ void SimpleRendering::loop()
     glEnableVertexAttribArray(mColorLocation);
     glEnableVertexAttribArray(mTexCoordLocation);
 
-    mTriangles.bind();
-    glVertexAttribPointer(mPositionLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    mColors.bind();
-    glVertexAttribPointer(mColorLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    mTexCoords.bind();
-    glVertexAttribPointer(mTexCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        mTriangles.bind();
+        glVertexAttribPointer(mPositionLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        mColors.bind();
+        glVertexAttribPointer(mColorLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        mTexCoords.bind();
+        glVertexAttribPointer(mTexCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     mBaseShader.activate();
     mBaseShader.setUniform("projection", UniformType::MAT4X4, &mProjection[0]);
@@ -144,8 +144,7 @@ void SimpleRendering::loop()
         mColors.setData(renderData.colors);
         mTexCoords.setData(renderData.texCoords);
 
-        glDrawArrays(GL_TRIANGLES, 0, mTriangles.getElementAmount());
-        std::cout << "triangles: " << mTriangles.getElementAmount() << "\n";
+        glDrawArrays(GL_TRIANGLES, 0, mTriangles.getElementAmount() / 3);
     }
 }
 
