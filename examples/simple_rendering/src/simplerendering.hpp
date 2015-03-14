@@ -23,7 +23,6 @@ class SimpleRendering
     private:
         void quit();
         bool mQuit;
-        VAO mVao;
         Buffer mTriangles;
         Buffer mColors;
         Buffer mTexCoords;
@@ -33,4 +32,8 @@ class SimpleRendering
         Vec2 mLastPosition;
         std::unordered_map<int32_t, Texture> mTextures;
         gim::Element mRoot;
+
+        GLint mPositionLocation;
+        GLint mColorLocation;
+        GLint mTexCoordLocation;
 };

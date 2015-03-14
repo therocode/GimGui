@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <string>
 #include <opengl.hpp>
+#include <array>
 
 //enum class UniformType{NO_TYPE, FLOAT, INT, VEC2, VEC3, VEC4, MAT2X2, MAT3X3, MAT4X4, TEXTURE, TEXTURE_ARRAY};
 enum class UniformType{NO_TYPE, FLOAT, INT, MAT4X4, TEXTURE, TEXTURE_ARRAY};

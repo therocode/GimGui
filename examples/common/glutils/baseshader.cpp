@@ -8,9 +8,9 @@ uniform mat4 projection;
 //layout(location = 0) in vec3 in_position;
 //layout(location = 1) in vec3 in_color;
 //layout(location = 2) in vec2 in_texCoords;
-varying vec3 in_position;
-varying vec3 in_color;
-varying vec2 in_texCoords;
+attribute vec3 in_position;
+attribute vec3 in_color;
+attribute vec2 in_texCoords;
 
 varying vec3 vertexColor;
 varying vec2 texCoords;

@@ -79,7 +79,6 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
 
     mRenderDataGenerator.registerImageInfo(0, {64, 64});
     //rendering
-    mVao.bind();
 
     mTriangles.bind();
 
@@ -99,14 +98,17 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
          0.0f,  1.0f, 1.0f 
     }));
 
-    mVao.setVertexAttribute(0, 3, mTriangles);
-    mVao.setVertexAttribute(1, 3, mColors);
-    mVao.setVertexAttribute(2, 2, mTexCoords);
+    //mVao.setVertexAttribute(0, 3, mTriangles);
+    //mVao.setVertexAttribute(1, 3, mColors);
+    //mVao.setVertexAttribute(2, 2, mTexCoords);
 
-    mVao.unbind();
+    //mVao.unbind();
 
     mBaseShader.setSource(BaseShader::vertexSource, BaseShader::fragmentSource);
     mBaseShader.compile();
+    mPositionLocation = glGetAttribLocation(mBaseShader.getId(), "in_position");
+    mColorLocation = glGetAttribLocation(mBaseShader.getId(), "in_color");
+    mTexCoordLocation = glGetAttribLocation(mBaseShader.getId(), "in_texCoords");
 
     Projection proj;
     mProjection = proj.createOrthoProjection(0.0f, (GLfloat)viewSize.x, 0.0f, (GLfloat)viewSize.y, 0.000000001f, 100.0f);
@@ -116,7 +118,19 @@ void SimpleRendering::loop()
 {
     //rendering
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    mVao.bind();
+    //mVao.bind();
+    
+    glEnableVertexAttribArray(mPositionLocation);
+    glEnableVertexAttribArray(mColorLocation);
+    glEnableVertexAttribArray(mTexCoordLocation);
+
+    mTriangles.bind();
+    glVertexAttribPointer(mPositionLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    mColors.bind();
+    glVertexAttribPointer(mColorLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    mTexCoords.bind();
+    glVertexAttribPointer(mTexCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
     mBaseShader.activate();
     mBaseShader.setUniform("projection", UniformType::MAT4X4, &mProjection[0]);
 

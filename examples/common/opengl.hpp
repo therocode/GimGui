@@ -5,7 +5,7 @@
 #include <GL/glu.h>
 #include <GL/glext.h>
 #else
-#include "gl_core_3_2.h"
+#include "gl_core_3_3.h"
 #endif
 
 #if defined(__APPLE__) || defined(MACOSX) || defined(macintosh) || defined(Macintosh)
