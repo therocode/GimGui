@@ -12,6 +12,7 @@
 
 Callback<> setClickColor = [] (gim::Element& self) {self.setAttribute("color", self.getAttribute<Color>("click_color"));};
 Callback<> setOriginalColor = [] (gim::Element& self) {self.setAttribute("color", self.getAttribute<Color>("original_color"));};
+Callback<> printClicked = [] (gim::Element& self) {std::cout << self.getAttribute<std::string>("name") << " clicked\n";};
 
 SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mQuit(false),
@@ -21,6 +22,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mLastPosition({-1000, -1000}),
     mRoot({"container"},
         {
+            {"name" , std::string("red")},
             {"color",    Color(140, 35, 24)},
             {"original_color",    Color(140, 35, 24)},
             {"click_color",    Color(174, 70, 56)},
@@ -29,12 +31,13 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"stretch_mode", gim::StretchMode::STRETCHED},
             {"image_id", 0},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))},
-            {"on_click", setClickColor},
+            {"on_click", CallbackList<>({setClickColor, printClicked})},
             {"on_mouse_release", setOriginalColor}
         },
         {
             gim::Element({"child"},
             {
+                {"name" , std::string("blue")},
                 {"color",    Color(94, 140, 106)},
                 {"original_color",    Color(94, 140, 106)},
                 {"click_color",    Color(124, 170, 136)},
@@ -43,11 +46,12 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"image_id", 0},
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))},
                 {"block_event", true},
-                {"on_click", setClickColor},
+                {"on_click", CallbackList<>({setClickColor, printClicked})},
                 {"on_mouse_release", setOriginalColor}
             }),
             gim::Element({"child"},
             {
+                {"name" , std::string("green")},
                 {"color",    Color(136, 166, 94)},
                 {"original_color",    Color(136, 166, 94)},
                 {"click_color",    Color(166, 196, 124)},
@@ -55,12 +59,13 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"size",     Vec2({64, 64})},
                 {"image_id", 0},
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))},
-                {"on_click", setClickColor},
+                {"on_click", CallbackList<>({setClickColor, printClicked})},
                 {"on_mouse_release", setOriginalColor},
                 {"block_event", true}
             }),
             gim::Element({"child"},
             {
+                {"name" , std::string("yellow")},
                 {"color",    Color(191, 179, 90)},
                 {"original_color",    Color(191, 179, 90)},
                 {"click_color",    Color(221, 209, 124)},
@@ -68,7 +73,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"size",     Vec2({64, 64})},
                 {"image_id", 0},
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))},
-                {"on_click", setClickColor},
+                {"on_click", CallbackList<>({setClickColor, printClicked})},
                 {"on_mouse_release", setOriginalColor}
             })
         })
