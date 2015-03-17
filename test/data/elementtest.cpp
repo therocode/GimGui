@@ -600,6 +600,26 @@ SCENARIO("Element attributes can be created, accessed, modified and deleted", "[
                 CHECK(element.findAttribute<int32_t>("gold") == nullptr);
             }
         }
+
+        WHEN("a non-existing attribute is accessed with a fallback given")
+        {
+            int32_t value = element.getAttribute("non-existing", 234);
+
+            THEN("the gotten value is the given fallback value")
+            {
+                CHECK(value == 234);
+            }
+        }
+
+        WHEN("an existing attribute is accessed with a fallback given")
+        {
+            int32_t value = element.getAttribute<int32_t>("gold", 123);
+
+            THEN("the gotten value is the stored value")
+            {
+                CHECK(value == 42);
+            }
+        }
     }
 
     GIVEN("an element with attributes of different types created")

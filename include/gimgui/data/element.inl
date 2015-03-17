@@ -71,6 +71,14 @@ const AttributeType& Element::getAttribute(const std::string& name) const
 }
 
 template <typename AttributeType>
+const AttributeType& Element::getAttribute(const std::string& name, const AttributeType& fallback) const
+{
+    const AttributeType* attributePtr = findAttribute<AttributeType>(name);
+
+    return attributePtr ? *attributePtr : fallback;
+}
+
+template <typename AttributeType>
 void Element::setAttribute(const std::string& name, const AttributeType& value)
 {
     GIM_ASSERT(mAttributes.count(name) != 0, "Trying to set attribute '" + name + "' when such an attribute does not exist");

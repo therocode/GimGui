@@ -64,6 +64,31 @@ void moveMouse(gim::Element& element, const Vec2& currentPosition, const Vec2& l
                                lastPosition.y > position.y &&
                                lastPosition.y < position.y + size.y;
 
+        if(currentElement->getAttribute<bool>("dragged", false))
+        {
+            Vec2 delta;
+            delta.x = currentPosition.x - lastPosition.x;
+            delta.y = currentPosition.y - lastPosition.y;
+
+            if(!currentElement->getAttribute<bool>("resize", false))
+            {
+                Vec2 relativePosition = currentElement->getAttribute<Vec2>("position");
+                Vec2 newPosition;
+                newPosition.x = relativePosition.x + delta.x;
+                newPosition.y = relativePosition.y + delta.y;
+
+                currentElement->setAttribute("position", newPosition);
+            }
+            else
+            {
+                Vec2 newSize;
+                newSize.x = size.x + delta.x;
+                newSize.y = size.y + delta.y;
+
+                currentElement->setAttribute("size", newSize);
+            }
+        }
+
         if(currentPosOverlaps && !lastPosOverlaps)
         {//got hovered
             CallbackExecutor<Vec2> executor("on_hover");

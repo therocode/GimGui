@@ -10,24 +10,47 @@
 #include <glutils/textureloader.hpp>
 #include <gimgui/logic/boundarypropagator.hpp>
 
-Callback<> setClickColor = [] (gim::Element& self) {self.setAttribute("color", self.getAttribute<Color>("click_color"));};
-Callback<> setOriginalColor = [] (gim::Element& self) {self.setAttribute("color", self.getAttribute<Color>("original_color"));};
-Callback<> printClicked = [] (gim::Element& self) {std::cout << self.getAttribute<std::string>("name") << " clicked\n";};
-Callback<> toggleStretchMode = [] (gim::Element& self)
+Callback<Vec2> setClickColor = [] (gim::Element& self, const Vec2& clickPos) {self.setAttribute("color", self.getAttribute<Color>("click_color"));};
+Callback<> setOriginalColor = [] (gim::Element& self)
+{
+    self.setAttribute("color", self.getAttribute<Color>("original_color"));
+    self.setAttribute("dragged", false);
+    self.setAttribute("resize", false);
+};
+Callback<Vec2> printClicked = [] (gim::Element& self, const Vec2& clickPos)
+{
+    std::cout << self.getAttribute<std::string>("name") << " clicked\n";
+};
+Callback<Vec2> toggleStretchMode = [] (gim::Element& self, const Vec2& clickPos)
 {
     gim::StretchMode currentStretchMode = self.getAttribute<gim::StretchMode>("stretch_mode");
     gim::StretchMode newStretchMode;
 
-    if(currentStretchMode == gim::StretchMode::STRETCHED)
-        newStretchMode = gim::StretchMode::TILED;
-    else if(currentStretchMode == gim::StretchMode::TILED)
-        newStretchMode = gim::StretchMode::V_TILED;
-    else if(currentStretchMode == gim::StretchMode::V_TILED)
-        newStretchMode = gim::StretchMode::H_TILED;
-    else if(currentStretchMode == gim::StretchMode::H_TILED)
-        newStretchMode = gim::StretchMode::STRETCHED;
+    const Vec2 position = self.getAttribute<Vec2>("position");
+    Vec2 relativePos;
+    relativePos.x = clickPos.x - position.x;
+    relativePos.y = clickPos.y - position.y;
+    const Vec2 size = self.getAttribute<Vec2>("size");
 
-    self.setAttribute("stretch_mode", newStretchMode);
+    if(relativePos.x > size.x - 20 && relativePos.y > size.y - 20)
+    {
+        self.setAttribute("resize", true);
+    }
+    else
+    {
+        if(currentStretchMode == gim::StretchMode::STRETCHED)
+            newStretchMode = gim::StretchMode::TILED;
+        else if(currentStretchMode == gim::StretchMode::TILED)
+            newStretchMode = gim::StretchMode::V_TILED;
+        else if(currentStretchMode == gim::StretchMode::V_TILED)
+            newStretchMode = gim::StretchMode::H_TILED;
+        else if(currentStretchMode == gim::StretchMode::H_TILED)
+            newStretchMode = gim::StretchMode::STRETCHED;
+
+        self.setAttribute("stretch_mode", newStretchMode);
+    }
+
+    self.setAttribute("dragged", true);
 };
 
 SimpleRendering::SimpleRendering(const Vec2& viewSize):
@@ -47,7 +70,9 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"stretch_mode", gim::StretchMode::STRETCHED},
             {"image_id", 0},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({8, 8}))},
-            {"on_click", CallbackList<>({setClickColor, printClicked, toggleStretchMode})},
+            {"dragged", false},
+            {"resize", false},
+            {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode})},
             {"on_mouse_release", setOriginalColor}
         },
         {
@@ -63,7 +88,9 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"image_id", 0},
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({8, 8}))},
                 {"block_event", true},
-                {"on_click", CallbackList<>({setClickColor, printClicked, toggleStretchMode})},
+                {"dragged", false},
+                {"resize", false},
+                {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode})},
                 {"on_mouse_release", setOriginalColor}
             }),
             gim::Element({"child"},
@@ -77,7 +104,9 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"stretch_mode", gim::StretchMode::STRETCHED},
                 {"image_id", 0},
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({4, 4}))},
-                {"on_click", CallbackList<>({setClickColor, printClicked, toggleStretchMode})},
+                {"dragged", false},
+                {"resize", false},
+                {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode})},
                 {"on_mouse_release", setOriginalColor},
                 {"block_event", true}
             }),
@@ -91,8 +120,10 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"size",     Vec2({64, 64})},
                 {"stretch_mode", gim::StretchMode::STRETCHED},
                 {"image_id", 0},
+                {"dragged", false},
+                {"resize", false},
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({16, 16}))},
-                {"on_click", CallbackList<>({setClickColor, printClicked, toggleStretchMode})},
+                {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode})},
                 {"on_mouse_release", setOriginalColor},
                 {"block_event", true}
             })
