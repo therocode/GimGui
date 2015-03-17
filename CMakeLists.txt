@@ -59,6 +59,8 @@ set(header_files
     include/gimgui/logic/event.hpp
     include/gimgui/logic/renderdatagenerator.hpp
     include/gimgui/logic/renderdatagenerator.inl
+    include/gimgui/util/getorfallback.hpp
+    include/gimgui/util/getorfallback.inl
 )
 
 include_directories(include)
@@ -87,6 +89,7 @@ if(BUILD_TESTS)
         "test/logic/boundarypropagatortest.cpp"
         "test/logic/renderdatageneratortest.cpp"
         "test/helpers/helperstest.cpp"
+        "test/util/getorfallbacktest.cpp"
 
         "test/helpers/color.cpp"
         "test/helpers/closeenough.cpp"

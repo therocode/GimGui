@@ -3,6 +3,7 @@
 #include <gimgui/logic/absolutemap.hpp>
 #include <gimgui/logic/boundarypropagator.hpp>
 #include <gimgui/logic/allpropagator.hpp>
+#include <gimgui/util/getorfallback.hpp>
 
 void changeHealth(gim::Element& element, int32_t healthValue)
 {
@@ -64,13 +65,13 @@ void moveMouse(gim::Element& element, const Vec2& currentPosition, const Vec2& l
                                lastPosition.y > position.y &&
                                lastPosition.y < position.y + size.y;
 
-        if(currentElement->getAttribute<bool>("dragged", false))
+        if(getOrFallback(*currentElement, "dragged", false))
         {
             Vec2 delta;
             delta.x = currentPosition.x - lastPosition.x;
             delta.y = currentPosition.y - lastPosition.y;
 
-            if(!currentElement->getAttribute<bool>("resize", false))
+            if(!getOrFallback(*currentElement, "resize", false))
             {
                 Vec2 relativePosition = currentElement->getAttribute<Vec2>("position");
                 Vec2 newPosition;
