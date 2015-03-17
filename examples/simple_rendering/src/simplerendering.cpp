@@ -76,7 +76,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"size",     Vec2({64, 64})},
                 {"stretch_mode", gim::StretchMode::STRETCHED},
                 {"image_id", 0},
-                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({8, 8}))},
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({4, 4}))},
                 {"on_click", CallbackList<>({setClickColor, printClicked, toggleStretchMode})},
                 {"on_mouse_release", setOriginalColor},
                 {"block_event", true}
@@ -91,9 +91,10 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"size",     Vec2({64, 64})},
                 {"stretch_mode", gim::StretchMode::STRETCHED},
                 {"image_id", 0},
-                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({8, 8}))},
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({16, 16}))},
                 {"on_click", CallbackList<>({setClickColor, printClicked, toggleStretchMode})},
-                {"on_mouse_release", setOriginalColor}
+                {"on_mouse_release", setOriginalColor},
+                {"block_event", true}
             })
         })
 {
