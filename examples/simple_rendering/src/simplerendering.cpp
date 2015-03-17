@@ -71,7 +71,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"size",     Vec2({256, 256})},
             {"stretch_mode", gim::StretchMode::STRETCHED},
             {"image_id", 0},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({8, 8}))},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
             {"dragged", false},
             {"resize", false},
             {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode})},
@@ -88,7 +88,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"size",     Vec2({64, 64})},
                 {"stretch_mode", gim::StretchMode::STRETCHED},
                 {"image_id", 0},
-                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({8, 8}))},
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
                 {"block_event", true},
                 {"dragged", false},
                 {"resize", false},
@@ -124,7 +124,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"image_id", 0},
                 {"dragged", false},
                 {"resize", false},
-                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({16, 16}))},
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
                 {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode})},
                 {"on_mouse_release", setOriginalColor},
                 {"block_event", true}
@@ -135,7 +135,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
 
     mTextures.emplace(0, loadTexture("resources/xpattern.png"));
 
-    mRenderDataGenerator.registerImageInfo(0, {8, 8});
+    mRenderDataGenerator.registerImageInfo(0, {32, 32});
     //rendering
 
     mTriangles.bind();
