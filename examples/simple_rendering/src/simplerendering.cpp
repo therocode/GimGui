@@ -26,7 +26,9 @@ Callback<Vec2> toggleStretchMode = [] (gim::Element& self, const Vec2& clickPos)
     gim::StretchMode currentStretchMode = self.getAttribute<gim::StretchMode>("stretch_mode");
     gim::StretchMode newStretchMode;
 
-    const Vec2 position = self.getAttribute<Vec2>("position");
+    gim::AbsoluteMap<Vec2> absoluteMap("position");
+
+    const Vec2 position = absoluteMap.getAbsoluteOf(self);
     Vec2 relativePos;
     relativePos.x = clickPos.x - position.x;
     relativePos.y = clickPos.y - position.y;
