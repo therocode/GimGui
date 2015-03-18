@@ -174,20 +174,20 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
                 checkQuadPositions(&data[0].positions[36], 69.0f, 5.0f, 75.0f, 37.0f);
                 checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f);
-                checkQuadTexCoords(&data[0].texCoords[24], 0.0f, 0.0f, 0.5f, 0.5f);
+                checkQuadTexCoords(&data[0].texCoords[24], 0.0f, 0.0f, 0.1875f, 0.5f);
 
 
                 checkQuadPositions(&data[0].positions[54], 5.0f, 37.0f, 37.0f, 42.0f);
                 checkQuadColors(&data[0].colors[54], 1.0f, 1.0f, 1.0f);
-                checkQuadTexCoords(&data[0].texCoords[36], 0.0f, 0.0f, 0.5f, 0.5f);
+                checkQuadTexCoords(&data[0].texCoords[36], 0.0f, 0.0f, 0.5f, 0.15625f);
 
                 checkQuadPositions(&data[0].positions[72], 37.0f, 37.0f, 69.0f, 42.0f);
                 checkQuadColors(&data[0].colors[72], 1.0f, 1.0f, 1.0f);
-                checkQuadTexCoords(&data[0].texCoords[48], 0.0f, 0.0f, 0.5f, 0.5f);
+                checkQuadTexCoords(&data[0].texCoords[48], 0.0f, 0.0f, 0.5f, 0.15625f);
 
                 checkQuadPositions(&data[0].positions[90], 69.0f, 37.0f, 75.0f, 42.0f);
                 checkQuadColors(&data[0].colors[90], 1.0f, 1.0f, 1.0f);
-                checkQuadTexCoords(&data[0].texCoords[60], 0.0f, 0.0f, 0.5f, 0.5f);
+                checkQuadTexCoords(&data[0].texCoords[60], 0.0f, 0.0f, 0.1875f, 0.15625f);
             }
         }
     }
@@ -214,7 +214,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {
                 checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 25.0f, 15.0f);
                 checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
-                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.625f, 0.3125f);
             }
         }
     }
@@ -245,7 +245,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
                 checkQuadPositions(&data[0].positions[18], 5.0f, 37.0f, 75.0f, 42.0f);
                 checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f);
-                checkQuadTexCoords(&data[0].texCoords[12], 0.0f, 0.0f, 0.5f, 0.5f);
+                checkQuadTexCoords(&data[0].texCoords[12], 0.0f, 0.0f, 0.5f, 0.15625f);
             }
         }
     }
@@ -272,7 +272,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {
                 checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 25.0f, 15.0f);
                 checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
-                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.3125f);
             }
         }
     }
@@ -307,7 +307,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
                 checkQuadPositions(&data[0].positions[36], 69.0f, 5.0f, 75.0f, 42.0f);
                 checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f);
-                checkQuadTexCoords(&data[0].texCoords[24], 0.0f, 0.0f, 0.5f, 0.5f);
+                checkQuadTexCoords(&data[0].texCoords[24], 0.0f, 0.0f, 0.1875f, 0.5f);
             }
         }
     }
@@ -334,7 +334,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {
                 checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 25.0f, 15.0f);
                 checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
-                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.625f, 0.5f);
             }
         }
     }

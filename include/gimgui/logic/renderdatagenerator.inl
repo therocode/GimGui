@@ -79,8 +79,18 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
                 Vec2 quadSize;
 
-                quadSize.x = (x < tileAmount.x - 1) ? (imageCoords.size.x) : (size.x % imageCoords.size.x);
-                quadSize.y = (y < tileAmount.y - 1) ? (imageCoords.size.y) : (size.y % imageCoords.size.y);
+                bool lastX = x == tileAmount.x - 1;
+                bool lastY = y == tileAmount.y - 1;
+
+                quadSize.x = (!lastX) ? (imageCoords.size.x) : (size.x % imageCoords.size.x);
+                quadSize.y = (!lastY) ? (imageCoords.size.y) : (size.y % imageCoords.size.y);
+
+                FloatVec2 texCoordsStart;
+                texCoordsStart.x = (float)imageCoords.start.x / imageSize.x;
+                texCoordsStart.y = (float)imageCoords.start.y / imageSize.y;
+                FloatVec2 texCoordsSize;
+                texCoordsSize.x = (float)imageCoords.size.x / imageSize.x;
+                texCoordsSize.y = (float)imageCoords.size.y / imageSize.y;
 
                 if(stretchMode == StretchMode::STRETCHED)
                 {
@@ -90,18 +100,18 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 else if(stretchMode == StretchMode::V_TILED)
                 {
                     quadSize.x = size.x;
+                    texCoordsSize.y = lastY ? ((float)quadSize.y / imageCoords.size.y) : (texCoordsSize.y);
                 }
                 else if(stretchMode == StretchMode::H_TILED)
                 {
+                    texCoordsSize.x = lastX ? ((float)quadSize.x / imageCoords.size.x) : (texCoordsSize.x);
                     quadSize.y = size.y;
                 }
-
-                FloatVec2 texCoordsStart;
-                texCoordsStart.x = (float)imageCoords.start.x / imageSize.x;
-                texCoordsStart.y = (float)imageCoords.start.y / imageSize.y;
-                FloatVec2 texCoordsSize;
-                texCoordsSize.x = (float)imageCoords.size.x / imageSize.x;
-                texCoordsSize.y = (float)imageCoords.size.y / imageSize.y;
+                else if(stretchMode == StretchMode::TILED)
+                {
+                    texCoordsSize.x = lastX ? ((float)quadSize.x / imageCoords.size.x) : (texCoordsSize.x);
+                    texCoordsSize.y = lastY ? ((float)quadSize.y / imageCoords.size.y) : (texCoordsSize.y);
+                }
 
                 generateQuadWithImage(quadPosition, quadSize, color, texCoordsStart, texCoordsSize, renderData.positions, renderData.colors, renderData.texCoords);
             }
