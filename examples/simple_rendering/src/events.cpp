@@ -25,6 +25,7 @@ void click(gim::Element& element, const Vec2& position)
 
     while(gim::Element* currentElement = propagator.next())
     {
+        currentElement->setAttribute("dragged", true);
         CallbackExecutor<Vec2> executor("on_click");
         executor.execute(*currentElement, position);
 
@@ -39,6 +40,7 @@ void mouseRelease(gim::Element& element, const Vec2& position)
 
     while(gim::Element* currentElement = propagator.next())
     {
+        currentElement->setAttribute("dragged", false);
         CallbackExecutor<Vec2> executor("on_mouse_release");
         executor.execute(*currentElement, position);
     }
@@ -71,23 +73,8 @@ void moveMouse(gim::Element& element, const Vec2& currentPosition, const Vec2& l
             delta.x = currentPosition.x - lastPosition.x;
             delta.y = currentPosition.y - lastPosition.y;
 
-            if(!getOrFallback(*currentElement, "resize", false))
-            {
-                Vec2 relativePosition = currentElement->getAttribute<Vec2>("position");
-                Vec2 newPosition;
-                newPosition.x = relativePosition.x + delta.x;
-                newPosition.y = relativePosition.y + delta.y;
-
-                currentElement->setAttribute("position", newPosition);
-            }
-            else
-            {
-                Vec2 newSize;
-                newSize.x = size.x + delta.x;
-                newSize.y = size.y + delta.y;
-
-                currentElement->setAttribute("size", newSize);
-            }
+            CallbackExecutor<Vec2, Vec2> executor("on_drag");
+            executor.execute(*currentElement, currentPosition, delta);
         }
 
         if(currentPosOverlaps && !lastPosOverlaps)
