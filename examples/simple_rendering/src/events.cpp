@@ -5,19 +5,6 @@
 #include <gimgui/logic/allpropagator.hpp>
 #include <gimgui/util/getorfallback.hpp>
 
-void changeHealth(gim::Element& element, int32_t healthValue)
-{
-    gim::AllPropagator propagator(element);
-
-    while(gim::Element* currentElement = propagator.next())
-    {
-        if(currentElement->tags().count("health_bar") != 0)
-        {
-            currentElement->setAttribute("health", healthValue);
-        }
-    }
-}
-
 void click(gim::Element& element, const Vec2& position)
 {
     gim::BoundaryPropagator<Vec2> propagator(element, {position});
