@@ -417,15 +417,15 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
             THEN("the data is correct")
             {
-                CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 37.0f, 37.0f));
+                CHECK(checkQuadPositions(&data[0].positions[0], 13.0f, 5.0f, 29.0f, 37.0f));
                 CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f));
 
-                CHECK(checkQuadPositions(&data[0].positions[18], -3.0f, 5.0f, 5.0f, 37.0f));
+                CHECK(checkQuadPositions(&data[0].positions[18], 5.0f, 5.0f, 13.0f, 37.0f));
                 CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[12], 0.5f, 0.0f, 0.625f, 0.5f));
 
-                CHECK(checkQuadPositions(&data[0].positions[36], 37.0f, 5.0f, 45.0f, 37.0f));
+                CHECK(checkQuadPositions(&data[0].positions[36], 29.0f, 5.0f, 37.0f, 37.0f));
                 CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[24], 0.625f, 0.0f, 0.75f, 0.5f));
             }
@@ -454,15 +454,15 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
             THEN("the data is correct")
             {
-                CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 37.0f, 37.0f));
+                CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 13.0f, 37.0f, 29.0f));
                 CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f));
 
-                CHECK(checkQuadPositions(&data[0].positions[18], 5.0f, -3.0f, 37.0f, 5.0f));
+                CHECK(checkQuadPositions(&data[0].positions[18], 5.0f, 5.0f, 37.0f, 13.0f));
                 CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[12], 0.0f, 0.5f, 0.5f, 0.625f));
 
-                CHECK(checkQuadPositions(&data[0].positions[36], 5.0f, 37.0f, 37.0f, 45.0f));
+                CHECK(checkQuadPositions(&data[0].positions[36], 5.0f, 29.0f, 37.0f, 37.0f));
                 CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[24], 0.0f, 0.625f, 0.5f, 0.75f));
             }
@@ -498,47 +498,47 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             THEN("the data is correct")
             {
                 //main quad
-                CHECK(checkQuadPositions(&data[0].positions[0], 0.0f, 0.0f, 48.0f, 48.0f));
+                CHECK(checkQuadPositions(&data[0].positions[0], 8.0f, 8.0f, 40.0f, 40.0f));
                 CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.125f, 0.125f, 0.875f, 0.875f));
 
                 //t
-                CHECK(checkQuadPositions(&data[0].positions[18], 0.0f, -8.0f, 48.0f, 0.0f));
+                CHECK(checkQuadPositions(&data[0].positions[18], 8.0f, 0.0f, 40.0f, 8.0f));
                 CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[12], 0.125f, 0.0f, 0.875f, 0.125f));
                 
                 //b
-                CHECK(checkQuadPositions(&data[0].positions[36], 0.0f, 48.0f, 48.0f, 56.0f));
+                CHECK(checkQuadPositions(&data[0].positions[36], 8.0f, 40.0f, 40.0f, 48.0f));
                 CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[24], 0.125f, 0.875f, 0.875f, 1.0f));
 
                 //l
-                CHECK(checkQuadPositions(&data[0].positions[54], -8.0f, 0.0f, 0.0f, 48.0f));
+                CHECK(checkQuadPositions(&data[0].positions[54], 0.0f, 8.0f, 8.0f, 40.0f));
                 CHECK(checkQuadColors(&data[0].colors[54], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[36], 0.0f, 0.125f, 0.125f, 0.875f));
 
                 //r
-                CHECK(checkQuadPositions(&data[0].positions[72], 48.0f, 0.0f, 56.0f, 48.0f));
+                CHECK(checkQuadPositions(&data[0].positions[72], 40.0f, 8.0f, 48.0f, 40.0f));
                 CHECK(checkQuadColors(&data[0].colors[72], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[48], 0.875f, 0.125f, 1.0f, 0.875f));
 
                 //tl
-                CHECK(checkQuadPositions(&data[0].positions[90], -8.0f, -8.0f, 0.0f, 0.0f));
+                CHECK(checkQuadPositions(&data[0].positions[90], 0.0f, 0.0f, 8.0f, 8.0f));
                 CHECK(checkQuadColors(&data[0].colors[90], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[60], 0.0f, 0.0f, 0.125f, 0.125f));
 
                 //tr
-                CHECK(checkQuadPositions(&data[0].positions[108], 48.0f, -8.0f, 56.0f, 0.0f));
+                CHECK(checkQuadPositions(&data[0].positions[108], 40.0f, 0.0f, 48.0f, 8.0f));
                 CHECK(checkQuadColors(&data[0].colors[108], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[72], 0.875f, 0.0f, 1.0f, 0.125f));
                 
                 //bl
-                CHECK(checkQuadPositions(&data[0].positions[126], -8.0f, 48.0f, 0.0f, 56.0f));
+                CHECK(checkQuadPositions(&data[0].positions[126], 0.0f, 40.0f, 8.0f, 48.0f));
                 CHECK(checkQuadColors(&data[0].colors[126], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[84], 0.0f, 0.875f, 0.125f, 1.0f));
                 
                 //br
-                CHECK(checkQuadPositions(&data[0].positions[144], 48.0f, 48.0f, 56.0f, 56.0f));
+                CHECK(checkQuadPositions(&data[0].positions[144], 40.0f, 40.0f, 48.0f, 48.0f));
                 CHECK(checkQuadColors(&data[0].colors[144], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[96], 0.875f, 0.875f, 1.0f, 1.0f));
             }

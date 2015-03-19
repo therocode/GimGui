@@ -30,8 +30,8 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
     renderData.element = &element;
 
     //generate positions
-    const Vec2& position = absoluteMap.getAbsoluteOf(element);
-    const Vec2& size = element.getAttribute<Vec2>("size");
+    Vec2 position = absoluteMap.getAbsoluteOf(element);
+    Vec2 size = element.getAttribute<Vec2>("size");
 
     //generate colors, default white
     const Color* colorPtr = element.findAttribute<Color>("color");
@@ -49,6 +49,33 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         StretchMode stretchMode = stretchModePtr ? *stretchModePtr : StretchMode::STRETCHED;
         const Rectangle<Vec2>& imageCoords = element.getAttribute<Rectangle<Vec2>>("image_coords");
         const Vec2& imageSize = mImageSizes.at(imageId);
+        const BorderMode* borderModePtr = element.findAttribute<BorderMode>("border_mode");
+        BorderMode borderMode = borderModePtr ? *borderModePtr : BorderMode::NONE;
+
+        //adjust position and size based on borders
+        if(borderMode == BorderMode::TOP_BOTTOM || borderMode == BorderMode::FULL)
+        {//generate top and bottom borders
+            GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_t"), "currentElement set to have borders at top/bottom or full but lacks top border image coords");
+            GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_b"), "currentElement set to have borders at top/bottom or full but lacks bottom border image coords");
+
+            const Rectangle<Vec2>& topImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_t");
+            const Rectangle<Vec2>& bottomImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_b");
+
+            position.y += topImageCoords.size.y;
+            size.y -= bottomImageCoords.size.y * 2;
+        }
+
+        if(borderMode == BorderMode::LEFT_RIGHT || borderMode == BorderMode::FULL)
+        {//generate left and right borders
+            GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_l"), "currentElement set to have borders at left/right or full but lacks left border image coords");
+            GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_r"), "currentElement set to have borders at left/right or full but lacks right border image coords");
+
+            const Rectangle<Vec2>& leftImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_l");
+            const Rectangle<Vec2>& rightImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_r");
+
+            position.x += leftImageCoords.size.x;
+            size.x -= rightImageCoords.size.x * 2;
+        }
 
         //find out the amount of tiles it would have based on image size and size. Then based on stretch mode, set x, y or both, to 1. Then calculate underneath stuff and loop for all tiles
         Vec2 tileAmount({size.x / imageCoords.size.x + 1, size.y / imageCoords.size.y + 1});
