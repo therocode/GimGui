@@ -132,7 +132,10 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"resize", false},
                 {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode, setResize})},
                 {"on_mouse_release", CallbackList<Vec2>({setOriginalColor, unsetResize})},
-                {"on_drag", moveOrResize}
+                {"on_drag", moveOrResize},
+                {"border_mode", gim::BorderMode::TOP_BOTTOM},
+                {"border_coords_t",  gim::Rectangle<Vec2>(Vec2({8 ,0 }), Vec2({48,8 }))},
+                {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))}
             }),
             gim::Element({"child"},
             {
@@ -150,7 +153,10 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode, setResize})},
                 {"on_mouse_release", CallbackList<Vec2>({setOriginalColor, unsetResize})},
                 {"block_event", true},
-                {"on_drag", moveOrResize}
+                {"on_drag", moveOrResize},
+                {"border_mode", gim::BorderMode::LEFT_RIGHT},
+                {"border_coords_r",  gim::Rectangle<Vec2>(Vec2({56,8 }), Vec2({8 ,48}))},
+                {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))}
             }),
             gim::Element({"child"},
             {
@@ -234,6 +240,7 @@ void SimpleRendering::loop()
     mBaseShader.setUniform("projection", UniformType::MAT4X4, &mProjection[0]);
 
     auto renderDatas = mRenderDataGenerator.generate(mRoot);
+
 
     for(auto renderData : renderDatas)
     {
