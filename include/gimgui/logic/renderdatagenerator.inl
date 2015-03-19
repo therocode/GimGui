@@ -98,17 +98,17 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 else if(stretchMode == StretchMode::V_TILED)
                 {
                     quadSize.x = size.x;
-                    texCoordsSize.y = lastY ? ((float)quadSize.y / imageCoords.size.y) : (texCoordsSize.y);
+                    texCoordsSize.y = lastY ? ((float)quadSize.y / imageSize.y) : (texCoordsSize.y);
                 }
                 else if(stretchMode == StretchMode::H_TILED)
                 {
-                    texCoordsSize.x = lastX ? ((float)quadSize.x / imageCoords.size.x) : (texCoordsSize.x);
+                    texCoordsSize.x = lastX ? ((float)quadSize.x / imageSize.x) : (texCoordsSize.x);
                     quadSize.y = size.y;
                 }
                 else if(stretchMode == StretchMode::TILED)
                 {
-                    texCoordsSize.x = lastX ? ((float)quadSize.x / imageCoords.size.x) : (texCoordsSize.x);
-                    texCoordsSize.y = lastY ? ((float)quadSize.y / imageCoords.size.y) : (texCoordsSize.y);
+                    texCoordsSize.x = lastX ? ((float)quadSize.x / imageSize.x) : (texCoordsSize.x);
+                    texCoordsSize.y = lastY ? ((float)quadSize.y / imageSize.y) : (texCoordsSize.y);
                 }
 
                 generateQuadWithImage(quadPosition, quadSize, color, texCoordsStart, texCoordsSize, renderData.positions, renderData.colors, renderData.texCoords);
