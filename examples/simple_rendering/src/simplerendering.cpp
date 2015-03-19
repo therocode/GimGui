@@ -99,12 +99,21 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"size",     Vec2({256, 256})},
             {"stretch_mode", gim::StretchMode::STRETCHED},
             {"image_id", 0},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
             {"dragged", false},
             {"resize", false},
             {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode, setResize})},
             {"on_mouse_release", CallbackList<Vec2>({setOriginalColor, unsetResize})},
-            {"on_drag", moveOrResize}
+            {"on_drag", moveOrResize},
+            {"border_mode", gim::BorderMode::FULL},
+            {"border_coords_tl", gim::Rectangle<Vec2>(Vec2({0 ,0 }), Vec2({8 ,8 }))},
+            {"border_coords_t",  gim::Rectangle<Vec2>(Vec2({8 ,0 }), Vec2({48,8 }))},
+            {"border_coords_tr", gim::Rectangle<Vec2>(Vec2({56,0 }), Vec2({8 ,8 }))},
+            {"border_coords_r",  gim::Rectangle<Vec2>(Vec2({56,8 }), Vec2({8 ,48}))},
+            {"border_coords_br", gim::Rectangle<Vec2>(Vec2({56,56}), Vec2({8 ,8 }))},
+            {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))},
+            {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({8 ,8 }))},
+            {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))}
         },
         {
             gim::Element({"child"},
@@ -117,7 +126,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"size",     Vec2({64, 64})},
                 {"stretch_mode", gim::StretchMode::STRETCHED},
                 {"image_id", 0},
-                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
                 {"block_event", true},
                 {"dragged", false},
                 {"resize", false},
@@ -135,7 +144,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"size",     Vec2({64, 64})},
                 {"stretch_mode", gim::StretchMode::STRETCHED},
                 {"image_id", 0},
-                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({4, 4}))},
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
                 {"dragged", false},
                 {"resize", false},
                 {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode, setResize})},
@@ -155,7 +164,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"image_id", 0},
                 {"dragged", false},
                 {"resize", false},
-                {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
                 {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode, setResize})},
                 {"on_mouse_release", CallbackList<Vec2>({setOriginalColor, unsetResize})},
                 {"block_event", true},
@@ -165,9 +174,9 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
 {
     //load textures
 
-    mTextures.emplace(0, loadTexture("resources/xpattern.png"));
+    mTextures.emplace(0, loadTexture("resources/borders.png"));
 
-    mRenderDataGenerator.registerImageInfo(0, {32, 32});
+    mRenderDataGenerator.registerImageInfo(0, {64, 64});
     //rendering
 
     mTriangles.bind();

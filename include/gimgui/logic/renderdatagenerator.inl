@@ -47,8 +47,6 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         int32_t imageId = *imageIdPtr;
         const StretchMode* stretchModePtr = element.findAttribute<StretchMode>("stretch_mode");
         StretchMode stretchMode = stretchModePtr ? *stretchModePtr : StretchMode::STRETCHED;
-        const BorderMode* borderModePtr = element.findAttribute<BorderMode>("border_mode");
-        BorderMode borderMode = borderModePtr ? *borderModePtr : BorderMode::NONE;
         const Rectangle<Vec2>& imageCoords = element.getAttribute<Rectangle<Vec2>>("image_coords");
         const Vec2& imageSize = mImageSizes.at(imageId);
 
@@ -116,6 +114,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 generateQuadWithImage(quadPosition, quadSize, color, texCoordsStart, texCoordsSize, renderData.positions, renderData.colors, renderData.texCoords);
             }
         }
+        generateBorders(element, position, size, color, imageSize, renderData.positions, renderData.colors, renderData.texCoords);
 
         renderData.imageId = imageId;
     }
@@ -196,4 +195,114 @@ void RenderDataGenerator<Vec2, Color>::generateQuadTexCoords(const FloatVec2& te
     });
 
     outTexCoords.insert(outTexCoords.end(), texCoordList.begin(), texCoordList.end());
+}
+
+template <typename Vec2, typename Color>
+void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, const Vec2& position, const Vec2& size, const Color& color, const Vec2& imageSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords)
+{
+    const BorderMode* borderModePtr = element.findAttribute<BorderMode>("border_mode");
+    BorderMode borderMode = borderModePtr ? *borderModePtr : BorderMode::NONE;
+
+    if(borderMode == BorderMode::TOP_BOTTOM || borderMode == BorderMode::FULL)
+    {//generate top and bottom borders
+        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_t"), "currentElement set to have borders at top/bottom or full but lacks top border image coords");
+        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_b"), "currentElement set to have borders at top/bottom or full but lacks bottom border image coords");
+
+        const Rectangle<Vec2>& topImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_t");
+        const Rectangle<Vec2>& bottomImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_b");
+
+        //top quad
+        generateQuadWithImage(
+                Vec2({position.x, position.y - topImageCoords.size.y}),
+                Vec2({size.x, topImageCoords.size.y}),
+                color,
+                FloatVec2({(float)topImageCoords.start.x / imageSize.x, (float)topImageCoords.start.y / imageSize.y}),
+                FloatVec2({(float)topImageCoords.size.x  / imageSize.x, (float)topImageCoords.size.y  / imageSize.y}),
+                outPositions, outColors, outTexCoords);
+        
+        //bottom quad
+        generateQuadWithImage(
+                Vec2({position.x, position.y + size.y}),
+                Vec2({size.x, bottomImageCoords.size.y}),
+                color,
+                FloatVec2({(float)bottomImageCoords.start.x / imageSize.x, (float)bottomImageCoords.start.y / imageSize.y}),
+                FloatVec2({(float)bottomImageCoords.size.x  / imageSize.x, (float)bottomImageCoords.size.y  / imageSize.y}),
+                outPositions, outColors, outTexCoords);
+    }
+
+    if(borderMode == BorderMode::LEFT_RIGHT || borderMode == BorderMode::FULL)
+    {//generate left and right borders
+        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_l"), "currentElement set to have borders at left/right or full but lacks left border image coords");
+        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_r"), "currentElement set to have borders at left/right or full but lacks right border image coords");
+
+        const Rectangle<Vec2>& leftImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_l");
+        const Rectangle<Vec2>& rightImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_r");
+
+        //left quad
+        generateQuadWithImage(
+                Vec2({position.x - leftImageCoords.size.x, position.y}),
+                Vec2({leftImageCoords.size.x, size.y}),
+                color,
+                FloatVec2({(float)leftImageCoords.start.x / imageSize.x, (float)leftImageCoords.start.y / imageSize.y}),
+                FloatVec2({(float)leftImageCoords.size.x  / imageSize.x, (float)leftImageCoords.size.y  / imageSize.y}),
+                outPositions, outColors, outTexCoords);
+        
+        //right quad
+        generateQuadWithImage(
+                Vec2({position.x + size.x, position.y}),
+                Vec2({rightImageCoords.size.x, size.y}),
+                color,
+                FloatVec2({(float)rightImageCoords.start.x / imageSize.x, (float)rightImageCoords.start.y / imageSize.y}),
+                FloatVec2({(float)rightImageCoords.size.x  / imageSize.x, (float)rightImageCoords.size.y  / imageSize.y}),
+                outPositions, outColors, outTexCoords);
+    }
+
+    if(borderMode == BorderMode::FULL)
+    {//generate corner borders
+        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_tl"), "currentElement set to have full borders but lacks top-left border image coords");
+        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_tr"), "currentElement set to have full borders but lacks top-right border image coords");
+        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_bl"), "currentElement set to have full borders but lacks bottom-left border image coords");
+        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_br"), "currentElement set to have full borders but lacks bottom-right border image coords");
+
+        const Rectangle<Vec2>& topLeftImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_tl");
+        const Rectangle<Vec2>& topRightImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_tr");
+        const Rectangle<Vec2>& bottomLeftImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_bl");
+        const Rectangle<Vec2>& bottomRightImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_br");
+
+        //topLeft quad
+        generateQuadWithImage(
+                Vec2({position.x - topLeftImageCoords.size.x, position.y - topLeftImageCoords.size.y}),
+                topLeftImageCoords.size,
+                color,
+                FloatVec2({(float)topLeftImageCoords.start.x / imageSize.x, (float)topLeftImageCoords.start.y / imageSize.y}),
+                FloatVec2({(float)topLeftImageCoords.size.x  / imageSize.x, (float)topLeftImageCoords.size.y  / imageSize.y}),
+                outPositions, outColors, outTexCoords);
+        
+        //topRight quad
+        generateQuadWithImage(
+                Vec2({position.x + size.x, position.y - topRightImageCoords.size.y}),
+                topRightImageCoords.size,
+                color,
+                FloatVec2({(float)topRightImageCoords.start.x / imageSize.x, (float)topRightImageCoords.start.y / imageSize.y}),
+                FloatVec2({(float)topRightImageCoords.size.x  / imageSize.x, (float)topRightImageCoords.size.y  / imageSize.y}),
+                outPositions, outColors, outTexCoords);
+
+        //bottomLeft quad
+        generateQuadWithImage(
+                Vec2({position.x - bottomLeftImageCoords.size.y, position.y + size.y}),
+                bottomLeftImageCoords.size,
+                color,
+                FloatVec2({(float)bottomLeftImageCoords.start.x / imageSize.x, (float)bottomLeftImageCoords.start.y / imageSize.y}),
+                FloatVec2({(float)bottomLeftImageCoords.size.x  / imageSize.x, (float)bottomLeftImageCoords.size.y  / imageSize.y}),
+                outPositions, outColors, outTexCoords);
+        
+        //bottomRight quad
+        generateQuadWithImage(
+                Vec2({position.x + size.x, position.y + size.y}),
+                bottomRightImageCoords.size,
+                color,
+                FloatVec2({(float)bottomRightImageCoords.start.x / imageSize.x, (float)bottomRightImageCoords.start.y / imageSize.y}),
+                FloatVec2({(float)bottomRightImageCoords.size.x  / imageSize.x, (float)bottomRightImageCoords.size.y  / imageSize.y}),
+                outPositions, outColors, outTexCoords);
+    }
 }
