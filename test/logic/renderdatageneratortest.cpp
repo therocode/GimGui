@@ -117,6 +117,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
         }
     }
 
+    //tiles
     GIVEN("an element set to not be tiled")
     {
         gim::Element element({"non-tiled"},
@@ -338,4 +339,191 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             }
         }
     }
+
+    //borders
+    GIVEN("an element set to have no border")
+    {
+        gim::Element element({"no border"},
+        {
+            {"position", Vec2({5, 5})},
+            {"size",     Vec2({32, 32})},
+            {"image_id", 1},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
+            {"border_mode", gim::BorderMode::NONE}
+        });
+
+        WHEN("a RenderDataGenerator is used to get rendering info from the element")
+        {
+            gim::RenderDataGenerator<Vec2, Color> generator;
+            generator.registerImageInfo(1, Vec2({64, 64}));
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the data is correct")
+            {
+                checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 37.0f, 37.0f);
+                checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+            }
+        }
+    }
+
+    GIVEN("an element set to have left-right border")
+    {
+        gim::Element element({"left-right"},
+        {
+            {"position", Vec2({5, 5})},
+            {"size",     Vec2({32, 32})},
+            {"image_id", 1},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
+            {"border_mode", gim::BorderMode::LEFT_RIGHT},
+            {"border_coords_l", gim::Rectangle<Vec2>(Vec2({32,0}), Vec2({8,32}))},
+            {"border_coords_r", gim::Rectangle<Vec2>(Vec2({40,0}), Vec2({8,32}))}
+        });
+
+        WHEN("a RenderDataGenerator is used to get rendering info from the element")
+        {
+            gim::RenderDataGenerator<Vec2, Color> generator;
+            generator.registerImageInfo(1, Vec2({64, 64}));
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the data is correct")
+            {
+                checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 37.0f, 37.0f);
+                checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+
+                checkQuadPositions(&data[0].positions[18], -3.0f, 5.0f, 5.0f, 37.0f);
+                checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[12], 0.5f, 0.0f, 0.625f, 0.5f);
+
+                checkQuadPositions(&data[0].positions[36], 37.0f, 5.0f, 45.0f, 37.0f);
+                checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[24], 0.625f, 0.0f, 0.75f, 0.5f);
+            }
+        }
+    }
+
+    GIVEN("an element set to have top-bottom border")
+    {
+        gim::Element element({"top-bottom"},
+        {
+            {"position", Vec2({5, 5})},
+            {"size",     Vec2({32, 32})},
+            {"image_id", 1},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
+            {"border_mode", gim::BorderMode::TOP_BOTTOM},
+            {"border_coords_t", gim::Rectangle<Vec2>(Vec2({0,32}), Vec2({32,8}))},
+            {"border_coords_b", gim::Rectangle<Vec2>(Vec2({0,40}), Vec2({32,8}))}
+        });
+
+        WHEN("a RenderDataGenerator is used to get rendering info from the element")
+        {
+            gim::RenderDataGenerator<Vec2, Color> generator;
+            generator.registerImageInfo(1, Vec2({64, 64}));
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the data is correct")
+            {
+                checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 37.0f, 37.0f);
+                checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f);
+
+                checkQuadPositions(&data[0].positions[18], 5.0f, -3.0f, 37.0f, 5.0f);
+                checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[12], 0.0f, 0.5f, 0.5f, 0.625f);
+
+                checkQuadPositions(&data[0].positions[36], 5.0f, 37.0f, 37.0f, 45.0f);
+                checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[24], 0.0f, 0.625f, 0.5f, 0.75f);
+            }
+        }
+    }
+
+    GIVEN("an element set to have full border")
+    {
+        gim::Element element({"full"},
+        {
+            {"position", Vec2({0, 0})},
+            {"size",     Vec2({48, 48})},
+            {"image_id", 1},
+            {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
+            {"border_mode", gim::BorderMode::FULL},
+            {"border_coords_tl", gim::Rectangle<Vec2>(Vec2({0 ,0 }), Vec2({8 ,8 }))},
+            {"border_coords_t",  gim::Rectangle<Vec2>(Vec2({8 ,0 }), Vec2({48,8 }))},
+            {"border_coords_tr", gim::Rectangle<Vec2>(Vec2({56,0 }), Vec2({8 ,8 }))},
+            {"border_coords_r",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))},
+            {"border_coords_br", gim::Rectangle<Vec2>(Vec2({56,8 }), Vec2({8 ,8 }))},
+            {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({48,8 }))},
+            {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({8 ,8 }))},
+            {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({56,56}), Vec2({8 ,48}))}
+        });
+
+        WHEN("a RenderDataGenerator is used to get rendering info from the element")
+        {
+            gim::RenderDataGenerator<Vec2, Color> generator;
+            generator.registerImageInfo(1, Vec2({64, 64}));
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the data is correct")
+            {
+                //main quad
+                checkQuadPositions(&data[0].positions[0], 0.0f, 0.0f, 48.0f, 48.0f);
+                checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[0], 0.125f, 0.125f, 0.875f, 0.875f);
+
+                //tl
+                checkQuadPositions(&data[0].positions[18], -8.0f, -8.0f, 0.0f, 0.0f);
+                checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[12], 0.0f, 0.0f, 0.125f, 0.125f);
+
+                //t
+                checkQuadPositions(&data[0].positions[36], 0.0f, -8.0f, 48.0f, 0.0f);
+                checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[24], 0.125f, 0.0f, 0.875f, 0.125f);
+
+                //tr
+                checkQuadPositions(&data[0].positions[54], 48.0f, -8.0f, 56.0f, 0.0f);
+                checkQuadColors(&data[0].colors[54], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[36], 0.875f, 0.0f, 1.0f, 0.125f);
+
+                //r
+                checkQuadPositions(&data[0].positions[72], 48.0f, 0.0f, 56.0f, 48.0f);
+                checkQuadColors(&data[0].colors[72], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[48], 0.875f, 0.125f, 1.0f, 0.875f);
+                
+                //br
+                checkQuadPositions(&data[0].positions[90], 48.0f, 48.0f, 56.0f, 56.0f);
+                checkQuadColors(&data[0].colors[90], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[60], 0.875f, 0.875f, 1.0f, 1.0f);
+                
+                //b
+                checkQuadPositions(&data[0].positions[108], 0.0f, 48.0f, 48.0f, 56.0f);
+                checkQuadColors(&data[0].colors[108], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[72], 0.125f, 0.875f, 0.875f, 1.0f);
+                
+                //bl
+                checkQuadPositions(&data[0].positions[126], -8.0f, 48.0f, 0.0f, 56.0f);
+                checkQuadColors(&data[0].colors[126], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[84], 0.0f, 0.875f, 0.125f, 1.0f);
+
+                //l
+                checkQuadPositions(&data[0].positions[144], -8.0f, 0.0f, 0.0f, 48.0f);
+                checkQuadColors(&data[0].colors[144], 1.0f, 1.0f, 1.0f);
+                checkQuadTexCoords(&data[0].texCoords[96], 0.0f, 0.125f, 125.0f, 0.875f);
+            }
+        }
+    }
 }
+    //"border_mode":BorderMode;
+    //"border_coords_tl":Rectangle<Vec2>(start, size);
+    //"border_coords_t": Rectangle<Vec2>(start, size);
+    //"border_coords_tr":Rectangle<Vec2>(start, size);
+    //"border_coords_r": Rectangle<Vec2>(start, size);
+    //"border_coords_br":Rectangle<Vec2>(start, size);
+    //"border_coords_b": Rectangle<Vec2>(start, size);
+    //"border_coords_bl":Rectangle<Vec2>(start, size);
+    //"border_coords_l": Rectangle<Vec2>(start, size);
