@@ -123,19 +123,19 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"original_color",    Color(94, 140, 106)},
                 {"click_color",    Color(124, 170, 136)},
                 {"position", Vec2({20, 20})},
-                {"size",     Vec2({64, 64})},
+                {"size",     Vec2({56, 18})},
                 {"stretch_mode", gim::StretchMode::STRETCHED},
-                {"image_id", 0},
-                {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
+                {"image_id", 1},
+                {"image_coords", gim::Rectangle<Vec2>(Vec2({6, 0}), Vec2({44, 18}))},
                 {"block_event", true},
                 {"dragged", false},
                 {"resize", false},
-                {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode, setResize})},
+                {"on_click", CallbackList<Vec2>({setClickColor, printClicked, setResize})},
                 {"on_mouse_release", CallbackList<Vec2>({setOriginalColor, unsetResize})},
                 {"on_drag", moveOrResize},
-                {"border_mode", gim::BorderMode::TOP_BOTTOM},
-                {"border_coords_t",  gim::Rectangle<Vec2>(Vec2({8 ,0 }), Vec2({48,8 }))},
-                {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))}
+                {"border_mode", gim::BorderMode::LEFT_RIGHT},
+                {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,0}), Vec2({6, 18}))},
+                {"border_coords_r",  gim::Rectangle<Vec2>(Vec2({50,0}), Vec2({6, 18}))}
             }),
             gim::Element({"child"},
             {
@@ -181,8 +181,10 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     //load textures
 
     mTextures.emplace(0, loadTexture("resources/borders.png"));
+    mTextures.emplace(1, loadTexture("resources/button.png"));
 
     mRenderDataGenerator.registerImageInfo(0, {64, 64});
+    mRenderDataGenerator.registerImageInfo(1, {56, 18});
     //rendering
 
     mTriangles.bind();
@@ -217,6 +219,9 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
 
     Projection proj;
     mProjection = proj.createOrthoProjection(0.0f, (GLfloat)viewSize.x, 0.0f, (GLfloat)viewSize.y, 0.000000001f, 100.0f);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable( GL_BLEND );
 }
 
 void SimpleRendering::loop()
