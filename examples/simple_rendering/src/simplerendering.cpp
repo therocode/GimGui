@@ -11,8 +11,11 @@
 #include <gimgui/logic/boundarypropagator.hpp>
 #include <gimgui/util/getorfallback.hpp>
 
-Callback<Vec2, Vec2> moveOrResize = [] (gim::Element& self, const Vec2& position, const Vec2& delta)
+Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
 {
+    Vec2 position = getOrFallback(parameters, "position", Vec2({0,0}));
+    Vec2 delta = getOrFallback(parameters, "delta", Vec2({0,0}));
+
     if(!getOrFallback(self, "resize", false))
     {
         Vec2 relativePosition = self.getAttribute<Vec2>("position");
@@ -33,8 +36,9 @@ Callback<Vec2, Vec2> moveOrResize = [] (gim::Element& self, const Vec2& position
     }
 };
 
-Callback<Vec2> setResize = [] (gim::Element& self, const Vec2& clickPos)
+Callback setResize = [] (gim::Element& self, const Parameters& parameters)
 {
+    Vec2 clickPos = getOrFallback(parameters, "position", Vec2({0,0}));
     gim::AbsoluteMap<Vec2> absoluteMap("position");
     const Vec2 position = absoluteMap.getAbsoluteOf(self);
 
@@ -49,38 +53,41 @@ Callback<Vec2> setResize = [] (gim::Element& self, const Vec2& clickPos)
     }
 };
 
-Callback<Vec2> unsetResize = [] (gim::Element& self, const Vec2& releasePos)
+Callback unsetResize = [] (gim::Element& self, const Parameters& parameters)
 {
     self.setAttribute("resize", false);
 };
 
-Callback<Vec2> setClickColor = [] (gim::Element& self, const Vec2& clickPos)
+Callback setClickColor = [] (gim::Element& self, const Parameters& parameters)
 {
     self.setAttribute("color", self.getAttribute<Color>("click_color"));
 };
-Callback<Vec2> setOriginalColor = [] (gim::Element& self, const Vec2& releasePos)
+Callback setOriginalColor = [] (gim::Element& self, const Parameters& parameters)
 {
     self.setAttribute("color", self.getAttribute<Color>("original_color"));
 };
-Callback<Vec2> printClicked = [] (gim::Element& self, const Vec2& clickPos)
+Callback printClicked = [] (gim::Element& self, const Parameters& parameters)
 {
     std::cout << self.getAttribute<std::string>("name") << " clicked\n";
 };
-Callback<Vec2> toggleStretchMode = [] (gim::Element& self, const Vec2& clickPos)
+Callback toggleStretchMode = [] (gim::Element& self, const Parameters& parameters)
 {
-    gim::StretchMode currentStretchMode = self.getAttribute<gim::StretchMode>("stretch_mode");
-    gim::StretchMode newStretchMode;
+    if(!self.getAttribute<bool>("resize"))
+    {
+        gim::StretchMode currentStretchMode = self.getAttribute<gim::StretchMode>("stretch_mode");
+        gim::StretchMode newStretchMode;
 
-    if(currentStretchMode == gim::StretchMode::STRETCHED)
-        newStretchMode = gim::StretchMode::TILED;
-    else if(currentStretchMode == gim::StretchMode::TILED)
-        newStretchMode = gim::StretchMode::V_TILED;
-    else if(currentStretchMode == gim::StretchMode::V_TILED)
-        newStretchMode = gim::StretchMode::H_TILED;
-    else if(currentStretchMode == gim::StretchMode::H_TILED)
-        newStretchMode = gim::StretchMode::STRETCHED;
+        if(currentStretchMode == gim::StretchMode::STRETCHED)
+            newStretchMode = gim::StretchMode::TILED;
+        else if(currentStretchMode == gim::StretchMode::TILED)
+            newStretchMode = gim::StretchMode::V_TILED;
+        else if(currentStretchMode == gim::StretchMode::V_TILED)
+            newStretchMode = gim::StretchMode::H_TILED;
+        else if(currentStretchMode == gim::StretchMode::H_TILED)
+            newStretchMode = gim::StretchMode::STRETCHED;
 
-    self.setAttribute("stretch_mode", newStretchMode);
+        self.setAttribute("stretch_mode", newStretchMode);
+    }
 };
 
 SimpleRendering::SimpleRendering(const Vec2& viewSize):
@@ -102,8 +109,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
             {"dragged", false},
             {"resize", false},
-            {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode, setResize})},
-            {"on_mouse_release", CallbackList<Vec2>({setOriginalColor, unsetResize})},
+            {"on_click", CallbackList({setClickColor, printClicked, setResize})},
+            {"on_mouse_release", CallbackList({setOriginalColor, toggleStretchMode, unsetResize})},
             {"on_drag", moveOrResize},
             {"border_mode", gim::BorderMode::FULL},
             {"border_coords_tl", gim::Rectangle<Vec2>(Vec2({0 ,0 }), Vec2({8 ,8 }))},
@@ -130,8 +137,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"block_event", true},
                 {"dragged", false},
                 {"resize", false},
-                {"on_click", CallbackList<Vec2>({setClickColor, printClicked, setResize})},
-                {"on_mouse_release", CallbackList<Vec2>({setOriginalColor, unsetResize})},
+                {"on_click", CallbackList({setClickColor, printClicked, setResize})},
+                {"on_mouse_release", CallbackList({setOriginalColor, unsetResize})},
                 {"on_drag", moveOrResize},
                 {"border_mode", gim::BorderMode::LEFT_RIGHT},
                 {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,0}), Vec2({6, 18}))},
@@ -150,8 +157,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
                 {"dragged", false},
                 {"resize", false},
-                {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode, setResize})},
-                {"on_mouse_release", CallbackList<Vec2>({setOriginalColor, unsetResize})},
+                {"on_click", CallbackList({setClickColor, printClicked, toggleStretchMode, setResize})},
+                {"on_mouse_release", CallbackList({setOriginalColor, unsetResize})},
                 {"block_event", true},
                 {"on_drag", moveOrResize},
                 {"border_mode", gim::BorderMode::LEFT_RIGHT},
@@ -171,8 +178,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"dragged", false},
                 {"resize", false},
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
-                {"on_click", CallbackList<Vec2>({setClickColor, printClicked, toggleStretchMode, setResize})},
-                {"on_mouse_release", CallbackList<Vec2>({setOriginalColor, unsetResize})},
+                {"on_click", CallbackList({setClickColor, printClicked, toggleStretchMode, setResize})},
+                {"on_mouse_release", CallbackList({setOriginalColor, unsetResize})},
                 {"block_event", true},
                 {"on_drag", moveOrResize}
             })
@@ -298,7 +305,7 @@ void SimpleRendering::handleEvents(const std::deque<SDL_Event>& events)
         else if(event.type == SDL_MOUSEBUTTONDOWN)
         {
             Vec2 position = Vec2({event.button.x, event.button.y});
-            click(mRoot, position);
+            clicked(mRoot, position);
         }
         else if(event.type == SDL_MOUSEBUTTONUP)
         {

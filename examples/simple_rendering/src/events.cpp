@@ -5,7 +5,7 @@
 #include <gimgui/logic/allpropagator.hpp>
 #include <gimgui/util/getorfallback.hpp>
 
-void click(gim::Element& element, const Vec2& position)
+void clicked(gim::Element& element, const Vec2& position)
 {
     gim::BoundaryPropagator<Vec2> propagator(element, {position});
     propagator.reverse();
@@ -13,8 +13,8 @@ void click(gim::Element& element, const Vec2& position)
     while(gim::Element* currentElement = propagator.next())
     {
         currentElement->setAttribute("dragged", true);
-        CallbackExecutor<Vec2> executor("on_click");
-        executor.execute(*currentElement, position);
+        CallbackExecutor executor("on_click");
+        executor.execute(*currentElement, {{"position", position}});
 
         if(bool* blocks = currentElement->findAttribute<bool>("block_event"))
             break;
@@ -28,8 +28,8 @@ void mouseRelease(gim::Element& element, const Vec2& position)
     while(gim::Element* currentElement = propagator.next())
     {
         currentElement->setAttribute("dragged", false);
-        CallbackExecutor<Vec2> executor("on_mouse_release");
-        executor.execute(*currentElement, position);
+        CallbackExecutor executor("on_mouse_release");
+        executor.execute(*currentElement, {{"position", position}});
     }
 }
 
@@ -60,19 +60,19 @@ void moveMouse(gim::Element& element, const Vec2& currentPosition, const Vec2& l
             delta.x = currentPosition.x - lastPosition.x;
             delta.y = currentPosition.y - lastPosition.y;
 
-            CallbackExecutor<Vec2, Vec2> executor("on_drag");
-            executor.execute(*currentElement, currentPosition, delta);
+            CallbackExecutor executor("on_drag");
+            executor.execute(*currentElement, {{"position", currentPosition}, {"delta", delta}});
         }
 
         if(currentPosOverlaps && !lastPosOverlaps)
         {//got hovered
-            CallbackExecutor<Vec2> executor("on_hover");
-            executor.execute(*currentElement, position);
+            CallbackExecutor executor("on_hover");
+            executor.execute(*currentElement, {{"position", position}});
         }
         else if(lastPosOverlaps && !currentPosOverlaps)
         {//got blurred
-            CallbackExecutor<> executor("on_blur");
-            executor.execute(*currentElement);
+            CallbackExecutor executor("on_blur");
+            executor.execute(*currentElement, Parameters());
         }
     }
 }

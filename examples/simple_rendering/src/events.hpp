@@ -5,13 +5,11 @@
 #include <vector>
 #include <functional>
 
-template<typename... Parameters>
-using Callback = std::function<void(gim::Element&, const Parameters&...)>;
+using Parameters = std::unordered_map<std::string, gim::Variant>;
 
-template<typename... Parameters>
-using CallbackList = std::vector<Callback<Parameters...>>;
+using Callback = std::function<void(gim::Element&, const Parameters&)>;
+using CallbackList = std::vector<Callback>;
 
-template<typename... Parameters>
 class CallbackExecutor
 {
     public:
@@ -19,17 +17,17 @@ class CallbackExecutor
             mAttributeName(attributeName)
         {
         }
-        void execute(gim::Element& element, const Parameters&... parameters)
+        void execute(gim::Element& element, const Parameters& parameters)
         {
-            if(auto* callback = element.findAttribute<Callback<Parameters...>>(mAttributeName))
+            if(auto* callback = element.findAttribute<Callback>(mAttributeName))
             {
-                (*callback)(element, parameters...);
+                (*callback)(element, parameters);
             }
-            else if(auto* callbackList = element.findAttribute<CallbackList<Parameters...>>(mAttributeName))
+            else if(auto* callbackList = element.findAttribute<CallbackList>(mAttributeName))
             {
                 for(auto callback : *callbackList)
                 {
-                    callback(element, parameters...);
+                    callback(element, parameters);
                 }
             }
         }
@@ -37,6 +35,8 @@ class CallbackExecutor
         std::string mAttributeName;
 };
 
-void click(gim::Element& element, const Vec2& position);
+//goes to the element which was actually clicked
+void clicked(gim::Element& element, const Vec2& position);
+//goes to all elements, notifying that a mouse button was released
 void mouseRelease(gim::Element& element, const Vec2& position);
 void moveMouse(gim::Element& element, const Vec2& currentPosition, const Vec2& lastPosition);
