@@ -72,7 +72,7 @@ Callback printClicked = [] (gim::Element& self, const Parameters& parameters)
 };
 Callback toggleStretchMode = [] (gim::Element& self, const Parameters& parameters)
 {
-    if(!self.getAttribute<bool>("resize"))
+    if(!self.getAttribute<bool>("resize") && self.getAttribute<int32_t>("dragged"))
     {
         gim::StretchMode currentStretchMode = self.getAttribute<gim::StretchMode>("stretch_mode");
         gim::StretchMode newStretchMode;
@@ -107,10 +107,10 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"stretch_mode", gim::StretchMode::STRETCHED},
             {"image_id", 0},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
-            {"dragged", false},
+            {"dragged", 0},
             {"resize", false},
             {"on_click", CallbackList({setClickColor, printClicked, setResize})},
-            {"on_mouse_release", CallbackList({setOriginalColor, toggleStretchMode, unsetResize})},
+            {"on_global_release", CallbackList({setOriginalColor, toggleStretchMode, unsetResize})},
             {"on_drag", moveOrResize},
             {"border_mode", gim::BorderMode::FULL},
             {"border_coords_tl", gim::Rectangle<Vec2>(Vec2({0 ,0 }), Vec2({8 ,8 }))},
@@ -135,10 +135,11 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"image_id", 1},
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({6, 0}), Vec2({44, 18}))},
                 {"block_event", true},
-                {"dragged", false},
+                {"dragged", 0},
                 {"resize", false},
                 {"on_click", CallbackList({setClickColor, printClicked, setResize})},
                 {"on_mouse_release", CallbackList({setOriginalColor, unsetResize})},
+                {"on_global_release", CallbackList({setOriginalColor, toggleStretchMode, unsetResize})},
                 {"on_drag", moveOrResize},
                 {"border_mode", gim::BorderMode::LEFT_RIGHT},
                 {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,0}), Vec2({6, 18}))},
@@ -155,10 +156,10 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"stretch_mode", gim::StretchMode::STRETCHED},
                 {"image_id", 0},
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
-                {"dragged", false},
+                {"dragged", 0},
                 {"resize", false},
                 {"on_click", CallbackList({setClickColor, printClicked, toggleStretchMode, setResize})},
-                {"on_mouse_release", CallbackList({setOriginalColor, unsetResize})},
+                {"on_global_release", CallbackList({setOriginalColor, toggleStretchMode, unsetResize})},
                 {"block_event", true},
                 {"on_drag", moveOrResize},
                 {"border_mode", gim::BorderMode::LEFT_RIGHT},
@@ -175,11 +176,11 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"size",     Vec2({64, 64})},
                 {"stretch_mode", gim::StretchMode::STRETCHED},
                 {"image_id", 0},
-                {"dragged", false},
+                {"dragged", 0},
                 {"resize", false},
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
                 {"on_click", CallbackList({setClickColor, printClicked, toggleStretchMode, setResize})},
-                {"on_mouse_release", CallbackList({setOriginalColor, unsetResize})},
+                {"on_global_release", CallbackList({setOriginalColor, toggleStretchMode, unsetResize})},
                 {"block_event", true},
                 {"on_drag", moveOrResize}
             })
@@ -305,12 +306,12 @@ void SimpleRendering::handleEvents(const std::deque<SDL_Event>& events)
         else if(event.type == SDL_MOUSEBUTTONDOWN)
         {
             Vec2 position = Vec2({event.button.x, event.button.y});
-            clicked(mRoot, position);
+            mouseClicked(mRoot, position);
         }
         else if(event.type == SDL_MOUSEBUTTONUP)
         {
             Vec2 position = Vec2({event.button.x, event.button.y});
-            mouseRelease(mRoot, position);
+            mouseReleased(mRoot, position);
         }
     }
 }

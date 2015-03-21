@@ -36,7 +36,7 @@ class CallbackExecutor
 };
 
 //goes to the element which was actually clicked
-void clicked(gim::Element& element, const Vec2& position);
+void mouseClicked(gim::Element& element, const Vec2& position);
 //goes to all elements, notifying that a mouse button was released
-void mouseRelease(gim::Element& element, const Vec2& position);
+void mouseReleased(gim::Element& element, const Vec2& position);
 void moveMouse(gim::Element& element, const Vec2& currentPosition, const Vec2& lastPosition);
