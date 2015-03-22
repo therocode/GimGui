@@ -35,8 +35,10 @@ class CallbackExecutor
         std::string mAttributeName;
 };
 
+enum MouseButton { UNKNOWN = 0, LEFT = 1, RIGHT = 2, MIDDLE = 4};
+
 //goes to the element which was actually clicked
-void mouseClicked(gim::Element& element, const Vec2& position);
+void mouseClicked(gim::Element& element, const Vec2& position, MouseButton button);
 //goes to all elements, notifying that a mouse button was released
-void mouseReleased(gim::Element& element, const Vec2& position);
+void mouseReleased(gim::Element& element, const Vec2& position, MouseButton button);
 void moveMouse(gim::Element& element, const Vec2& currentPosition, const Vec2& lastPosition);

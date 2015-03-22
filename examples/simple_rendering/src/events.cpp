@@ -5,7 +5,7 @@
 #include <gimgui/logic/allpropagator.hpp>
 #include <gimgui/util/getorfallback.hpp>
 
-void mouseClicked(gim::Element& element, const Vec2& position)
+void mouseClicked(gim::Element& element, const Vec2& position, MouseButton button)
 {
     gim::AbsoluteMap<Vec2> positionMap("position");
 
@@ -19,7 +19,8 @@ void mouseClicked(gim::Element& element, const Vec2& position)
         Vec2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
         CallbackExecutor executor("on_click");
         executor.execute(*currentElement, {{"position", position},
-                                           {"relative_position", Vec2({position.x - absolutePosition.x, position.y - absolutePosition.y})}});
+                                           {"relative_position", Vec2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
+                                           {"button", button}});
 
         toDrag.push_back(currentElement);
 
@@ -34,16 +35,18 @@ void mouseClicked(gim::Element& element, const Vec2& position)
         Vec2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
         CallbackExecutor executor("on_global_click");
         executor.execute(*currentElement, {{"position", position},
-                                           {"relative_position", Vec2({position.x - absolutePosition.x, position.y - absolutePosition.y})}});
+                                           {"relative_position", Vec2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
+                                           {"button", button}});
     }
 
     for(auto element : toDrag)
     {
-        element->setAttribute("dragged", 1);
+        int32_t oldDrag = element->getAttribute<int32_t>("dragged");
+        element->setAttribute("dragged", oldDrag | button);
     }
 }
 
-void mouseReleased(gim::Element& element, const Vec2& position)
+void mouseReleased(gim::Element& element, const Vec2& position, MouseButton button)
 {
     gim::AbsoluteMap<Vec2> positionMap("position");
 
@@ -57,7 +60,8 @@ void mouseReleased(gim::Element& element, const Vec2& position)
         Vec2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
         CallbackExecutor executor("on_release");
         executor.execute(*currentElement, {{"position", position},
-                                           {"relative_position", Vec2({position.x - absolutePosition.x, position.y - absolutePosition.y})}});
+                                           {"relative_position", Vec2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
+                                           {"button", button}});
         toUnDrag.push_back(currentElement);
 
         if(bool* blocks = currentElement->findAttribute<bool>("block_event"))
@@ -71,12 +75,14 @@ void mouseReleased(gim::Element& element, const Vec2& position)
         Vec2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
         CallbackExecutor executor("on_global_release");
         executor.execute(*currentElement, {{"position", position},
-                                           {"relative_position", Vec2({position.x - absolutePosition.x, position.y - absolutePosition.y})}});
+                                           {"relative_position", Vec2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
+                                           {"button", button}});
     }
 
     for(auto element : toUnDrag)
     {
-        element->setAttribute("dragged", 0);
+        int32_t oldDrag = element->getAttribute<int32_t>("dragged");
+        element->setAttribute("dragged", oldDrag & (~button));
     }
 }
 
