@@ -36,6 +36,7 @@ set(source_files
     src/data/variant.cpp
     src/logic/allpropagator.cpp
     src/logic/attributepopulator.cpp
+    src/util/guillotinebinpack.cpp
 )
 
 set(header_files
@@ -61,6 +62,7 @@ set(header_files
     include/gimgui/logic/renderdatagenerator.inl
     include/gimgui/util/getorfallback.hpp
     include/gimgui/util/getorfallback.inl
+    include/gimgui/util/guillotinebinpack.hpp
     include/gimgui/util/resolve.hpp
     include/gimgui/util/resolve.inl
 )
@@ -90,8 +92,10 @@ if(BUILD_TESTS)
         "test/logic/absolutemaptest.cpp"
         "test/logic/boundarypropagatortest.cpp"
         "test/logic/renderdatageneratortest.cpp"
+        #"test/logic/rectanglepackertest.cpp"
         "test/helpers/helperstest.cpp"
         "test/util/getorfallbacktest.cpp"
+        "test/util/guillotinebinpacktest.cpp"
         "test/util/resolvetest.cpp"
 
         "test/helpers/color.cpp"

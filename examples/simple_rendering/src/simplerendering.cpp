@@ -139,7 +139,27 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"border_coords_br", gim::Rectangle<Vec2>(Vec2({56,56}), Vec2({8 ,8 }))},
             {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))},
             {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({8 ,8 }))},
-            {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))}
+            {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))}/*,
+            {"text", "I am the text of this element"},
+            {"text_offset", Vec2({10, 10})},
+            {"text_size", 23},
+            {"text_color", Color(255, 100, 0)},
+            {"text_style", gim::Bold | gim::Underlined},
+            {"text_style", gim::Bold | gim::Underlined},
+            {"text_scale", 1.0f},
+            {"text_font", 0},
+            {"text_wrap", 100},
+
+            
+
+            class TextureBrigde
+            {
+                int32_t createTexture(size);
+                void updateRegion(id, start, size, bytes);
+                bool enlarge(id, newsize);
+            };
+
+            */
         },
         {
             gim::Element({"child"},
