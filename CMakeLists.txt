@@ -60,6 +60,7 @@ set(header_files
     include/gimgui/logic/event.hpp
     include/gimgui/logic/renderdatagenerator.hpp
     include/gimgui/logic/renderdatagenerator.inl
+    include/gimgui/logic/rectanglepacker.hpp
     include/gimgui/util/getorfallback.hpp
     include/gimgui/util/getorfallback.inl
     include/gimgui/util/guillotinebinpack.hpp
@@ -92,7 +93,7 @@ if(BUILD_TESTS)
         "test/logic/absolutemaptest.cpp"
         "test/logic/boundarypropagatortest.cpp"
         "test/logic/renderdatageneratortest.cpp"
-        #"test/logic/rectanglepackertest.cpp"
+        "test/logic/rectanglepackertest.cpp"
         "test/helpers/helperstest.cpp"
         "test/util/getorfallbacktest.cpp"
         "test/util/guillotinebinpacktest.cpp"

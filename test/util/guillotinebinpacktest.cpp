@@ -11,10 +11,6 @@ bool overlaps(const gim::GuillotineBinPack::Rect& a, const gim::GuillotineBinPac
            (a.y < b.y + b.height && b.y < a.y + a.height);
 }
 
-TEST_CASE()
-{
-}
-
 SCENARIO("GuillotineBinPack can be used to pack rectangles in a non-intersecting way", "[util]")
 {
     GIVEN("a GuillotineBinPack of any size, and a random generator")
