@@ -18,7 +18,7 @@ SCENARIO("RectanglePacker can be used to pack rectangles on an ever increasing s
 {
     GIVEN("a RectanglePacker of a specific size")
     {
-        gim::RectanglePacker<Vec2> packer(Vec2({64, 64}));
+        gim::RectanglePacker<Vec2> packer(16);
 
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -28,11 +28,31 @@ SCENARIO("RectanglePacker can be used to pack rectangles on an ever increasing s
         {
             std::vector<Rect> packedRectangles;
 
-            Rect packed = packer.insert(Vec2({dis(gen), dis(gen)}));
-            packedRectangles.push_back(packed);
+            for(int32_t i = 0; i < 1000; i++)
+            {
+                Rect packed = packer.insert(Vec2({dis(gen), dis(gen)}));
+                packedRectangles.push_back(packed);
+            }
 
             THEN("they are still added validly")
             {
+                bool noneOverlapped = true;
+                int32_t zeroHeightCount = 0;
+
+                for(int32_t i = 0; i < packedRectangles.size(); ++i)
+                {
+                    zeroHeightCount += packedRectangles[i].size.y == 0 ? 1 : 0;
+
+                    for(int32_t j = i + 1; j < packedRectangles.size(); ++j)
+                    {
+                        noneOverlapped = noneOverlapped && !overlaps(packedRectangles[i], packedRectangles[j]);
+                    }
+                }
+
+                INFO("packed " << packedRectangles.size() - zeroHeightCount << " rectangles");
+
+                CHECK(noneOverlapped);
+                CHECK(zeroHeightCount == 0);
             }
         }
     }
