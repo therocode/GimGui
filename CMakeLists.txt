@@ -27,12 +27,14 @@ endif(SHARED_BUILD)
 set(project_name gimgui)
 project(${project_name})
 
-if(EMSCRIPTEN)
-    message(hej)
-endif()
+find_package(Freetype REQUIRED)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+
 #Set source files.
 set(source_files
     src/data/element.cpp
+    src/data/font.cpp
+    src/data/fontloadexception.cpp
     src/data/variant.cpp
     src/logic/allpropagator.cpp
     src/logic/attributepopulator.cpp
@@ -43,6 +45,8 @@ set(header_files
     include/gimgui/assert.hpp
     include/gimgui/data/element.hpp
     include/gimgui/data/element.inl
+    include/gimgui/data/font.hpp
+    include/gimgui/data/fontloadexception.hpp
     include/gimgui/data/renderdata.hpp
     include/gimgui/data/rendermodes.hpp
     include/gimgui/data/rectangle.hpp
@@ -79,13 +83,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CPP_11_FLAG}")
 
 #build
 add_library(${project_name} ${SHARED_OR_STATIC} ${header_files} ${source_files})
-target_link_libraries(${project_name})
+target_link_libraries(${project_name} ${FREETYPE_LIBRARIES})
     
 #tests
 if(BUILD_TESTS)
     include_directories(test)
     add_executable(tests "test/main.cpp"
         "test/data/elementtest.cpp"
+        "test/data/fonttest.cpp"
         "test/data/rectangletest.cpp"
         "test/data/varianttest.cpp"
         "test/logic/allpropagatortest.cpp"
