@@ -1,5 +1,6 @@
 #pragma once
 #include <gimgui/data/fontloadexception.hpp>
+#include <gimgui/data/glyph.hpp>
 #include <memory>
 #include <istream>
 #include <vector>
@@ -51,9 +52,11 @@ namespace gim
             float lineSpacing() const;
             float underlinePosition() const;
             float underlineThickness() const;
+            std::unique_ptr<Glyph> generateGlyph(uint32_t codePoint) const;
         private:
             Freetype mFreetype;
             std::unique_ptr<FontFace> mFace;
+            std::vector<char> mFontDataVector;
             std::string mFamily;
             uint32_t mSize;
     };

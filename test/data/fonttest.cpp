@@ -1,5 +1,6 @@
 #include <catch.hpp>
 #include <fstream>
+#include <algorithm>
 #include <gimgui/data/font.hpp>
 
 gim::Font loadFont(std::istream& in) //workaround due to Catch quirk. cannot construct stuff in CHECK_NOTHROW and CHECK_THROWS_AS for some reason
@@ -128,6 +129,61 @@ SCENARIO("Fonts can be resized", "[data]")
             THEN("the kerning of the same codepoint pair is 'bigger' (smaller in value)")
             {
                 CHECK(originalKerning > font.kerning('A', 'V'));
+            }
+        }
+    }
+}
+
+SCENARIO("Glyph bitmaps can be generated", "[data]")
+{
+    GIVEN("a font")
+    {
+        std::ifstream file("resources/fonts/LiberationSans-Regular.ttf", std::ios::binary);
+        gim::Font font(file);
+
+        WHEN("glyphs of existing codepoints such as A are generated")
+        {
+            std::unique_ptr<gim::Glyph> glyph = font.generateGlyph('A');
+
+            THEN("the glyph contains non-zero data")
+            {
+                REQUIRE(glyph != nullptr);
+                CHECK(glyph->advance > 0.0f);
+                CHECK(glyph->image.width > 0);
+                CHECK(glyph->image.height > 0);
+                CHECK(std::accumulate(glyph->image.pixels.begin(), glyph->image.pixels.end(), 0) > 0);
+            }
+        }
+
+        WHEN("a glyph without graphics such as ' ' is generated")
+        {
+            std::unique_ptr<gim::Glyph> glyph = font.generateGlyph(' ');
+
+            THEN("the glyph contains zero data")
+            {
+                REQUIRE(glyph != nullptr);
+                CHECK(glyph->advance > 0.0f);
+                CHECK(std::accumulate(glyph->image.pixels.begin(), glyph->image.pixels.end(), 0) == 0);
+            }
+        }
+
+        WHEN("two glyphs are generated, one filled more than the other, such as '.' and 'g'")
+        {
+            std::unique_ptr<gim::Glyph> period = font.generateGlyph('.');
+            std::unique_ptr<gim::Glyph> g = font.generateGlyph('g');
+
+            THEN("the 'g' is more filled than '.'")
+            {
+                CHECK(std::accumulate(g->image.pixels.begin(), g->image.pixels.end(), 0) > 
+                      std::accumulate(period->image.pixels.begin(), period->image.pixels.end(), 0));
+            }
+        }
+
+        WHEN("a glyph of a non-existing codepoint is generated")
+        {
+            THEN("a null pointer is returned")
+            {
+                CHECK(font.generateGlyph(-1) == nullptr);
             }
         }
     }

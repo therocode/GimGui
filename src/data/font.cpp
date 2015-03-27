@@ -2,6 +2,7 @@
 #include <gimgui/assert.hpp>
 #include <vector>
 #include <algorithm>
+#include FT_GLYPH_H
 
 namespace gim
 {
@@ -18,7 +19,8 @@ namespace gim
 
     Font::Freetype::~Freetype()
     {
-        FT_Done_FreeType(*mLibrary);
+        if(mLibrary != nullptr)
+            FT_Done_FreeType(*mLibrary);
     }
 
     Font::Freetype::Freetype(Freetype&& other)
@@ -50,7 +52,8 @@ namespace gim
 
     Font::FontFace::~FontFace()
     {
-        FT_Done_Face(*mFace);
+        if(mFace != nullptr)
+            FT_Done_Face(*mFace);
     }
 
     Font::FontFace::FontFace(FontFace&& other)
@@ -77,18 +80,17 @@ namespace gim
             throw FontLoadException("invalid font data given. maybe the file does not exist?");
         }
 
-        std::vector<char> fontDataVector;
         if(!fontData.eof() && !fontData.fail())
         {
             fontData.seekg(0, std::ios_base::end);
             std::streampos fileSize = fontData.tellg();
-            fontDataVector.resize(fileSize);
+            mFontDataVector.resize(fileSize);
 
             fontData.seekg(0, std::ios_base::beg);
-            fontData.read(&fontDataVector[0], fileSize);
+            fontData.read(mFontDataVector.data(), fileSize);
         }
 
-        mFace = std::unique_ptr<FontFace>(new FontFace(mFreetype, fontDataVector));
+        mFace = std::unique_ptr<FontFace>(new FontFace(mFreetype, mFontDataVector));
 
         //Select the Unicode character map
         if(FT_Select_Charmap(mFace->face(), FT_ENCODING_UNICODE) != 0)
@@ -111,6 +113,7 @@ namespace gim
         mFreetype = std::move(other.mFreetype);
         mFace = std::move(other.mFace);
         mFamily = std::move(other.mFamily);
+        mSize = std::move(other.mSize);
     }
 
     Font& Font::operator=(Font&& other)
@@ -118,6 +121,7 @@ namespace gim
         mFreetype = std::move(other.mFreetype);
         mFace = std::move(other.mFace);
         mFamily = std::move(other.mFamily);
+        mSize = std::move(other.mSize);
 
         return *this;
     }
@@ -211,6 +215,54 @@ namespace gim
         else
         {
             return static_cast<float>(FT_MulFix(mFace->face()->underline_thickness, mFace->face()->size->metrics.y_scale)) / 64.0f;
+        }
+    }
+    
+    std::unique_ptr<Glyph> Font::generateGlyph(uint32_t codePoint) const
+    {
+        int32_t charError = FT_Load_Char(mFace->face(), codePoint, FT_LOAD_TARGET_NORMAL | FT_LOAD_FORCE_AUTOHINT);
+
+        FT_Glyph glyph;
+        int32_t glyphError = FT_Get_Glyph(mFace->face()->glyph, &glyph);
+
+        bool hasGlyph = FT_Get_Char_Index(mFace->face(), codePoint);
+        if(charError + glyphError == 0 && hasGlyph)
+        {
+            std::unique_ptr<Glyph> toReturn = std::unique_ptr<Glyph>(new Glyph());
+            FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, 1);
+            FT_Bitmap& bitmap = reinterpret_cast<FT_BitmapGlyph>(glyph)->bitmap;
+
+            toReturn->advance = static_cast<float>(mFace->face()->glyph->metrics.horiAdvance) / 64.0f;
+
+            uint32_t width = bitmap.width;
+            uint32_t height = bitmap.rows;
+
+            toReturn->image.width = width;
+            toReturn->image.height = height;
+            toReturn->image.pixels.resize(width * height);
+
+            bool monochrome = bitmap.pixel_mode == FT_PIXEL_MODE_MONO;
+            const uint8_t* sourcePixels = bitmap.buffer;
+            for(int32_t y = 0; y < height; y++)
+            {
+                for(int32_t x = 0; x < width; x++)
+                {
+                    uint32_t targetIndex = x + y * width;
+
+                    if(monochrome)
+                        toReturn->image.pixels[targetIndex] = ((sourcePixels[x / 8]) & (1 << (7 - (x % 8)))) ? 255 : 0;
+                    else
+                        toReturn->image.pixels[targetIndex] = sourcePixels[x];
+                }
+                sourcePixels += bitmap.pitch;
+            }
+
+            FT_Done_Glyph(glyph);
+            return toReturn;
+        }
+        else
+        {
+            return nullptr;
         }
     }
 }

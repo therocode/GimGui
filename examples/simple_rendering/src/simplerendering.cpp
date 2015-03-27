@@ -6,11 +6,13 @@
 #include <glutils/projection.hpp>
 #include <SDL2/SDL.h>
 #include <window.hpp>
+#include <fstream>
 #include "events.hpp"
 #include <glutils/textureloader.hpp>
 #include <gimgui/logic/boundarypropagator.hpp>
 #include <gimgui/util/getorfallback.hpp>
 #include <gimgui/util/resolve.hpp>
+#include <gimgui/data/font.hpp>
 
 Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
 {
@@ -248,6 +250,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             })
         })
 {
+    std::ifstream fontFile("resources/fonts/LiberationSans-Regular.ttf", std::ios::binary);
+
     //load textures
 
     mTextures.emplace(0, loadTexture("resources/borders.png"));
