@@ -149,6 +149,8 @@ SCENARIO("Glyph bitmaps can be generated", "[data]")
             {
                 REQUIRE(glyph != nullptr);
                 CHECK(glyph->advance > 0.0f);
+                CHECK(glyph->size == font.size());
+                CHECK(glyph->codePoint == 'A');
                 CHECK(glyph->image.width > 0);
                 CHECK(glyph->image.height > 0);
                 CHECK(std::accumulate(glyph->image.pixels.begin(), glyph->image.pixels.end(), 0) > 0);

@@ -33,17 +33,21 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 #Set source files.
 set(source_files
     src/data/element.cpp
+    src/data/codepointsize.cpp
     src/data/font.cpp
     src/data/fontloadexception.cpp
+    src/data/texturecoordinates.cpp
     src/data/variant.cpp
     src/logic/allpropagator.cpp
     src/logic/attributepopulator.cpp
+    src/logic/fonttexturecache.cpp
     src/util/guillotinebinpack.cpp
 )
 
 set(header_files
     include/gimgui/assert.hpp
     include/gimgui/data/bitmap.hpp
+    include/gimgui/data/codepointsize.hpp
     include/gimgui/data/element.hpp
     include/gimgui/data/element.inl
     include/gimgui/data/font.hpp
@@ -54,6 +58,7 @@ set(header_files
     include/gimgui/data/rectangle.hpp
     include/gimgui/data/rectangle.inl
     include/gimgui/data/types.hpp
+    include/gimgui/data/texturecoordinates.hpp
     include/gimgui/data/variant.hpp
     include/gimgui/data/variant.inl
     include/gimgui/logic/absolutemap.hpp
@@ -64,6 +69,8 @@ set(header_files
     include/gimgui/logic/boundarypropagator.hpp
     include/gimgui/logic/boundarypropagator.inl
     include/gimgui/logic/event.hpp
+    include/gimgui/logic/fonttexturecache.hpp
+    include/gimgui/logic/fonttexturecache.inl
     include/gimgui/logic/renderdatagenerator.hpp
     include/gimgui/logic/renderdatagenerator.inl
     include/gimgui/logic/rectanglepacker.hpp
@@ -102,12 +109,14 @@ if(BUILD_TESTS)
         "test/logic/renderdatageneratortest.cpp"
         "test/logic/rectanglepackertest.cpp"
         "test/helpers/helperstest.cpp"
+        "test/util/fonttexturecachetest.cpp"
         "test/util/getorfallbacktest.cpp"
         "test/util/guillotinebinpacktest.cpp"
         "test/util/resolvetest.cpp"
 
         "test/helpers/color.cpp"
         "test/helpers/closeenough.cpp"
+        "test/helpers/textureinterfacestub.cpp"
         "test/helpers/vec2.cpp"
         )
 

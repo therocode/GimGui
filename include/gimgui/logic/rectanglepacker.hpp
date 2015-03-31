@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <cmath>
 #include <gimgui/assert.hpp>
 #include <gimgui/data/rectangle.hpp>
 #include <gimgui/util/guillotinebinpack.hpp>

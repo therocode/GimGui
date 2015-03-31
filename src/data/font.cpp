@@ -233,6 +233,8 @@ namespace gim
             FT_Bitmap& bitmap = reinterpret_cast<FT_BitmapGlyph>(glyph)->bitmap;
 
             toReturn->advance = static_cast<float>(mFace->face()->glyph->metrics.horiAdvance) / 64.0f;
+            toReturn->size = size();
+            toReturn->codePoint = codePoint;
 
             uint32_t width = bitmap.width;
             uint32_t height = bitmap.rows;
