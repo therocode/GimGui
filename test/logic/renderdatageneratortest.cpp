@@ -1,9 +1,12 @@
+#include <fstream>
 #include <catch.hpp>
 #include <gimgui/data/element.hpp>
+#include <gimgui/data/font.hpp>
 #include <gimgui/logic/renderdatagenerator.hpp>
 #include <helpers/vec2.hpp>
 #include <helpers/color.hpp>
 #include <helpers/closeenough.hpp>
+#include <helpers/textureinterfacestub.hpp>
 
 bool checkQuadPositions(const float* firstPosition, float xMin, float yMin, float xMax, float yMax)
 {
@@ -67,14 +70,17 @@ bool checkQuadTexCoords(const float* firstTexCoord, float xMin, float yMin, floa
 
 SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffers and such data for rendering", "[logic]")
 {
-    GIVEN("a gui tree with elements with the attributes width and height")
+    GIVEN("a gui tree with elements with the attributes width and height, and a RenderDataGenerator")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
+
         gim::Element root({"container"},
         {
             {"color",    Color(255, 0, 0)},
             {"position", Vec2({5, 5})},
             {"size",     Vec2({40, 30})},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
         },
         {
@@ -85,11 +91,8 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             })
         });
 
-        WHEN("a RenderDataGenerator is used to get rendering info from the tree")
+        WHEN("the RenderDataGenerator is used to get rendering info from the tree")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(root);
 
             THEN("the data is correct")
@@ -102,7 +105,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
                 REQUIRE(data[1].colors.size() == 18);
                 REQUIRE(data[1].texCoords.size() == 0);
 
-                CHECK(data[0].imageId == 1);
+                CHECK(data[0].imageId == imageId);
                 CHECK(data[0].element == &root);
                 CHECK(data[1].element == root.children()[0].get());
 
@@ -120,20 +123,20 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
     //tiles
     GIVEN("an element set to not be tiled")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
+
         gim::Element element({"non-tiled"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({40, 30})},
             {"stretch_mode", gim::StretchMode::STRETCHED},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(element);
 
             THEN("the data is correct")
@@ -147,20 +150,19 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element bigger than one tile set to be fully tiled")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
         gim::Element element({"tiled"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({70, 37})},
             {"stretch_mode", gim::StretchMode::TILED},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(element);
 
             THEN("the data is correct")
@@ -195,20 +197,19 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element smaller than one tile set to be fully tiled")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
         gim::Element element({"tiled"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({20, 10})},
             {"stretch_mode", gim::StretchMode::TILED},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(element);
 
             THEN("the data is correct")
@@ -222,20 +223,19 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element bigger than one tile set to be vertically tiled")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
         gim::Element element({"tiled"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({70, 37})},
             {"stretch_mode", gim::StretchMode::V_TILED},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(element);
 
             THEN("the data is correct")
@@ -253,20 +253,19 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element smaller than one tile set to be vertically tiled")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
         gim::Element element({"tiled"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({20, 10})},
             {"stretch_mode", gim::StretchMode::V_TILED},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(element);
 
             THEN("the data is correct")
@@ -280,20 +279,19 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element bigger than one tile set to be horizontally tiled")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
         gim::Element element({"tiled"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({70, 37})},
             {"stretch_mode", gim::StretchMode::H_TILED},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(element);
 
             THEN("the data is correct")
@@ -315,20 +313,19 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element smaller than one tile set to be horizontally tiled")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
         gim::Element element({"tiled"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({20, 10})},
             {"stretch_mode", gim::StretchMode::H_TILED},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(element);
 
             THEN("the data is correct")
@@ -342,20 +339,19 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element smaller than one tile and having an image being a full subset of another one set to be fully tiled")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
         gim::Element element({"tiled"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({8, 8})},
             {"stretch_mode", gim::StretchMode::TILED},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({16, 16}), Vec2({32, 32}))}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(element);
 
             THEN("the data is correct")
@@ -370,20 +366,19 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
     //borders
     GIVEN("an element set to have no border")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
         gim::Element element({"no border"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({32, 32})},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
             {"border_mode", gim::BorderMode::NONE}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(element);
 
             THEN("the data is correct")
@@ -397,11 +392,13 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element set to have left-right border")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
         gim::Element element({"left-right"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({32, 32})},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
             {"border_mode", gim::BorderMode::LEFT_RIGHT},
             {"border_coords_l", gim::Rectangle<Vec2>(Vec2({32,0}), Vec2({8,32}))},
@@ -410,9 +407,6 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(element);
 
             THEN("the data is correct")
@@ -434,11 +428,13 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element set to have top-bottom border")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
         gim::Element element({"top-bottom"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({32, 32})},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
             {"border_mode", gim::BorderMode::TOP_BOTTOM},
             {"border_coords_t", gim::Rectangle<Vec2>(Vec2({0,32}), Vec2({32,8}))},
@@ -447,9 +443,6 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(element);
 
             THEN("the data is correct")
@@ -471,11 +464,13 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element set to have full border")
     {
+        gim::RenderDataGenerator<Vec2, Color> generator;
+        uint32_t imageId = generator.registerImageInfo(Vec2({64, 64}));
         gim::Element element({"full"},
         {
             {"position", Vec2({0, 0})},
             {"size",     Vec2({48, 48})},
-            {"image_id", 1},
+            {"image_id", imageId},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
             {"border_mode", gim::BorderMode::FULL},
             {"border_coords_tl", gim::Rectangle<Vec2>(Vec2({0 ,0 }), Vec2({8 ,8 }))},
@@ -490,9 +485,6 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            gim::RenderDataGenerator<Vec2, Color> generator;
-            generator.registerImageInfo(1, Vec2({64, 64}));
-
             std::vector<gim::RenderData> data = generator.generate(element);
 
             THEN("the data is correct")
@@ -542,6 +534,30 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
                 CHECK(checkQuadColors(&data[0].colors[144], 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[96], 0.875f, 0.875f, 1.0f, 1.0f));
             }
+        }
+    }
+}
+
+SCENARIO("By registering a font and a texture with it, the RenderDataGenerator can output text quads", "[logic]")
+{
+    GIVEN("A RenderDataGenerator with a font and texture registered")
+    {
+        std::ifstream file("resources/fonts/LiberationSans-Regular.ttf", std::ios::binary);
+        gim::Font font(file);
+        TextureInterfaceStub textureAdaptor;
+
+        gim::RenderDataGenerator<Vec2, Color> generator;
+
+        //generator.registerFont(font, textureAdaptor, 1);
+
+        WHEN("A gui element with the attributes 'text' and 'text_font' are set, and render data generated")
+        {
+            //gim::Element element({"text"},
+            //{
+            //    {"text", ""},
+            //    {"text_font", 0}
+            //});
+        //std::vector<gim::RenderData> data = generator.generate(element);
         }
     }
 }

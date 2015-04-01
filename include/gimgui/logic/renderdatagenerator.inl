@@ -1,6 +1,12 @@
 #pragma once
 
 template <typename Vec2, typename Color>
+RenderDataGenerator<Vec2, Color>::RenderDataGenerator():
+    mNextImageId(0)
+{
+}
+
+template <typename Vec2, typename Color>
 std::vector<RenderData> RenderDataGenerator<Vec2, Color>::generate(const gim::Element& element)
 {
     gim::AllConstPropagator all(element);
@@ -38,13 +44,13 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
     const Color& color = colorPtr ? *colorPtr : Color({255, 255, 255, 255});
 
     //generate texcoords if the element has an image
-    const int32_t* imageIdPtr = element.findAttribute<int32_t>("image_id");
+    const uint32_t* imageIdPtr = element.findAttribute<uint32_t>("image_id");
     if(imageIdPtr != nullptr)
     {
         GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("image_coords"), "currentElement has an image id registered but lacks 'image_coords'");
         GIM_ASSERT(mImageSizes.count(*imageIdPtr) != 0, "image_id " + std::to_string(*imageIdPtr) + " given to an currentElement but that id has not been registered in the RenderDataGenerator");
 
-        int32_t imageId = *imageIdPtr;
+        uint32_t imageId = *imageIdPtr;
         const StretchMode* stretchModePtr = element.findAttribute<StretchMode>("stretch_mode");
         StretchMode stretchMode = stretchModePtr ? *stretchModePtr : StretchMode::STRETCHED;
         const Rectangle<Vec2>& imageCoords = element.getAttribute<Rectangle<Vec2>>("image_coords");
@@ -154,12 +160,13 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 }
 
 template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::registerImageInfo(int32_t imageId, const Vec2& imageSize)
+uint32_t RenderDataGenerator<Vec2, Color>::registerImageInfo(const Vec2& imageSize)
 {
-    GIM_ASSERT(mImageSizes.count(imageId) == 0, "trying to add an image of id '" + std::to_string(imageId) + "' when such an image is already added");
     GIM_ASSERT(imageSize.x > 0 && imageSize.y > 0, "trying to add an image of size (" + std::to_string(imageSize.x) + "," + std::to_string(imageSize.y) + "). Both components must be above zero");
 
-    mImageSizes[imageId] = imageSize;
+    uint32_t newId = mNextImageId++;
+    mImageSizes[newId] = imageSize;
+    return newId;
 }
 
 template <typename Vec2, typename Color>

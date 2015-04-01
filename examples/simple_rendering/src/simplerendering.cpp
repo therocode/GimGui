@@ -125,7 +125,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"position", Vec2({200, 150})},
             {"size",     Vec2({256, 256})},
             {"stretch_mode", gim::StretchMode::STRETCHED},
-            {"image_id", 0},
+            {"image_id", 0u},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
             {"dragged", 0},
             {"resize", false},
@@ -173,7 +173,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"position", Vec2({20, 20})},
                 {"size",     Vec2({56, 18})},
                 {"stretch_mode", gim::StretchMode::STRETCHED},
-                {"image_id", 1},
+                {"image_id", 0u},
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({6, 0}), Vec2({44, 18}))},
                 {"block_event", true},
                 {"dragged", 0},
@@ -201,7 +201,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"position", Vec2({90, 20})},
                 {"size",     Vec2({64, 64})},
                 {"stretch_mode", gim::StretchMode::STRETCHED},
-                {"image_id", 0},
+                {"image_id", 0u},
                 {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
                 {"dragged", 0},
                 {"resize", false},
@@ -229,7 +229,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                     {"position", Vec2({20, 90})},
                     {"size",     Vec2({64, 64})},
                     {"stretch_mode", gim::StretchMode::STRETCHED},
-                    {"image_id", 0},
+                    {"image_id", 0u},
                     {"dragged", 0},
                     {"resize", false},
                     {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
@@ -253,12 +253,16 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     std::ifstream fontFile("resources/fonts/LiberationSans-Regular.ttf", std::ios::binary);
 
     //load textures
+    uint32_t textureIdA = mRenderDataGenerator.registerImageInfo({64, 64});
+    uint32_t textureIdB = mRenderDataGenerator.registerImageInfo({56, 18});
 
-    mTextures.emplace(0, loadTexture("resources/borders.png"));
-    mTextures.emplace(1, loadTexture("resources/button.png"));
+    mTextures.emplace(textureIdA, loadTexture("resources/borders.png"));
+    mTextures.emplace(textureIdB, loadTexture("resources/button.png"));
 
-    mRenderDataGenerator.registerImageInfo(0, {64, 64});
-    mRenderDataGenerator.registerImageInfo(1, {56, 18});
+    mRoot.setAttribute("image_id", textureIdA);
+    for(auto& child : mRoot.children())
+        child->setAttribute("image_id", textureIdA);
+
     //rendering
 
     mTriangles.bind();
