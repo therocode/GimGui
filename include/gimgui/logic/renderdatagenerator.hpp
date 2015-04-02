@@ -4,10 +4,13 @@
 #include <gimgui/data/rendermodes.hpp>
 #include <gimgui/logic/allpropagator.hpp>
 #include <gimgui/logic/absolutemap.hpp>
+#include <gimgui/logic/fonttexturecache.hpp>
 #include <vector>
 
 namespace gim
 {
+    class Font;
+
     template <typename Vec2, typename Color>
     class RenderDataGenerator
     {
@@ -16,10 +19,22 @@ namespace gim
             float x;
             float y;
         };
+        struct Ids
+        {
+            uint32_t fontId;
+            uint32_t textureId;
+        };
+        struct FontStorageEntry
+        {
+            const Font& font;
+            FontTextureCache textureCoordinates;
+        };
         public:
             RenderDataGenerator();
             std::vector<RenderData> generate(const gim::Element& element);
             uint32_t registerImageInfo(const Vec2& imageSize);
+            template <typename TextureAdaptor>
+            Ids registerFont(const Font& font, const TextureAdaptor& textureAdaptor);
         private:
             RenderData generateElementData(const Element& element, gim::AbsoluteMap<Vec2>& absoluteMap);
             void generateQuadWithoutImage(const Vec2& position, const Vec2& size, const Color& color, std::vector<float>& outPositions, std::vector<float>& outColors);
@@ -31,7 +46,11 @@ namespace gim
 
             std::unordered_map<uint32_t, Vec2> mImageSizes;
 
+            //fonts
             uint32_t mNextImageId;
+            uint32_t mNextFontId;
+
+            std::unordered_map<uint32_t, FontStorageEntry> mFontStorage;
     };
 
 #include <gimgui/logic/renderdatagenerator.inl>

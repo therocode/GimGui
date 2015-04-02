@@ -101,8 +101,8 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
                 REQUIRE(data[0].positions.size() == 18);
                 REQUIRE(data[0].colors.size() == 18);
                 REQUIRE(data[0].texCoords.size() == 12);
-                REQUIRE(data[1].positions.size() == 18);
-                REQUIRE(data[1].colors.size() == 18);
+                REQUIRE(data[1].positions.size() == 0);
+                REQUIRE(data[1].colors.size() == 0);
                 REQUIRE(data[1].texCoords.size() == 0);
 
                 CHECK(data[0].imageId == imageId);
@@ -110,10 +110,8 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
                 CHECK(data[1].element == root.children()[0].get());
 
                 CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 45.0f, 35.0f));
-                CHECK(checkQuadPositions(&data[1].positions[0], 15.0f, 15.0f, 25.0f, 25.0f));
 
                 CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 0.0f, 0.0f));
-                CHECK(checkQuadColors(&data[1].colors[0], 1.0f, 1.0f, 1.0f));
 
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f));
             }
@@ -548,16 +546,42 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
 
         gim::RenderDataGenerator<Vec2, Color> generator;
 
-        //generator.registerFont(font, textureAdaptor, 1);
+        auto ids = generator.registerFont(font, textureAdaptor);
 
-        WHEN("A gui element with the attributes 'text' and 'text_font' are set, and render data generated")
+        WHEN("a gui element with the attributes 'text' and 'text_font' are set, and render data generated")
         {
-            //gim::Element element({"text"},
-            //{
-            //    {"text", ""},
-            //    {"text_font", 0}
-            //});
-        //std::vector<gim::RenderData> data = generator.generate(element);
+            gim::Element element({"text"},
+            {
+                {"position", Vec2({0, 0})},
+                {"size",     Vec2({48, 48})},
+                {"text", std::string("AAbbA")},
+                {"font", ids.fontId}
+            });
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("quads for the text is returned with reasonable texture coordinates")
+            {
+                REQUIRE(data[0].positions.size() == 90);
+                REQUIRE(data[0].colors.size() == 90);
+                REQUIRE(data[0].texCoords.size() == 60);
+
+                //first A equals second A
+                CHECK(std::equal(data[0].colors.begin() + 0, data[0].colors.begin() + 18, data[0].colors.begin() + 18));
+                CHECK(std::equal(data[0].texCoords.begin() + 0, data[0].texCoords.begin() + 12, data[0].texCoords.begin() + 12));
+
+                //first A equals third A
+                CHECK(std::equal(data[0].colors.begin() + 0, data[0].colors.begin() + 18, data[0].colors.begin() + 72));
+                CHECK(std::equal(data[0].texCoords.begin() + 0, data[0].texCoords.begin() + 12, data[0].texCoords.begin() + 48));
+
+                //first b equals other b
+                CHECK(std::equal(data[0].colors.begin() + 36, data[0].colors.begin() + 54, data[0].colors.begin() + 54));
+                CHECK(std::equal(data[0].texCoords.begin() + 24, data[0].texCoords.begin() + 36, data[0].texCoords.begin() + 36));
+
+                //first A does not equal first b
+                CHECK(!std::equal(data[0].colors.begin() + 0, data[0].colors.begin() + 18, data[0].colors.begin() + 36));
+                CHECK(!std::equal(data[0].texCoords.begin() + 0, data[0].texCoords.begin() + 12, data[0].texCoords.begin() + 24));
+            }
         }
     }
 }

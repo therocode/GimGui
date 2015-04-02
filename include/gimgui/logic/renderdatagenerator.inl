@@ -1,8 +1,7 @@
-#pragma once
-
 template <typename Vec2, typename Color>
 RenderDataGenerator<Vec2, Color>::RenderDataGenerator():
-    mNextImageId(0)
+    mNextImageId(0),
+    mNextFontId(0)
 {
 }
 
@@ -45,6 +44,8 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
     //generate texcoords if the element has an image
     const uint32_t* imageIdPtr = element.findAttribute<uint32_t>("image_id");
+    //generate text quads if it has text
+    const std::string* textPtr = element.findAttribute<std::string>("text");
     if(imageIdPtr != nullptr)
     {
         GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("image_coords"), "currentElement has an image id registered but lacks 'image_coords'");
@@ -151,9 +152,14 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
         renderData.imageId = imageId;
     }
-    else
+
+    if(textPtr != nullptr)
     {
-        generateQuadWithoutImage(position, size, color, renderData.positions, renderData.colors);
+        const uint32_t* fontIdPtr = element.findAttribute<uint32_t>("font");
+        GIM_ASSERT(fontIdPtr != nullptr, "cannot give an element text without also giving it a font");
+        uint32_t fontId = *fontIdPtr;
+        
+
     }
 
     return renderData;
@@ -167,6 +173,17 @@ uint32_t RenderDataGenerator<Vec2, Color>::registerImageInfo(const Vec2& imageSi
     uint32_t newId = mNextImageId++;
     mImageSizes[newId] = imageSize;
     return newId;
+}
+
+template <typename Vec2, typename Color>
+template <typename TextureAdaptor>
+typename RenderDataGenerator<Vec2, Color>::Ids RenderDataGenerator<Vec2, Color>::registerFont(const Font& font, const TextureAdaptor& textureAdaptor)
+{
+    uint32_t newImageId = mNextImageId++;   
+    uint32_t newFontId = mNextFontId++;   
+
+    mFontStorage.emplace(newFontId, FontStorageEntry({font, FontTextureCache(textureAdaptor)}));
+    return Ids({newFontId, newImageId});
 }
 
 template <typename Vec2, typename Color>

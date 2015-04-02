@@ -149,7 +149,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"text_style", gim::Bold | gim::Underlined},
             {"text_style", gim::Bold | gim::Underlined},
             {"text_scale", 1.0f},
-            {"text_font", 0},
+            {"font", 0},
             {"text_wrap", 100},
 
             
