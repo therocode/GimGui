@@ -41,6 +41,7 @@ set(source_files
     src/logic/allpropagator.cpp
     src/logic/attributepopulator.cpp
     src/logic/fonttexturecache.cpp
+    src/logic/utf8decoder.cpp
     src/util/guillotinebinpack.cpp
 )
 
@@ -74,6 +75,7 @@ set(header_files
     include/gimgui/logic/renderdatagenerator.hpp
     include/gimgui/logic/renderdatagenerator.inl
     include/gimgui/logic/rectanglepacker.hpp
+    include/gimgui/logic/utf8decoder.hpp
     include/gimgui/util/getorfallback.hpp
     include/gimgui/util/getorfallback.inl
     include/gimgui/util/guillotinebinpack.hpp

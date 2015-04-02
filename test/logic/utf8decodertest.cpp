@@ -1,8 +1,9 @@
 #include <catch.hpp>
+#include <gimgui/logic/utf8decoder.hpp>
 
 SCENARIO("A utf8decoder can be used to decode UTF-8 strings into unicode code points", "[logic]")
 {
-    GIVEN("an utf8decoder")
+    GIVEN("a utf8decoder")
     {
         gim::Utf8Decoder decoder;
 
