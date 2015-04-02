@@ -108,6 +108,7 @@ if(BUILD_TESTS)
         "test/logic/boundarypropagatortest.cpp"
         "test/logic/renderdatageneratortest.cpp"
         "test/logic/rectanglepackertest.cpp"
+        "test/logic/utf8decodertest.cpp"
         "test/helpers/helperstest.cpp"
         "test/util/fonttexturecachetest.cpp"
         "test/util/getorfallbacktest.cpp"
