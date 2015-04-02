@@ -65,7 +65,7 @@ SCENARIO("A utf8decoder can be used to decode UTF-8 strings into unicode code po
                 CHECK(codePoints[0] == 16384);
                 CHECK(codePoints[1] == 98);
                 CHECK(codePoints[2] == 624485);
-                CHECK(codePoints[0] == 214);
+                CHECK(codePoints[3] == 214);
             }
         }
     }
