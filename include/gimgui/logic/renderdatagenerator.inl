@@ -155,11 +155,86 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
     if(textPtr != nullptr)
     {
+        const std::string utf8string = *textPtr;
         const uint32_t* fontIdPtr = element.findAttribute<uint32_t>("font");
         GIM_ASSERT(fontIdPtr != nullptr, "cannot give an element text without also giving it a font");
         uint32_t fontId = *fontIdPtr;
+        GIM_ASSERT(mFontStorage.count(fontId) != 0, "font id " + std::to_string(fontId) + " set on an element but such a font doesn't exist");
+        Font& font = mFontStorage.at(fontId).font;
+        const uint32_t* textSizeUPtr = element.findAttribute<uint32_t>("text_size");
+        const int32_t* textSizePtr = element.findAttribute<int32_t>("text_size");
+        GIM_ASSERT(textSizeUPtr != nullptr || textSizePtr != nullptr, "cannot give an element text without also giving it a text_size");
+        uint32_t textSize = textSizeUPtr ? *textSizeUPtr : *textSizePtr;
         
+        gim::Utf8Decoder utf8Decoder;
+        std::vector<uint32_t> codePoints = utf8Decoder.decode(utf8string);
 
+        FontStorageEntry* fontStorage = &mFontStorage.at(fontId);
+
+        float x = position.x;
+        float y = position.y + textSize;
+        float hspace = getHSpace(fontId, textSize);
+        font.resize(textSize);
+        float vspace = font.lineSpacing();
+        uint32_t previousCodePoint = 0;
+
+        TextureCoordinates texCoords;
+        for(uint32_t codePoint : codePoints)
+        {
+            auto texCoordsPtr = fontStorage->textureCoordinates.glyphCoords(codePoint, textSize);
+
+            Glyph::Metrics metrics;
+            if(texCoordsPtr == nullptr)
+            {
+                auto glyphPtr = font.generateGlyph(codePoint);
+
+                if(glyphPtr)
+                {
+                    metrics = glyphPtr->metrics;
+                    texCoords = fontStorage->textureCoordinates.add(*glyphPtr);
+                    fontStorage->metrics.emplace(CodePointSize({codePoint, textSize}), metrics);
+                }
+                else
+                {//codepoint doesn't exist - do nothing
+                    continue;
+                }
+            }
+            else
+            {
+                texCoords = *texCoordsPtr;
+                metrics = fontStorage->metrics.at(CodePointSize({codePoint, textSize}));
+            }
+            
+            x += font.kerning(previousCodePoint, codePoint);
+
+            //special characters
+            if(codePoint == ' ')
+            {
+                x += hspace;
+                continue;
+            }
+            else if(codePoint == '\t')
+            {
+                x += hspace * 4; //4 spaces for tabs. Configurable later on
+                continue;
+            }
+            else if(codePoint == '\n')
+            {
+                x = position.x;
+                y += vspace;
+                continue;
+            }
+
+            //make quad
+
+            //float    = texCoords.xStart;
+            //float top    = texCoords.yStart;
+            //float right  = texCoords.xEnd;
+            //float bottom = texCoords.yEnd;
+            generateQuadWithImage(Vec2({(int32_t)x, (int32_t)y}), Vec2({(int32_t)(metrics.left - metrics.right), (int32_t)(metrics.bottom - metrics.top)}), color, {texCoords.xStart, texCoords.yStart}, {texCoords.xEnd - texCoords.xStart, texCoords.yEnd - texCoords.yStart}, renderData.positions, renderData.colors, renderData.texCoords);
+
+            x += metrics.advance;
+        }
     }
 
     return renderData;
@@ -177,12 +252,13 @@ uint32_t RenderDataGenerator<Vec2, Color>::registerImageInfo(const Vec2& imageSi
 
 template <typename Vec2, typename Color>
 template <typename TextureAdaptor>
-typename RenderDataGenerator<Vec2, Color>::Ids RenderDataGenerator<Vec2, Color>::registerFont(const Font& font, const TextureAdaptor& textureAdaptor)
+typename RenderDataGenerator<Vec2, Color>::Ids RenderDataGenerator<Vec2, Color>::registerFont(Font& font, const TextureAdaptor& textureAdaptor)
 {
     uint32_t newImageId = mNextImageId++;   
     uint32_t newFontId = mNextFontId++;   
 
     mFontStorage.emplace(newFontId, FontStorageEntry({font, FontTextureCache(textureAdaptor)}));
+
     return Ids({newFontId, newImageId});
 }
 
@@ -355,5 +431,30 @@ void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, c
                 FloatVec2({(float)bottomRightImageCoords.start.x / imageSize.x, (float)bottomRightImageCoords.start.y / imageSize.y}),
                 FloatVec2({(float)bottomRightImageCoords.size.x  / imageSize.x, (float)bottomRightImageCoords.size.y  / imageSize.y}),
                 outPositions, outColors, outTexCoords);
+    }
+}
+
+template <typename Vec2, typename Color>
+float RenderDataGenerator<Vec2, Color>::getHSpace(uint32_t fontId, uint32_t size)
+{
+    uint32_t whitespace = ' ';
+    auto& fontStorage = mFontStorage.at(fontId);
+
+    auto metricsIter = fontStorage.metrics.find(CodePointSize({whitespace, size}));
+    
+    if(metricsIter != fontStorage.metrics.end())
+    {
+        return metricsIter->second.advance;
+    }
+    else
+    {
+        auto glyphPtr = fontStorage.font.generateGlyph(whitespace);
+
+        GIM_ASSERT(glyphPtr != nullptr, "font didn't contain codepoint for ' ' (whitespace)");
+
+        fontStorage.textureCoordinates.add(*glyphPtr);
+        fontStorage.metrics.emplace(CodePointSize({whitespace, size}), glyphPtr->metrics);
+
+        return glyphPtr->metrics.advance;
     }
 }

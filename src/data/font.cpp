@@ -73,7 +73,8 @@ namespace gim
     }
 
 
-    Font::Font(std::istream& fontData)
+    Font::Font(std::istream& fontData):
+        mSize(0)
     {
         if(!fontData)
         {
@@ -152,14 +153,17 @@ namespace gim
 
     void Font::resize(uint32_t size)
     {
-        if(!isFreelyScalable())
+        if(mSize != size)
         {
-            GIM_ASSERT(std::count(availableSizes().begin(), availableSizes().end(), size) != 0,"trying to resize a font which is not isFreelyScalable() to a size not in the list of availableSizes()");
-        }
+            if(!isFreelyScalable())
+            {
+                GIM_ASSERT(std::count(availableSizes().begin(), availableSizes().end(), size) != 0,"trying to resize a font which is not isFreelyScalable() to a size not in the list of availableSizes()");
+            }
 
-        mSize = size;
-        FT_Error error = FT_Set_Pixel_Sizes(mFace->face(), size, size);
-        GIM_ASSERT(error == FT_Err_Ok, "cannot resize font to " + std::to_string(size));
+            mSize = size;
+            FT_Error error = FT_Set_Pixel_Sizes(mFace->face(), size, size);
+            GIM_ASSERT(error == FT_Err_Ok, "cannot resize font to " + std::to_string(size));
+        }
     }
 
     uint32_t Font::size() const
@@ -232,9 +236,13 @@ namespace gim
             FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, 1);
             FT_Bitmap& bitmap = reinterpret_cast<FT_BitmapGlyph>(glyph)->bitmap;
 
-            toReturn->advance = static_cast<float>(mFace->face()->glyph->metrics.horiAdvance) / 64.0f;
             toReturn->size = size();
             toReturn->codePoint = codePoint;
+            toReturn->metrics.advance = mFace->face()->glyph->metrics.horiAdvance / 64.0f;
+            toReturn->metrics.left = mFace->face()->glyph->metrics.horiBearingX / 64.0f;
+            toReturn->metrics.top = -mFace->face()->glyph->metrics.horiBearingX / 64.0f;
+            toReturn->metrics.right = mFace->face()->glyph->metrics.width / 64.0f;
+            toReturn->metrics.bottom = mFace->face()->glyph->metrics.height / 64.0f;
 
             uint32_t width = bitmap.width;
             uint32_t height = bitmap.rows;

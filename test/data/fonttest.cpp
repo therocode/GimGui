@@ -148,9 +148,9 @@ SCENARIO("Glyph bitmaps can be generated", "[data]")
             THEN("the glyph contains non-zero data")
             {
                 REQUIRE(glyph != nullptr);
-                CHECK(glyph->advance > 0.0f);
                 CHECK(glyph->size == font.size());
                 CHECK(glyph->codePoint == 'A');
+                CHECK(glyph->metrics.advance > 0.0f);
                 CHECK(glyph->image.width > 0);
                 CHECK(glyph->image.height > 0);
                 CHECK(std::accumulate(glyph->image.pixels.begin(), glyph->image.pixels.end(), 0) > 0);
@@ -164,7 +164,7 @@ SCENARIO("Glyph bitmaps can be generated", "[data]")
             THEN("the glyph contains zero data")
             {
                 REQUIRE(glyph != nullptr);
-                CHECK(glyph->advance > 0.0f);
+                CHECK(glyph->metrics.advance > 0.0f);
                 CHECK(std::accumulate(glyph->image.pixels.begin(), glyph->image.pixels.end(), 0) == 0);
             }
         }
@@ -178,6 +178,11 @@ SCENARIO("Glyph bitmaps can be generated", "[data]")
             {
                 CHECK(std::accumulate(g->image.pixels.begin(), g->image.pixels.end(), 0) > 
                       std::accumulate(period->image.pixels.begin(), period->image.pixels.end(), 0));
+            }
+            THEN("the 'g' is larger than '.'")
+            {
+                CHECK((period->metrics.right - period->metrics.left) < (g->metrics.right - g->metrics.left));
+                CHECK((period->metrics.bottom - period->metrics.top) < (g->metrics.bottom - g->metrics.top));
             }
         }
 

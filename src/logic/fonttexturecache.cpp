@@ -24,20 +24,25 @@ namespace gim
         uint32_t width = glyph.image.width;
         uint32_t height = glyph.image.height;
         
-        auto rectangle = mGlyphPacker.insert({(int32_t)width, (int32_t)height});
+        if(width > 0 && height > 0)
+        {
+            auto rectangle = mGlyphPacker.insert({(int32_t)width, (int32_t)height});
 
-        if(rectangle.start.x + rectangle.size.x >= mCurrentSize || rectangle.start.y + rectangle.size.y >= mCurrentSize)
-        {//time to resize texture
-            mCurrentSize *= 2;
-            mResizeStorage(mCurrentSize, mCurrentSize);
+            if(rectangle.start.x + rectangle.size.x >= mCurrentSize || rectangle.start.y + rectangle.size.y >= mCurrentSize)
+            {//time to resize texture
+                mCurrentSize *= 2;
+                mResizeStorage(mCurrentSize, mCurrentSize);
+            }
+
+            bool flipped = rectangle.size.x == height && rectangle.size.y == width;
+            mGlyphRectangles.emplace(CodePointSize({glyph.codePoint, glyph.size}), std::pair<Rectangle, bool>({rectangle, flipped}));
+
+            mWriteBitmap(rectangle.start.x, rectangle.start.x, glyph.image);
+
+            return generateTexCoords(rectangle, flipped);
         }
 
-        bool flipped = rectangle.size.x == height && rectangle.size.y == width;
-        mGlyphRectangles.emplace(CodePointSize({glyph.codePoint, glyph.size}), std::pair<Rectangle, bool>({rectangle, flipped}));
-
-        mWriteBitmap(rectangle.start.x, rectangle.start.x, glyph.image);
-
-        return generateTexCoords(rectangle, flipped);
+        return {0.0f, 0.0f, 0.0f, 0.0f};
     }
 
     TextureCoordinates FontTextureCache::generateTexCoords(const Rectangle rectangle, bool flipped)
