@@ -143,6 +143,7 @@ if(BUILD_EXAMPLES)
         ${common}/gl_core_3_3.c
         ${common}/window.cpp
         ${common}/lodepng.cpp
+        ${common}/textureadaptor.cpp
         ${common}/glutils/baseshader.cpp
         ${common}/glutils/buffer.cpp
         ${common}/glutils/projection.cpp

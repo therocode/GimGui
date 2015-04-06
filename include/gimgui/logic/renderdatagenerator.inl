@@ -165,11 +165,13 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         const int32_t* textSizePtr = element.findAttribute<int32_t>("text_size");
         GIM_ASSERT(textSizeUPtr != nullptr || textSizePtr != nullptr, "cannot give an element text without also giving it a text_size");
         uint32_t textSize = textSizeUPtr ? *textSizeUPtr : *textSizePtr;
+
         
         gim::Utf8Decoder utf8Decoder;
         std::vector<uint32_t> codePoints = utf8Decoder.decode(utf8string);
 
         FontStorageEntry* fontStorage = &mFontStorage.at(fontId);
+        renderData.textImageId = fontStorage->textureId;
 
         float x = position.x;
         float y = position.y + textSize;
@@ -206,6 +208,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             }
             
             x += font.kerning(previousCodePoint, codePoint);
+            previousCodePoint = codePoint;
 
             //special characters
             if(codePoint == ' ')
@@ -231,7 +234,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             //float top    = texCoords.yStart;
             //float right  = texCoords.xEnd;
             //float bottom = texCoords.yEnd;
-            generateQuadWithImage(Vec2({(int32_t)x, (int32_t)y}), Vec2({(int32_t)(metrics.left - metrics.right), (int32_t)(metrics.bottom - metrics.top)}), color, {texCoords.xStart, texCoords.yStart}, {texCoords.xEnd - texCoords.xStart, texCoords.yEnd - texCoords.yStart}, renderData.positions, renderData.colors, renderData.texCoords);
+            generateQuadWithImage(Vec2({(int32_t)(x + metrics.left), (int32_t)(y + metrics.top)}), Vec2({(int32_t)(metrics.width), (int32_t)(metrics.height)}), Color({255, 255, 255, 255}), {texCoords.xStart, texCoords.yStart}, {texCoords.xEnd - texCoords.xStart, texCoords.yEnd - texCoords.yStart}, renderData.textPositions, renderData.textColors, renderData.textTexCoords, texCoords.flipped);
 
             x += metrics.advance;
         }
@@ -257,7 +260,7 @@ typename RenderDataGenerator<Vec2, Color>::Ids RenderDataGenerator<Vec2, Color>:
     uint32_t newImageId = mNextImageId++;   
     uint32_t newFontId = mNextFontId++;   
 
-    mFontStorage.emplace(newFontId, FontStorageEntry({font, FontTextureCache(textureAdaptor)}));
+    mFontStorage.emplace(newFontId, FontStorageEntry({font, FontTextureCache(textureAdaptor), newImageId}));
 
     return Ids({newFontId, newImageId});
 }
@@ -270,10 +273,10 @@ void RenderDataGenerator<Vec2, Color>::generateQuadWithoutImage(const Vec2& posi
 }
 
 template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateQuadWithImage(const Vec2& position, const Vec2& size, const Color& color, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords)
+void RenderDataGenerator<Vec2, Color>::generateQuadWithImage(const Vec2& position, const Vec2& size, const Color& color, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords, bool flipTexCoords)
 {
     generateQuadWithoutImage(position, size, color, outPositions, outColors);
-    generateQuadTexCoords(texCoordStart, texCoordSize, outTexCoords);
+    generateQuadTexCoords(texCoordStart, texCoordSize, outTexCoords, flipTexCoords);
 }
 
 template <typename Vec2, typename Color>
@@ -309,19 +312,36 @@ void RenderDataGenerator<Vec2, Color>::generateQuadColors(const Color& color, st
 }
 
 template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateQuadTexCoords(const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outTexCoords)
+void RenderDataGenerator<Vec2, Color>::generateQuadTexCoords(const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outTexCoords, bool flipTexCoords)
 {
-    std::vector<float> texCoordList(
+    if(!flipTexCoords)
     {
-        texCoordStart.x                 , texCoordStart.y                 ,
-        texCoordStart.x                 , texCoordStart.y + texCoordSize.y,
-        texCoordStart.x + texCoordSize.x, texCoordStart.y + texCoordSize.y,
-        texCoordStart.x + texCoordSize.x, texCoordStart.y + texCoordSize.y,
-        texCoordStart.x + texCoordSize.x, texCoordStart.y                 ,
-        texCoordStart.x                 , texCoordStart.y                     
-    });
+        std::vector<float> texCoordList(
+                {
+                texCoordStart.x                 , texCoordStart.y                 ,
+                texCoordStart.x                 , texCoordStart.y + texCoordSize.y,
+                texCoordStart.x + texCoordSize.x, texCoordStart.y + texCoordSize.y,
+                texCoordStart.x + texCoordSize.x, texCoordStart.y + texCoordSize.y,
+                texCoordStart.x + texCoordSize.x, texCoordStart.y                 ,
+                texCoordStart.x                 , texCoordStart.y                     
+                });
 
-    outTexCoords.insert(outTexCoords.end(), texCoordList.begin(), texCoordList.end());
+        outTexCoords.insert(outTexCoords.end(), texCoordList.begin(), texCoordList.end());
+    }
+    else
+    {
+        std::vector<float> texCoordList(
+                {
+                texCoordStart.x                 , texCoordStart.y + texCoordSize.y,
+                texCoordStart.x + texCoordSize.x, texCoordStart.y + texCoordSize.y,
+                texCoordStart.x + texCoordSize.x, texCoordStart.y                 ,
+                texCoordStart.x + texCoordSize.x, texCoordStart.y                 ,
+                texCoordStart.x                 , texCoordStart.y                 ,
+                texCoordStart.x                 , texCoordStart.y + texCoordSize.y,
+                });
+
+        outTexCoords.insert(outTexCoords.end(), texCoordList.begin(), texCoordList.end());
+    }
 }
 
 template <typename Vec2, typename Color>

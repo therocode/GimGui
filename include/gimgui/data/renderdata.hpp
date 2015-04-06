@@ -12,5 +12,10 @@ namespace gim
         std::vector<float> colors;
         std::vector<float> texCoords;
         uint32_t imageId;
+
+        std::vector<float> textPositions;
+        std::vector<float> textColors;
+        std::vector<float> textTexCoords;
+        uint32_t textImageId;
     };
 }

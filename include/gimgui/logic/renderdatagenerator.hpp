@@ -29,6 +29,7 @@ namespace gim
         {
             Font& font;
             FontTextureCache textureCoordinates;
+            uint32_t textureId;
             std::unordered_map<CodePointSize, Glyph::Metrics> metrics;
         };
         public:
@@ -40,10 +41,10 @@ namespace gim
         private:
             RenderData generateElementData(const Element& element, gim::AbsoluteMap<Vec2>& absoluteMap);
             void generateQuadWithoutImage(const Vec2& position, const Vec2& size, const Color& color, std::vector<float>& outPositions, std::vector<float>& outColors);
-            void generateQuadWithImage(const Vec2& position, const Vec2& size, const Color& color, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords);
+            void generateQuadWithImage(const Vec2& position, const Vec2& size, const Color& color, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords, bool flipTexCoords = false);
             void generateQuadPositions(const Vec2& position, const Vec2& size, std::vector<float>& outPositions);
             void generateQuadColors(const Color& color, std::vector<float>& outColors);
-            void generateQuadTexCoords(const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outTexCoords);
+            void generateQuadTexCoords(const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outTexCoords, bool flipTexCoords = false);
             void generateBorders(const Element& element, const Vec2& position, const Vec2& size, const Color& color, const Vec2& imageSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords);
 
             float getHSpace(uint32_t fontId, uint32_t size);

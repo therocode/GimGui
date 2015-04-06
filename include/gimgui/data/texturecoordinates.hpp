@@ -9,5 +9,6 @@ namespace gim
         float yStart;
         float xEnd;
         float yEnd;
+        bool flipped;
     };
 }

@@ -9,9 +9,9 @@ namespace gim
         {
             float advance;
             float left;
-            float right;
             float top;
-            float bottom;
+            float width;
+            float height;
         };
 
         uint32_t codePoint;

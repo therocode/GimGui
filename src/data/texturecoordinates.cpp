@@ -7,6 +7,7 @@ namespace gim
         return xStart == other.xStart &&
                yStart == other.yStart &&
                xEnd == other.xEnd &&
-               yEnd == other.yEnd;
+               yEnd == other.yEnd &&
+               flipped == other.flipped;
     }
 }

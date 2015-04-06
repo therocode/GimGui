@@ -181,8 +181,8 @@ SCENARIO("Glyph bitmaps can be generated", "[data]")
             }
             THEN("the 'g' is larger than '.'")
             {
-                CHECK((period->metrics.right - period->metrics.left) < (g->metrics.right - g->metrics.left));
-                CHECK((period->metrics.bottom - period->metrics.top) < (g->metrics.bottom - g->metrics.top));
+                CHECK(period->metrics.width < g->metrics.width);
+                CHECK(period->metrics.height < g->metrics.height);
             }
         }
 

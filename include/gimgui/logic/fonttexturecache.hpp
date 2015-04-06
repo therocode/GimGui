@@ -23,6 +23,7 @@ namespace gim
             std::unique_ptr<TextureCoordinates> glyphCoords(uint32_t codePoint, uint32_t size);
             TextureCoordinates add(const Glyph& glyph);
         private:
+            BitMap flipBitMap(const BitMap& bitMap) const;
             std::function<void(uint32_t, uint32_t)> mResizeStorage;
             std::function<void(uint32_t, uint32_t, const BitMap&)> mWriteBitmap;
 

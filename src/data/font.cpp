@@ -240,9 +240,9 @@ namespace gim
             toReturn->codePoint = codePoint;
             toReturn->metrics.advance = mFace->face()->glyph->metrics.horiAdvance / 64.0f;
             toReturn->metrics.left = mFace->face()->glyph->metrics.horiBearingX / 64.0f;
-            toReturn->metrics.top = -mFace->face()->glyph->metrics.horiBearingX / 64.0f;
-            toReturn->metrics.right = mFace->face()->glyph->metrics.width / 64.0f;
-            toReturn->metrics.bottom = mFace->face()->glyph->metrics.height / 64.0f;
+            toReturn->metrics.top = -mFace->face()->glyph->metrics.horiBearingY / 64.0f;
+            toReturn->metrics.width = mFace->face()->glyph->metrics.width / 64.0f;
+            toReturn->metrics.height = mFace->face()->glyph->metrics.height / 64.0f;
 
             uint32_t width = bitmap.width;
             uint32_t height = bitmap.rows;

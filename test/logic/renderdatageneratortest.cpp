@@ -563,21 +563,26 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
 
             THEN("quads for the text is returned with reasonable texture coordinates")
             {
-                REQUIRE(data[0].positions.size() == 90);
-                REQUIRE(data[0].colors.size() == 90);
-                REQUIRE(data[0].texCoords.size() == 60);
+                CHECK(data[0].positions.size() == 0);
+                CHECK(data[0].colors.size() == 0);
+                CHECK(data[0].texCoords.size() == 0);
+
+                REQUIRE(data[0].textPositions.size() == 90);
+                REQUIRE(data[0].textColors.size() == 90);
+                REQUIRE(data[0].textTexCoords.size() == 60);
+                CHECK(data[0].textImageId == ids.textureId);
 
                 //first A equals second A
-                CHECK(std::equal(data[0].texCoords.begin() + 0, data[0].texCoords.begin() + 12, data[0].texCoords.begin() + 12));
+                CHECK(std::equal(data[0].textTexCoords.begin() + 0, data[0].textTexCoords.begin() + 12, data[0].textTexCoords.begin() + 12));
 
                 //first A equals third A
-                CHECK(std::equal(data[0].texCoords.begin() + 0, data[0].texCoords.begin() + 12, data[0].texCoords.begin() + 48));
+                CHECK(std::equal(data[0].textTexCoords.begin() + 0, data[0].textTexCoords.begin() + 12, data[0].textTexCoords.begin() + 48));
 
                 //first b equals other b
-                CHECK(std::equal(data[0].texCoords.begin() + 24, data[0].texCoords.begin() + 36, data[0].texCoords.begin() + 36));
+                CHECK(std::equal(data[0].textTexCoords.begin() + 24, data[0].textTexCoords.begin() + 36, data[0].textTexCoords.begin() + 36));
 
                 //first A does not equal first b
-                CHECK(!std::equal(data[0].texCoords.begin() + 0, data[0].texCoords.begin() + 12, data[0].texCoords.begin() + 24));
+                CHECK(!std::equal(data[0].textTexCoords.begin() + 0, data[0].textTexCoords.begin() + 12, data[0].textTexCoords.begin() + 24));
             }
         }
     }

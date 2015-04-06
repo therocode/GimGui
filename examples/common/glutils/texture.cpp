@@ -83,6 +83,35 @@ void Texture::create(uint32_t width, uint32_t height, const Color& color, bool s
     create(width, height, pixels.get(), smooth, interactive);
 }
 
+void Texture::resize(uint32_t width, uint32_t height)
+{
+    std::unique_ptr<uint8_t[]> newPixels = std::unique_ptr<uint8_t[]>(new uint8_t[width * height * 4]);
+
+    for(uint32_t x = 0; x < width; x++)
+    {
+        for(uint32_t y = 0; y < height; y++)
+        {
+            newPixels[(x + y * width) * 4 + 0] = 0;
+            newPixels[(x + y * width) * 4 + 1] = 0;
+            newPixels[(x + y * width) * 4 + 2] = 0;
+            newPixels[(x + y * width) * 4 + 3] = 0;
+        }
+    }
+
+    for(uint32_t x = 0; x < mWidth; x++)
+    {
+        for(uint32_t y = 0; y < mHeight; y++)
+        {
+            newPixels[(x + y * width) * 4 + 0] = pixelData[(x + y * mWidth) * 4 + 0];
+            newPixels[(x + y * width) * 4 + 1] = pixelData[(x + y * mWidth) * 4 + 1];
+            newPixels[(x + y * width) * 4 + 2] = pixelData[(x + y * mWidth) * 4 + 2];
+            newPixels[(x + y * width) * 4 + 3] = pixelData[(x + y * mWidth) * 4 + 3];
+        }
+    }
+
+    create(width, height, newPixels.get(), false, true);
+}
+
 //glm::uvec2 Texture::getSize() const
 //{
 //    return glm::uvec2(mWidth, mHeight);

@@ -1,18 +1,27 @@
 #include "simplerendering.hpp"
 #include <glutils/baseshader.hpp>
 #include <glutils/uniform.hpp>
+#include <textureadaptor.hpp>
 #include <opengl.hpp>
 #include <iostream>
 #include <glutils/projection.hpp>
 #include <SDL2/SDL.h>
 #include <window.hpp>
-#include <fstream>
 #include "events.hpp"
 #include <glutils/textureloader.hpp>
 #include <gimgui/logic/boundarypropagator.hpp>
 #include <gimgui/util/getorfallback.hpp>
 #include <gimgui/util/resolve.hpp>
 #include <gimgui/data/font.hpp>
+
+Callback addText = [] (gim::Element& self, const Parameters& parameters)
+{
+    const std::string source = u8"Today I bought a rought and cool balloon which I questioned HIGHLY since it did a lot of @#$%@! stuff! That's why Ventruz didn't like opacity Bill!@#$%^&*()<<>.,.;.,ъэжфазцфуезгоячтсьитджывазцш]äåååäöäöåäöäö";
+
+    std::string text = self.getAttribute<std::string>("text");
+    text.push_back(source[text.size()]);
+    self.setAttribute("text", text);
+};
 
 Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
 {
@@ -116,6 +125,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mColors(Buffer::ARRAY_BUFFER, Buffer::DYNAMIC),
     mTexCoords(Buffer::ARRAY_BUFFER, Buffer::DYNAMIC),
     mLastPosition({-1000, -1000}),
+    mFontFile("resources/fonts/LiberationSans-Regular.ttf", std::ios::binary),
+    mFont(mFontFile),
     mRoot({"container"},
         {
             {"name" , std::string("red")},
@@ -124,12 +135,12 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"click_color",    Color(174, 70, 56)},
             {"position", Vec2({200, 150})},
             {"size",     Vec2({256, 256})},
-            {"stretch_mode", gim::StretchMode::STRETCHED},
-            {"image_id", 0u},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
+            //{"stretch_mode", gim::StretchMode::STRETCHED},
+            //{"image_id", 0u},
+            //{"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
             {"dragged", 0},
             {"resize", false},
-            {"on_click", CallbackList({setClickColor, printClicked, setResize})},
+            {"on_click", CallbackList({setClickColor, printClicked, setResize, addText})},
             {"on_release", CallbackList({toggleMode})},
             {"on_global_release", CallbackList({setOriginalColor, unsetResize})},
             {"on_drag", moveOrResize},
@@ -141,15 +152,15 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"border_coords_br", gim::Rectangle<Vec2>(Vec2({56,56}), Vec2({8 ,8 }))},
             {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))},
             {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({8 ,8 }))},
-            {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))}/*,
-            {"text", "I am the text of this element"},
+            {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))},
+            {"text", std::string(u8"")},
+            {"text_size", 25},
+            {"font", 0u}/*,
             {"text_offset", Vec2({10, 10})},
-            {"text_size", 23},
             {"text_color", Color(255, 100, 0)},
             {"text_style", gim::Bold | gim::Underlined},
             {"text_style", gim::Bold | gim::Underlined},
             {"text_scale", 1.0f},
-            {"font", 0},
             {"text_wrap", 100},
 
             
@@ -164,62 +175,62 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             */
         },
         {
-            gim::Element({"child"},
-            {
-                {"name" , std::string("blue")},
-                {"color",    Color(94, 140, 106)},
-                {"original_color",    Color(94, 140, 106)},
-                {"click_color",    Color(124, 170, 136)},
-                {"position", Vec2({20, 20})},
-                {"size",     Vec2({56, 18})},
-                {"stretch_mode", gim::StretchMode::STRETCHED},
-                {"image_id", 0u},
-                {"image_coords", gim::Rectangle<Vec2>(Vec2({6, 0}), Vec2({44, 18}))},
-                {"block_event", true},
-                {"dragged", 0},
-                {"resize", false},
-                {"on_click", CallbackList({setClickColor, printClicked, setResize})},
-                {"on_release", CallbackList({toggleMode})},
-                {"on_global_release", CallbackList({setOriginalColor, unsetResize})},
-                {"on_drag", moveOrResize},
-                {"border_mode", gim::BorderMode::LEFT_RIGHT},
-                {"border_coords_tl", gim::Rectangle<Vec2>(Vec2({0 ,0 }), Vec2({8 ,8 }))},
-                {"border_coords_t",  gim::Rectangle<Vec2>(Vec2({8 ,0 }), Vec2({48,8 }))},
-                {"border_coords_tr", gim::Rectangle<Vec2>(Vec2({56,0 }), Vec2({8 ,8 }))},
-                {"border_coords_r",  gim::Rectangle<Vec2>(Vec2({56,8 }), Vec2({8 ,48}))},
-                {"border_coords_br", gim::Rectangle<Vec2>(Vec2({56,56}), Vec2({8 ,8 }))},
-                {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))},
-                {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({8 ,8 }))},
-                {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))}
-            }),
-            gim::Element({"child"},
-            {
-                {"name" , std::string("green")},
-                {"color",    Color(136, 166, 94)},
-                {"original_color",    Color(136, 166, 94)},
-                {"click_color",    Color(166, 196, 124)},
-                {"position", Vec2({90, 20})},
-                {"size",     Vec2({64, 64})},
-                {"stretch_mode", gim::StretchMode::STRETCHED},
-                {"image_id", 0u},
-                {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
-                {"dragged", 0},
-                {"resize", false},
-                {"on_click", CallbackList({setClickColor, printClicked, setResize})},
-                {"on_release", CallbackList({toggleMode})},
-                {"on_global_release", CallbackList({setOriginalColor, unsetResize})},
-                {"block_event", true},
-                {"on_drag", moveOrResize},
-                {"border_mode", gim::BorderMode::LEFT_RIGHT},
-                {"border_coords_tl", gim::Rectangle<Vec2>(Vec2({0 ,0 }), Vec2({8 ,8 }))},
-                {"border_coords_t",  gim::Rectangle<Vec2>(Vec2({8 ,0 }), Vec2({48,8 }))},
-                {"border_coords_tr", gim::Rectangle<Vec2>(Vec2({56,0 }), Vec2({8 ,8 }))},
-                {"border_coords_r",  gim::Rectangle<Vec2>(Vec2({56,8 }), Vec2({8 ,48}))},
-                {"border_coords_br", gim::Rectangle<Vec2>(Vec2({56,56}), Vec2({8 ,8 }))},
-                {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))},
-                {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({8 ,8 }))},
-                {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))}
-            }),
+            //gim::Element({"child"},
+            //{
+            //    {"name" , std::string("blue")},
+            //    {"color",    Color(94, 140, 106)},
+            //    {"original_color",    Color(94, 140, 106)},
+            //    {"click_color",    Color(124, 170, 136)},
+            //    {"position", Vec2({20, 20})},
+            //    {"size",     Vec2({56, 18})},
+            //    {"stretch_mode", gim::StretchMode::STRETCHED},
+            //    {"image_id", 0u},
+            //    {"image_coords", gim::Rectangle<Vec2>(Vec2({6, 0}), Vec2({44, 18}))},
+            //    {"block_event", true},
+            //    {"dragged", 0},
+            //    {"resize", false},
+            //    {"on_click", CallbackList({setClickColor, printClicked, setResize})},
+            //    {"on_release", CallbackList({toggleMode})},
+            //    {"on_global_release", CallbackList({setOriginalColor, unsetResize})},
+            //    {"on_drag", moveOrResize},
+            //    {"border_mode", gim::BorderMode::LEFT_RIGHT},
+            //    {"border_coords_tl", gim::Rectangle<Vec2>(Vec2({0 ,0 }), Vec2({8 ,8 }))},
+            //    {"border_coords_t",  gim::Rectangle<Vec2>(Vec2({8 ,0 }), Vec2({48,8 }))},
+            //    {"border_coords_tr", gim::Rectangle<Vec2>(Vec2({56,0 }), Vec2({8 ,8 }))},
+            //    {"border_coords_r",  gim::Rectangle<Vec2>(Vec2({56,8 }), Vec2({8 ,48}))},
+            //    {"border_coords_br", gim::Rectangle<Vec2>(Vec2({56,56}), Vec2({8 ,8 }))},
+            //    {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))},
+            //    {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({8 ,8 }))},
+            //    {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))}
+            //}),
+            //gim::Element({"child"},
+            //{
+            //    {"name" , std::string("green")},
+            //    {"color",    Color(136, 166, 94)},
+            //    {"original_color",    Color(136, 166, 94)},
+            //    {"click_color",    Color(166, 196, 124)},
+            //    {"position", Vec2({90, 20})},
+            //    {"size",     Vec2({64, 64})},
+            //    {"stretch_mode", gim::StretchMode::STRETCHED},
+            //    {"image_id", 0u},
+            //    {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
+            //    {"dragged", 0},
+            //    {"resize", false},
+            //    {"on_click", CallbackList({setClickColor, printClicked, setResize})},
+            //    {"on_release", CallbackList({toggleMode})},
+            //    {"on_global_release", CallbackList({setOriginalColor, unsetResize})},
+            //    {"block_event", true},
+            //    {"on_drag", moveOrResize},
+            //    {"border_mode", gim::BorderMode::LEFT_RIGHT},
+            //    {"border_coords_tl", gim::Rectangle<Vec2>(Vec2({0 ,0 }), Vec2({8 ,8 }))},
+            //    {"border_coords_t",  gim::Rectangle<Vec2>(Vec2({8 ,0 }), Vec2({48,8 }))},
+            //    {"border_coords_tr", gim::Rectangle<Vec2>(Vec2({56,0 }), Vec2({8 ,8 }))},
+            //    {"border_coords_r",  gim::Rectangle<Vec2>(Vec2({56,8 }), Vec2({8 ,48}))},
+            //    {"border_coords_br", gim::Rectangle<Vec2>(Vec2({56,56}), Vec2({8 ,8 }))},
+            //    {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))},
+            //    {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({8 ,8 }))},
+            //    {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))}
+            //}),
             gim::Element({"child"},
             {
                     {"name" , std::string("yellow")},
@@ -232,7 +243,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                     {"image_id", 0u},
                     {"dragged", 0},
                     {"resize", false},
-                    {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
+                    {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({64, 64}))},
                     {"on_click", CallbackList({setClickColor, printClicked, setResize})},
                     {"on_release", CallbackList({toggleMode})},
                     {"on_global_release", CallbackList({setOriginalColor, unsetResize})},
@@ -250,16 +261,19 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             })
         })
 {
-    std::ifstream fontFile("resources/fonts/LiberationSans-Regular.ttf", std::ios::binary);
+    std::unique_ptr<Texture> fontTexture = std::unique_ptr<Texture>(new Texture());
+    auto result = mRenderDataGenerator.registerFont(mFont, TextureAdaptor(*fontTexture));
+    mTextures.emplace(result.textureId, std::move(fontTexture));
+    mRoot.setAttribute("font", result.fontId);
 
     //load textures
     uint32_t textureIdA = mRenderDataGenerator.registerImageInfo({64, 64});
     uint32_t textureIdB = mRenderDataGenerator.registerImageInfo({56, 18});
 
-    mTextures.emplace(textureIdA, loadTexture("resources/borders.png"));
-    mTextures.emplace(textureIdB, loadTexture("resources/button.png"));
+    mTextures.emplace(textureIdA, std::unique_ptr<Texture>(new Texture(loadTexture("resources/borders.png"))));
+    mTextures.emplace(textureIdB, std::unique_ptr<Texture>(new Texture(loadTexture("resources/button.png"))));
 
-    mRoot.setAttribute("image_id", textureIdA);
+    //mRoot.setAttribute("image_id", textureIdA);
     for(auto& child : mRoot.children())
         child->setAttribute("image_id", textureIdA);
 
@@ -327,13 +341,36 @@ void SimpleRendering::loop()
 
     for(auto renderData : renderDatas)
     {
-        GIM_ASSERT(mTextures.count(renderData.imageId) != 0, "invalid texture given");
-        mBaseShader.setUniform("texture", UniformType::TEXTURE, &mTextures.at(renderData.imageId));
-        mTriangles.setData(renderData.positions);
-        mColors.setData(renderData.colors);
-        mTexCoords.setData(renderData.texCoords);
+        if(renderData.positions.size() > 0)
+        {
+            GIM_ASSERT(mTextures.count(renderData.imageId) != 0, "invalid texture given");
+            mBaseShader.setUniform("texture", UniformType::TEXTURE, &*mTextures.at(0));
+            mTriangles.setData(renderData.positions);
+            mColors.setData(renderData.colors);
 
-        glDrawArrays(GL_TRIANGLES, 0, mTriangles.getElementAmount() / 3);
+            for(float& entry : renderData.texCoords)
+            {
+                if(entry > 0.00001f)
+                    entry = 1.0f;
+                else
+                    entry = 0.0f;
+            }
+
+            mTexCoords.setData(renderData.texCoords);
+
+            glDrawArrays(GL_TRIANGLES, 0, mTriangles.getElementAmount() / 3);
+        }
+
+        if(renderData.textPositions.size() > 0)
+        {
+            GIM_ASSERT(mTextures.count(renderData.textImageId) != 0, "invalid texture given");
+            mBaseShader.setUniform("texture", UniformType::TEXTURE, &*mTextures.at(renderData.textImageId));
+            mTriangles.setData(renderData.textPositions);
+            mColors.setData(renderData.textColors);
+            mTexCoords.setData(renderData.textTexCoords);
+
+            glDrawArrays(GL_TRIANGLES, 0, mTriangles.getElementAmount() / 3);
+        }
     }
 }
 
