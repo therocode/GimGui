@@ -11,7 +11,7 @@ Rectangle<Vec2> RectanglePacker<Vec2>::insert(const Vec2& size)
     GIM_ASSERT(size.x > 0 && size.y > 0, "size cannot be zero");
     Rectangle<Vec2> packed = pack(size);
 
-    if(packed.size.y == 0)
+    while(packed.size.y == 0)
     {//the packer is full, we need to make a new one
         int32_t newIndex = mPackers.size();
         int32_t newOrder = indexToOrder(newIndex);

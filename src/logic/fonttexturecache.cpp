@@ -29,10 +29,17 @@ namespace gim
             auto rectangle = mGlyphPacker.insert({(int32_t)width, (int32_t)height});
             bool flipped = rectangle.size.x == height && rectangle.size.y == width;
 
-            if(rectangle.start.x + std::max(rectangle.size.x, rectangle.size.y) >= mCurrentSize || rectangle.start.y + std::max(rectangle.size.x, rectangle.size.y) >= mCurrentSize)
+            uint32_t neededX = rectangle.start.x + std::max(rectangle.size.x, rectangle.size.y); //using both x and y takes flipping into account
+            uint32_t neededY = rectangle.start.y + std::max(rectangle.size.x, rectangle.size.y); 
+            if(neededX >= mCurrentSize || neededY >= mCurrentSize)
             {//time to resize texture
-                mCurrentSize *= 2;
-                mResizeStorage(mCurrentSize, mCurrentSize);
+                uint32_t neededSize = std::max(neededX, neededY);
+
+                while(mCurrentSize < neededSize)
+                {
+                    mCurrentSize *= 2;
+                    mResizeStorage(mCurrentSize, mCurrentSize);
+                }
             }
 
             mGlyphRectangles.emplace(CodePointSize({glyph.codePoint, glyph.size}), std::pair<Rectangle, bool>({rectangle, flipped}));
