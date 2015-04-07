@@ -9,10 +9,10 @@ uniform mat4 projection;
 //layout(location = 1) in vec3 in_color;
 //layout(location = 2) in vec2 in_texCoords;
 attribute vec3 in_position;
-attribute vec3 in_color;
+attribute vec4 in_color;
 attribute vec2 in_texCoords;
 
-varying vec3 vertexColor;
+varying vec4 vertexColor;
 varying vec2 texCoords;
 
 void main()
@@ -28,11 +28,11 @@ precision highp float;
 
 uniform sampler2D texture;
 
-varying vec3 vertexColor;
+varying vec4 vertexColor;
 
 varying vec2 texCoords;
 
 void main()
 {
-    gl_FragColor = vec4(vertexColor, 1.0) * texture2D(texture, texCoords);
+    gl_FragColor = vertexColor * texture2D(texture, texCoords);
 })";
