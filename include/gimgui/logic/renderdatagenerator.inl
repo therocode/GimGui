@@ -165,7 +165,8 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         const int32_t* textSizePtr = element.findAttribute<int32_t>("text_size");
         GIM_ASSERT(textSizeUPtr != nullptr || textSizePtr != nullptr, "cannot give an element text without also giving it a text_size");
         uint32_t textSize = textSizeUPtr ? *textSizeUPtr : *textSizePtr;
-
+        const Color* colorPtr = element.findAttribute<Color>("text_color");
+        Color color = colorPtr ? *colorPtr : Color{255, 255, 255, 255};
         
         gim::Utf8Decoder utf8Decoder;
         std::vector<uint32_t> codePoints = utf8Decoder.decode(utf8string);
@@ -234,7 +235,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             //float top    = texCoords.yStart;
             //float right  = texCoords.xEnd;
             //float bottom = texCoords.yEnd;
-            generateQuadWithImage(Vec2({(int32_t)(x + metrics.left), (int32_t)(y + metrics.top)}), Vec2({(int32_t)(metrics.width), (int32_t)(metrics.height)}), Color({255, 255, 255, 255}), {texCoords.xStart, texCoords.yStart}, {texCoords.xEnd - texCoords.xStart, texCoords.yEnd - texCoords.yStart}, renderData.textPositions, renderData.textColors, renderData.textTexCoords, texCoords.flipped);
+            generateQuadWithImage(Vec2({(int32_t)(x + metrics.left), (int32_t)(y + metrics.top)}), Vec2({(int32_t)(metrics.width), (int32_t)(metrics.height)}), color, {texCoords.xStart, texCoords.yStart}, {texCoords.xEnd - texCoords.xStart, texCoords.yEnd - texCoords.yStart}, renderData.textPositions, renderData.textColors, renderData.textTexCoords, texCoords.flipped);
 
             x += metrics.advance;
         }
@@ -300,12 +301,12 @@ void RenderDataGenerator<Vec2, Color>::generateQuadColors(const Color& color, st
 {
     std::vector<float> colorList(
     {
-        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 
-        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 
-        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f,
-        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f,
-        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f,
-        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f
+        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f, 
+        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f, 
+        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f, 
+        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f, 
+        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f, 
+        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f
     });
 
     outColors.insert(outColors.end(), colorList.begin(), colorList.end());

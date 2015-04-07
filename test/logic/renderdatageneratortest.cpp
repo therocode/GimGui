@@ -30,26 +30,32 @@ bool checkQuadPositions(const float* firstPosition, float xMin, float yMin, floa
           (closeEnough(*(firstPosition + 17),  0.0f));
 }
 
-bool checkQuadColors(const float* firstColor, float r, float g, float b)
+bool checkQuadColors(const float* firstColor, float r, float g, float b, float a)
 {
-    return(closeEnough(*(firstColor + 0) , r))&&//r
-          (closeEnough(*(firstColor + 1) , g))&&//g
-          (closeEnough(*(firstColor + 2) , b))&&//b
-          (closeEnough(*(firstColor + 3) , r))&&//r
-          (closeEnough(*(firstColor + 4) , g))&&//g
-          (closeEnough(*(firstColor + 5) , b))&&//b
-          (closeEnough(*(firstColor + 6) , r))&&//r
-          (closeEnough(*(firstColor + 7) , g))&&//g
-          (closeEnough(*(firstColor + 8) , b))&&//b
-          (closeEnough(*(firstColor + 9) , r))&&//r
-          (closeEnough(*(firstColor + 10), g))&&//g
-          (closeEnough(*(firstColor + 11), b))&&//b
-          (closeEnough(*(firstColor + 12), r))&&//r
-          (closeEnough(*(firstColor + 13), g))&&//g
-          (closeEnough(*(firstColor + 14), b))&&//b
-          (closeEnough(*(firstColor + 15), r))&&//r
-          (closeEnough(*(firstColor + 16), g))&&//g
-          (closeEnough(*(firstColor + 17), b));//b
+    return(closeEnough(*(firstColor + 0) , r))&&
+          (closeEnough(*(firstColor + 1) , g))&&
+          (closeEnough(*(firstColor + 2) , b))&&
+          (closeEnough(*(firstColor + 3) , a))&&
+          (closeEnough(*(firstColor + 4) , r))&&
+          (closeEnough(*(firstColor + 5) , g))&&
+          (closeEnough(*(firstColor + 6) , b))&&
+          (closeEnough(*(firstColor + 7) , a))&&
+          (closeEnough(*(firstColor + 8) , r))&&
+          (closeEnough(*(firstColor + 9) , g))&&
+          (closeEnough(*(firstColor + 10), b))&&
+          (closeEnough(*(firstColor + 11), a))&&
+          (closeEnough(*(firstColor + 12), r))&&
+          (closeEnough(*(firstColor + 13), g))&&
+          (closeEnough(*(firstColor + 14), b))&&
+          (closeEnough(*(firstColor + 15), a))&&
+          (closeEnough(*(firstColor + 16), r))&&
+          (closeEnough(*(firstColor + 17), g))&&
+          (closeEnough(*(firstColor + 18), b))&&
+          (closeEnough(*(firstColor + 19), a))&&
+          (closeEnough(*(firstColor + 20), r))&&
+          (closeEnough(*(firstColor + 21), g))&&
+          (closeEnough(*(firstColor + 22), b))&&
+          (closeEnough(*(firstColor + 23), a));
 }
 
 bool checkQuadTexCoords(const float* firstTexCoord, float xMin, float yMin, float xMax, float yMax)
@@ -77,7 +83,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         gim::Element root({"container"},
         {
-            {"color",    Color(255, 0, 0)},
+            {"color",    Color(255, 0, 0, 255)},
             {"position", Vec2({5, 5})},
             {"size",     Vec2({40, 30})},
             {"image_id", imageId},
@@ -99,7 +105,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {
                 REQUIRE(data.size() == 2);
                 REQUIRE(data[0].positions.size() == 18);
-                REQUIRE(data[0].colors.size() == 18);
+                REQUIRE(data[0].colors.size() == 24);
                 REQUIRE(data[0].texCoords.size() == 12);
                 REQUIRE(data[1].positions.size() == 0);
                 REQUIRE(data[1].colors.size() == 0);
@@ -111,7 +117,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
                 CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 45.0f, 35.0f));
 
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 0.0f, 0.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 0.0f, 0.0f, 1.0f));
 
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f));
             }
@@ -140,7 +146,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             THEN("the data is correct")
             {
                 CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 45.0f, 35.0f));
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f));
             }
         }
@@ -166,28 +172,28 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             THEN("the data is correct")
             {
                 CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 37.0f, 37.0f));
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f));
 
                 CHECK(checkQuadPositions(&data[0].positions[18], 37.0f, 5.0f, 69.0f, 37.0f));
-                CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[12], 0.0f, 0.0f, 0.5f, 0.5f));
 
                 CHECK(checkQuadPositions(&data[0].positions[36], 69.0f, 5.0f, 75.0f, 37.0f));
-                CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[24], 0.0f, 0.0f, 0.09375f, 0.5f));
 
 
                 CHECK(checkQuadPositions(&data[0].positions[54], 5.0f, 37.0f, 37.0f, 42.0f));
-                CHECK(checkQuadColors(&data[0].colors[54], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[54], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[36], 0.0f, 0.0f, 0.5f, 0.078125f));
 
                 CHECK(checkQuadPositions(&data[0].positions[72], 37.0f, 37.0f, 69.0f, 42.0f));
-                CHECK(checkQuadColors(&data[0].colors[72], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[72], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[48], 0.0f, 0.0f, 0.5f, 0.078125f));
 
                 CHECK(checkQuadPositions(&data[0].positions[90], 69.0f, 37.0f, 75.0f, 42.0f));
-                CHECK(checkQuadColors(&data[0].colors[90], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[90], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[60], 0.0f, 0.0f, 0.09375f, 0.078125f));
             }
         }
@@ -213,7 +219,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             THEN("the data is correct")
             {
                 CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 25.0f, 15.0f));
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.3125f, 0.15625f));
             }
         }
@@ -239,11 +245,11 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             THEN("the data is correct")
             {
                 CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 75.0f, 37.0f));
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f));
 
                 CHECK(checkQuadPositions(&data[0].positions[18], 5.0f, 37.0f, 75.0f, 42.0f));
-                CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[12], 0.0f, 0.0f, 0.5f, 0.078125f));
             }
         }
@@ -269,7 +275,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             THEN("the data is correct")
             {
                 CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 25.0f, 15.0f));
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.15625f));
             }
         }
@@ -295,15 +301,15 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             THEN("the data is correct")
             {
                 CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 37.0f, 42.0f));
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f));
 
                 CHECK(checkQuadPositions(&data[0].positions[18], 37.0f, 5.0f, 69.0f, 42.0f));
-                CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[12], 0.0f, 0.0f, 0.5f, 0.5f));
 
                 CHECK(checkQuadPositions(&data[0].positions[36], 69.0f, 5.0f, 75.0f, 42.0f));
-                CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[24], 0.0f, 0.0f, 0.09375f, 0.5f));
             }
         }
@@ -329,7 +335,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             THEN("the data is correct")
             {
                 CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 25.0f, 15.0f));
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.3125f, 0.5f));
             }
         }
@@ -355,7 +361,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             THEN("the data is correct")
             {
                 CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 13.0f, 13.0f));
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.25f, 0.25f, 0.375f, 0.375f));
             }
         }
@@ -382,7 +388,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             THEN("the data is correct")
             {
                 CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 5.0f, 37.0f, 37.0f));
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f));
             }
         }
@@ -410,15 +416,15 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             THEN("the data is correct")
             {
                 CHECK(checkQuadPositions(&data[0].positions[0], 13.0f, 5.0f, 29.0f, 37.0f));
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f));
 
                 CHECK(checkQuadPositions(&data[0].positions[18], 5.0f, 5.0f, 13.0f, 37.0f));
-                CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[12], 0.5f, 0.0f, 0.625f, 0.5f));
 
                 CHECK(checkQuadPositions(&data[0].positions[36], 29.0f, 5.0f, 37.0f, 37.0f));
-                CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[24], 0.625f, 0.0f, 0.75f, 0.5f));
             }
         }
@@ -446,15 +452,15 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             THEN("the data is correct")
             {
                 CHECK(checkQuadPositions(&data[0].positions[0], 5.0f, 13.0f, 37.0f, 29.0f));
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.0f, 0.0f, 0.5f, 0.5f));
 
                 CHECK(checkQuadPositions(&data[0].positions[18], 5.0f, 5.0f, 37.0f, 13.0f));
-                CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[12], 0.0f, 0.5f, 0.5f, 0.625f));
 
                 CHECK(checkQuadPositions(&data[0].positions[36], 5.0f, 29.0f, 37.0f, 37.0f));
-                CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[24], 0.0f, 0.625f, 0.5f, 0.75f));
             }
         }
@@ -489,47 +495,47 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {
                 //main quad
                 CHECK(checkQuadPositions(&data[0].positions[0], 8.0f, 8.0f, 40.0f, 40.0f));
-                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[0], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[0], 0.125f, 0.125f, 0.875f, 0.875f));
 
                 //t
                 CHECK(checkQuadPositions(&data[0].positions[18], 8.0f, 0.0f, 40.0f, 8.0f));
-                CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[18], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[12], 0.125f, 0.0f, 0.875f, 0.125f));
                 
                 //b
                 CHECK(checkQuadPositions(&data[0].positions[36], 8.0f, 40.0f, 40.0f, 48.0f));
-                CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[36], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[24], 0.125f, 0.875f, 0.875f, 1.0f));
 
                 //l
                 CHECK(checkQuadPositions(&data[0].positions[54], 0.0f, 8.0f, 8.0f, 40.0f));
-                CHECK(checkQuadColors(&data[0].colors[54], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[54], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[36], 0.0f, 0.125f, 0.125f, 0.875f));
 
                 //r
                 CHECK(checkQuadPositions(&data[0].positions[72], 40.0f, 8.0f, 48.0f, 40.0f));
-                CHECK(checkQuadColors(&data[0].colors[72], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[72], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[48], 0.875f, 0.125f, 1.0f, 0.875f));
 
                 //tl
                 CHECK(checkQuadPositions(&data[0].positions[90], 0.0f, 0.0f, 8.0f, 8.0f));
-                CHECK(checkQuadColors(&data[0].colors[90], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[90], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[60], 0.0f, 0.0f, 0.125f, 0.125f));
 
                 //tr
                 CHECK(checkQuadPositions(&data[0].positions[108], 40.0f, 0.0f, 48.0f, 8.0f));
-                CHECK(checkQuadColors(&data[0].colors[108], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[108], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[72], 0.875f, 0.0f, 1.0f, 0.125f));
                 
                 //bl
                 CHECK(checkQuadPositions(&data[0].positions[126], 0.0f, 40.0f, 8.0f, 48.0f));
-                CHECK(checkQuadColors(&data[0].colors[126], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[126], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[84], 0.0f, 0.875f, 0.125f, 1.0f));
                 
                 //br
                 CHECK(checkQuadPositions(&data[0].positions[144], 40.0f, 40.0f, 48.0f, 48.0f));
-                CHECK(checkQuadColors(&data[0].colors[144], 1.0f, 1.0f, 1.0f));
+                CHECK(checkQuadColors(&data[0].colors[144], 1.0f, 1.0f, 1.0f, 1.0f));
                 CHECK(checkQuadTexCoords(&data[0].texCoords[96], 0.875f, 0.875f, 1.0f, 1.0f));
             }
         }
@@ -568,7 +574,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 CHECK(data[0].texCoords.size() == 0);
 
                 REQUIRE(data[0].textPositions.size() == 90);
-                REQUIRE(data[0].textColors.size() == 90);
+                REQUIRE(data[0].textColors.size() == 120);
                 REQUIRE(data[0].textTexCoords.size() == 60);
                 CHECK(data[0].textImageId == ids.textureId);
 
@@ -583,6 +589,39 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
 
                 //first A does not equal first b
                 CHECK(!std::equal(data[0].textTexCoords.begin() + 0, data[0].textTexCoords.begin() + 12, data[0].textTexCoords.begin() + 24));
+            }
+        }
+
+        WHEN("when text is used like above but also given the 'text_color' attribute")
+        {
+            gim::Element element({"text"},
+            {
+                {"position", Vec2({0, 0})},
+                {"size",     Vec2({48, 48})},
+                {"text", std::string("hej")},
+                {"text_color", Color{100, 0, 255, 200}},
+                {"text_size", 16},
+                {"font", ids.fontId}
+            });
+
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("quads for the text is returned with reasonable texture coordinates")
+            {
+                CHECK(data[0].positions.size() == 0);
+                CHECK(data[0].colors.size() == 0);
+                CHECK(data[0].texCoords.size() == 0);
+
+                REQUIRE(data[0].textPositions.size() == 54);
+                REQUIRE(data[0].textColors.size() == 72);
+                REQUIRE(data[0].textTexCoords.size() == 36);
+                CHECK(data[0].textImageId == ids.textureId);
+
+                //colors are correct
+                CHECK(data[0].textColors[0] == Approx(0.39215686274f));
+                CHECK(data[0].textColors[1] == Approx(0.0f));
+                CHECK(data[0].textColors[2] == Approx(1.0f));
+                CHECK(data[0].textColors[3] == Approx(0.78431372549f));
             }
         }
     }

@@ -16,7 +16,7 @@
 
 Callback addText = [] (gim::Element& self, const Parameters& parameters)
 {
-    const std::string source = u8"1234567890qwertyuiopasdfghjkl;zxcvbnm,.QWERTYUIOP{ASDFGHJKL:ZXCVBNM<>?!@#$%^&*()_йцукенгшщзхъфывапролджэячсмитьбю.ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,";
+    const std::string source = u8"tsjost | /home/iostream/Code/C++/openrw/rwgame/debug/HttpServer.hpp:25:19: error: expected ‘)’ before ‘*’ token";
 
     std::string text = self.getAttribute<std::string>("text");
     text.push_back(source[text.size()]);
@@ -154,7 +154,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({8 ,8 }))},
             {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))},
             {"text", std::string(u8"")},
-            {"text_size", 150},
+            {"text_size", 30},
             {"font", 0u}/*,
             {"text_offset", Vec2({10, 10})},
             {"text_color", Color(255, 100, 0)},
