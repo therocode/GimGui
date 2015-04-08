@@ -47,15 +47,16 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
     const std::string* textPtr = element.findAttribute<std::string>("text");
     if(imageIdPtr != nullptr)
     {
-        Vec2 mainQuadPosition = position;
-        Vec2 mainQuadSize = size;
+        FloatVec2 mainQuadPosition{(float)position.x, (float)position.y};
+        FloatVec2 mainQuadSize{(float)size.x, (float)size.y};
         GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("image_coords"), "currentElement has an image id registered but lacks 'image_coords'");
         GIM_ASSERT(mImageSizes.count(*imageIdPtr) != 0, "image_id " + std::to_string(*imageIdPtr) + " given to an currentElement but that id has not been registered in the RenderDataGenerator");
 
         uint32_t imageId = *imageIdPtr;
         StretchMode stretchMode = getOrFallback<StretchMode>(element, "stretch_mode", StretchMode::STRETCHED);
         const Rectangle<Vec2>& imageCoords = element.getAttribute<Rectangle<Vec2>>("image_coords");
-        const Vec2& imageSize = mImageSizes.at(imageId);
+        const Vec2& imageSizeInt = mImageSizes.at(imageId);
+        const FloatVec2 imageSize{(float)imageSizeInt.x, (float)imageSizeInt.y};
         BorderMode borderMode = getOrFallback<BorderMode>(element, "border_mode", BorderMode::NONE);
 
 
@@ -85,7 +86,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         }
 
         //find out the amount of tiles it would have based on image size and size. Then based on stretch mode, set x, y or both, to 1. Then calculate underneath stuff and loop for all tiles
-        Vec2 tileAmount({mainQuadSize.x / imageCoords.size.x + 1, mainQuadSize.y / imageCoords.size.y + 1});
+        Vec2 tileAmount({(int32_t)mainQuadSize.x / imageCoords.size.x + 1, (int32_t)mainQuadSize.y / imageCoords.size.y + 1});
 
         if(stretchMode == StretchMode::STRETCHED)
         {
@@ -105,17 +106,17 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         {
             for(int32_t x = 0; x < tileAmount.x; x++)
             {
-                Vec2 quadPosition;
+                FloatVec2 quadPosition;
                 quadPosition.x = mainQuadPosition.x + x * imageCoords.size.x;
                 quadPosition.y = mainQuadPosition.y + y * imageCoords.size.y;
 
-                Vec2 quadSize;
+                FloatVec2 quadSize;
 
                 bool lastX = x == tileAmount.x - 1;
                 bool lastY = y == tileAmount.y - 1;
 
-                quadSize.x = (!lastX) ? (imageCoords.size.x) : (mainQuadSize.x % imageCoords.size.x);
-                quadSize.y = (!lastY) ? (imageCoords.size.y) : (mainQuadSize.y % imageCoords.size.y);
+                quadSize.x = (!lastX) ? (imageCoords.size.x) : ((int32_t)mainQuadSize.x % imageCoords.size.x);
+                quadSize.y = (!lastY) ? (imageCoords.size.y) : ((int32_t)mainQuadSize.y % imageCoords.size.y);
 
                 FloatVec2 texCoordsStart;
                 texCoordsStart.x = (float)imageCoords.start.x / imageSize.x;
@@ -132,17 +133,17 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 else if(stretchMode == StretchMode::V_TILED)
                 {
                     quadSize.x = mainQuadSize.x;
-                    texCoordsSize.y = lastY ? ((float)quadSize.y / imageSize.y) : (texCoordsSize.y);
+                    texCoordsSize.y = lastY ? (quadSize.y / imageSize.y) : (texCoordsSize.y);
                 }
                 else if(stretchMode == StretchMode::H_TILED)
                 {
-                    texCoordsSize.x = lastX ? ((float)quadSize.x / imageSize.x) : (texCoordsSize.x);
+                    texCoordsSize.x = lastX ? (quadSize.x / imageSize.x) : (texCoordsSize.x);
                     quadSize.y = mainQuadSize.y;
                 }
                 else if(stretchMode == StretchMode::TILED)
                 {
-                    texCoordsSize.x = lastX ? ((float)quadSize.x / imageSize.x) : (texCoordsSize.x);
-                    texCoordsSize.y = lastY ? ((float)quadSize.y / imageSize.y) : (texCoordsSize.y);
+                    texCoordsSize.x = lastX ? (quadSize.x / imageSize.x) : (texCoordsSize.x);
+                    texCoordsSize.y = lastY ? (quadSize.y / imageSize.y) : (texCoordsSize.y);
                 }
 
                 generateQuadWithImage(quadPosition, quadSize, color, texCoordsStart, texCoordsSize, renderData.positions, renderData.colors, renderData.texCoords);
@@ -240,8 +241,8 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             float height = metrics.height * textScale;
 
             //make quad
-            generateQuadWithImage(Vec2({(int32_t)(x + left), (int32_t)(y + top)}),
-                                  Vec2({(int32_t)(width), (int32_t)(height)}),
+            generateQuadWithImage(FloatVec2({x + left, y + top}),
+                                  FloatVec2({width, height}),
                                   color, 
                                   {texCoords.xStart, texCoords.yStart}, 
                                   {texCoords.xEnd - texCoords.xStart, texCoords.yEnd - texCoords.yStart},
@@ -280,30 +281,30 @@ typename RenderDataGenerator<Vec2, Color>::Ids RenderDataGenerator<Vec2, Color>:
 }
 
 template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateQuadWithoutImage(const Vec2& position, const Vec2& size, const Color& color, std::vector<float>& outPositions, std::vector<float>& outColors)
+void RenderDataGenerator<Vec2, Color>::generateQuadWithoutImage(const FloatVec2& position, const FloatVec2& size, const Color& color, std::vector<float>& outPositions, std::vector<float>& outColors)
 {
     generateQuadPositions(position, size, outPositions);
     generateQuadColors(color, outColors);
 }
 
 template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateQuadWithImage(const Vec2& position, const Vec2& size, const Color& color, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords, bool flipTexCoords)
+void RenderDataGenerator<Vec2, Color>::generateQuadWithImage(const FloatVec2& position, const FloatVec2& size, const Color& color, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords, bool flipTexCoords)
 {
     generateQuadWithoutImage(position, size, color, outPositions, outColors);
     generateQuadTexCoords(texCoordStart, texCoordSize, outTexCoords, flipTexCoords);
 }
 
 template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateQuadPositions(const Vec2& position, const Vec2& size, std::vector<float>& outPositions)
+void RenderDataGenerator<Vec2, Color>::generateQuadPositions(const FloatVec2& position, const FloatVec2& size, std::vector<float>& outPositions)
 {
     std::vector<float> triangle(
     {
-        (float)position.x         ,  (float)position.y         , 0.0f,
-        (float)position.x         ,  (float)position.y + size.y, 0.0f,
-        (float)position.x + size.x,  (float)position.y + size.y, 0.0f,
-        (float)position.x + size.x,  (float)position.y + size.y, 0.0f,
-        (float)position.x + size.x,  (float)position.y         , 0.0f,
-        (float)position.x         ,  (float)position.y         , 0.0f
+        position.x         ,  position.y         , 0.0f,
+        position.x         ,  position.y + size.y, 0.0f,
+        position.x + size.x,  position.y + size.y, 0.0f,
+        position.x + size.x,  position.y + size.y, 0.0f,
+        position.x + size.x,  position.y         , 0.0f,
+        position.x         ,  position.y         , 0.0f
     });
 
     outPositions.insert(outPositions.end(), triangle.begin(), triangle.end());
@@ -312,14 +313,19 @@ void RenderDataGenerator<Vec2, Color>::generateQuadPositions(const Vec2& positio
 template <typename Vec2, typename Color>
 void RenderDataGenerator<Vec2, Color>::generateQuadColors(const Color& color, std::vector<float>& outColors)
 {
+    float r = color.r / 255.0f;
+    float g = color.g / 255.0f;
+    float b = color.b / 255.0f;
+    float a = color.a / 255.0f;
+
     std::vector<float> colorList(
     {
-        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f, 
-        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f, 
-        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f, 
-        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f, 
-        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f, 
-        color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f
+        r, g, b, a, 
+        r, g, b, a, 
+        r, g, b, a, 
+        r, g, b, a, 
+        r, g, b, a, 
+        r, g, b, a
     });
 
     outColors.insert(outColors.end(), colorList.begin(), colorList.end());
@@ -359,7 +365,7 @@ void RenderDataGenerator<Vec2, Color>::generateQuadTexCoords(const FloatVec2& te
 }
 
 template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, const Vec2& position, const Vec2& size, const Color& color, const Vec2& imageSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords)
+void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, const FloatVec2& position, const FloatVec2& size, const Color& color, const FloatVec2& imageSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords)
 {
     const BorderMode* borderModePtr = element.findAttribute<BorderMode>("border_mode");
     BorderMode borderMode = borderModePtr ? *borderModePtr : BorderMode::NONE;
@@ -374,8 +380,8 @@ void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, c
 
         //top quad
         generateQuadWithImage(
-                Vec2({position.x, position.y - topImageCoords.size.y}),
-                Vec2({size.x, topImageCoords.size.y}),
+                FloatVec2({position.x, position.y - topImageCoords.size.y}),
+                FloatVec2({size.x, (float)topImageCoords.size.y}),
                 color,
                 FloatVec2({(float)topImageCoords.start.x / imageSize.x, (float)topImageCoords.start.y / imageSize.y}),
                 FloatVec2({(float)topImageCoords.size.x  / imageSize.x, (float)topImageCoords.size.y  / imageSize.y}),
@@ -383,8 +389,8 @@ void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, c
         
         //bottom quad
         generateQuadWithImage(
-                Vec2({position.x, position.y + size.y}),
-                Vec2({size.x, bottomImageCoords.size.y}),
+                FloatVec2({position.x, position.y + size.y}),
+                FloatVec2({size.x, (float)bottomImageCoords.size.y}),
                 color,
                 FloatVec2({(float)bottomImageCoords.start.x / imageSize.x, (float)bottomImageCoords.start.y / imageSize.y}),
                 FloatVec2({(float)bottomImageCoords.size.x  / imageSize.x, (float)bottomImageCoords.size.y  / imageSize.y}),
@@ -401,8 +407,8 @@ void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, c
 
         //left quad
         generateQuadWithImage(
-                Vec2({position.x - leftImageCoords.size.x, position.y}),
-                Vec2({leftImageCoords.size.x, size.y}),
+                FloatVec2({position.x - leftImageCoords.size.x, position.y}),
+                FloatVec2({(float)leftImageCoords.size.x, size.y}),
                 color,
                 FloatVec2({(float)leftImageCoords.start.x / imageSize.x, (float)leftImageCoords.start.y / imageSize.y}),
                 FloatVec2({(float)leftImageCoords.size.x  / imageSize.x, (float)leftImageCoords.size.y  / imageSize.y}),
@@ -410,8 +416,8 @@ void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, c
         
         //right quad
         generateQuadWithImage(
-                Vec2({position.x + size.x, position.y}),
-                Vec2({rightImageCoords.size.x, size.y}),
+                FloatVec2({position.x + size.x, position.y}),
+                FloatVec2({(float)rightImageCoords.size.x, size.y}),
                 color,
                 FloatVec2({(float)rightImageCoords.start.x / imageSize.x, (float)rightImageCoords.start.y / imageSize.y}),
                 FloatVec2({(float)rightImageCoords.size.x  / imageSize.x, (float)rightImageCoords.size.y  / imageSize.y}),
@@ -432,8 +438,8 @@ void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, c
 
         //topLeft quad
         generateQuadWithImage(
-                Vec2({position.x - topLeftImageCoords.size.x, position.y - topLeftImageCoords.size.y}),
-                topLeftImageCoords.size,
+                FloatVec2({position.x - topLeftImageCoords.size.x, position.y - topLeftImageCoords.size.y}),
+                {(float)topLeftImageCoords.size.x, (float)topLeftImageCoords.size.y},
                 color,
                 FloatVec2({(float)topLeftImageCoords.start.x / imageSize.x, (float)topLeftImageCoords.start.y / imageSize.y}),
                 FloatVec2({(float)topLeftImageCoords.size.x  / imageSize.x, (float)topLeftImageCoords.size.y  / imageSize.y}),
@@ -441,8 +447,8 @@ void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, c
         
         //topRight quad
         generateQuadWithImage(
-                Vec2({position.x + size.x, position.y - topRightImageCoords.size.y}),
-                topRightImageCoords.size,
+                FloatVec2({position.x + size.x, position.y - topRightImageCoords.size.y}),
+                {(float)topRightImageCoords.size.x, (float)topRightImageCoords.size.y},
                 color,
                 FloatVec2({(float)topRightImageCoords.start.x / imageSize.x, (float)topRightImageCoords.start.y / imageSize.y}),
                 FloatVec2({(float)topRightImageCoords.size.x  / imageSize.x, (float)topRightImageCoords.size.y  / imageSize.y}),
@@ -450,8 +456,8 @@ void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, c
 
         //bottomLeft quad
         generateQuadWithImage(
-                Vec2({position.x - bottomLeftImageCoords.size.y, position.y + size.y}),
-                bottomLeftImageCoords.size,
+                FloatVec2({position.x - bottomLeftImageCoords.size.y, position.y + size.y}),
+                {(float)bottomLeftImageCoords.size.x, (float)bottomLeftImageCoords.size.y},
                 color,
                 FloatVec2({(float)bottomLeftImageCoords.start.x / imageSize.x, (float)bottomLeftImageCoords.start.y / imageSize.y}),
                 FloatVec2({(float)bottomLeftImageCoords.size.x  / imageSize.x, (float)bottomLeftImageCoords.size.y  / imageSize.y}),
@@ -459,8 +465,8 @@ void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, c
         
         //bottomRight quad
         generateQuadWithImage(
-                Vec2({position.x + size.x, position.y + size.y}),
-                bottomRightImageCoords.size,
+                FloatVec2({position.x + size.x, position.y + size.y}),
+                {(float)bottomRightImageCoords.size.x, (float)bottomRightImageCoords.size.y},
                 color,
                 FloatVec2({(float)bottomRightImageCoords.start.x / imageSize.x, (float)bottomRightImageCoords.start.y / imageSize.y}),
                 FloatVec2({(float)bottomRightImageCoords.size.x  / imageSize.x, (float)bottomRightImageCoords.size.y  / imageSize.y}),
