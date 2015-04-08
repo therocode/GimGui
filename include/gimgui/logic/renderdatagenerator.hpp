@@ -6,6 +6,7 @@
 #include <gimgui/logic/absolutemap.hpp>
 #include <gimgui/logic/fonttexturecache.hpp>
 #include <gimgui/logic/utf8decoder.hpp>
+#include <gimgui/util/getorfallback.hpp>
 #include <vector>
 
 namespace gim

@@ -624,5 +624,45 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 CHECK(data[0].textColors[3] == Approx(0.78431372549f));
             }
         }
+
+        WHEN("bigger text scale is used, the output text is larger")
+        {
+            gim::Element element({"text"},
+            {
+                {"position", Vec2({0, 0})},
+                {"size",     Vec2({48, 48})},
+                {"text", std::string("hej")},
+                {"text_color", Color{100, 0, 255, 200}},
+                {"text_size", 16},
+                {"text_scale", 1.0f},
+                {"font", ids.fontId}
+            });
+
+            std::vector<gim::RenderData> smallData = generator.generate(element);
+
+            element.setAttribute("text_scale", 2.0f);
+
+            std::vector<gim::RenderData> bigData = generator.generate(element);
+
+            THEN("quads for the text is returned with reasonable texture coordinates")
+            {
+                REQUIRE(smallData[0].textPositions.size() == 54);
+                REQUIRE(smallData[0].textColors.size() == 72);
+                REQUIRE(smallData[0].textTexCoords.size() == 36);
+                REQUIRE(bigData[0].textPositions.size() == 54);
+                REQUIRE(bigData[0].textColors.size() == 72);
+                REQUIRE(bigData[0].textTexCoords.size() == 36);
+
+                float smallTotal = 0.0f;
+                for(auto& data : smallData)
+                    smallTotal = std::accumulate(data.textPositions.begin(), data.textPositions.end(), smallTotal);
+
+                float bigTotal = 0.0f;
+                for(auto& data : bigData)
+                    bigTotal = std::accumulate(data.textPositions.begin(), data.textPositions.end(), bigTotal);
+
+                CHECK(smallTotal < bigTotal);
+            }
+        }
     }
 }

@@ -6,9 +6,9 @@
 namespace gim
 {
     template <typename AttributeType>
-    AttributeType getOrFallback(const Element& element, const std::string& name, const AttributeType& fallback);
+    const AttributeType& getOrFallback(const Element& element, const std::string& name, const AttributeType& fallback);
     template <typename AttributeType>
-    AttributeType getOrFallback(const std::unordered_map<std::string, Variant>& map, const std::string& name, const AttributeType& fallback);
+    const AttributeType& getOrFallback(const std::unordered_map<std::string, Variant>& map, const std::string& name, const AttributeType& fallback);
 
 #include <gimgui/util/getorfallback.inl>
 }

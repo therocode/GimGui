@@ -16,7 +16,7 @@
 
 Callback addText = [] (gim::Element& self, const Parameters& parameters)
 {
-    const std::string source = u8"tsjost | /home/iostream/Code/C++/openrw/rwgame/debug/HttpServer.hpp:25:19: error: expected ‘)’ before ‘*’ token";
+    const std::string source = u8"this is a space: and this is a tab\tand this is a newline\ndone";
 
     std::string text = self.getAttribute<std::string>("text");
     text.push_back(source[text.size()]);
@@ -157,22 +157,17 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"text_size", 30},
             {"font", 0u},
             {"text_color", Color(0, 20, 200, 150)}/*,
-            {"text_offset", Vec2({10, 10})},
-            {"text_color", Color(255, 100, 0)},
-            {"text_style", gim::Bold | gim::Underlined},
-            {"text_style", gim::Bold | gim::Underlined},
+            {"character_spacing", 345},
+            {"line_spacing", 34},
+            {"tab_width", 4},
+            {"text_style", gim::Bold | gim::Underlined | gim::Slanted | gim::StrikeThrough | gim::Hollow},
+            {"text_bg_color", Color(100, 200, 20, 12)},
             {"text_scale", 1.0f},
-            {"text_wrap", 100},
-
-            
-
-            class TextureBrigde
-            {
-                int32_t createTexture(size);
-                void updateRegion(id, start, size, bytes);
-                bool enlarge(id, newsize);
-            };
-
+            {"text_alignment, [gim::LEFT_ALIGN|gim::RIGHT_ALIGN|gim::CENTER_ALIGN|gim::JUSTIFY_ALIGN]
+            {"line_wrap", true},
+            {"text_border, ""},//default to element borders
+            {"text_avoid_blocks", std::vector<Rectanglee>()},
+            {"markup", true"}
             */
         },
         {

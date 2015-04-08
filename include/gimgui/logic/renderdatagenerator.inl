@@ -39,8 +39,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
     Vec2 size = element.getAttribute<Vec2>("size");
 
     //generate colors, default white
-    const Color* colorPtr = element.findAttribute<Color>("color");
-    const Color& color = colorPtr ? *colorPtr : Color({255, 255, 255, 255});
+    const Color& color = getOrFallback<Color>(element, "color", Color{255, 255, 255, 255});
 
     //generate texcoords if the element has an image
     const uint32_t* imageIdPtr = element.findAttribute<uint32_t>("image_id");
@@ -52,12 +51,11 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         GIM_ASSERT(mImageSizes.count(*imageIdPtr) != 0, "image_id " + std::to_string(*imageIdPtr) + " given to an currentElement but that id has not been registered in the RenderDataGenerator");
 
         uint32_t imageId = *imageIdPtr;
-        const StretchMode* stretchModePtr = element.findAttribute<StretchMode>("stretch_mode");
-        StretchMode stretchMode = stretchModePtr ? *stretchModePtr : StretchMode::STRETCHED;
+        StretchMode stretchMode = getOrFallback<StretchMode>(element, "stretch_mode", StretchMode::STRETCHED);
         const Rectangle<Vec2>& imageCoords = element.getAttribute<Rectangle<Vec2>>("image_coords");
         const Vec2& imageSize = mImageSizes.at(imageId);
-        const BorderMode* borderModePtr = element.findAttribute<BorderMode>("border_mode");
-        BorderMode borderMode = borderModePtr ? *borderModePtr : BorderMode::NONE;
+        BorderMode borderMode = getOrFallback<BorderMode>(element, "border_mode", BorderMode::NONE);
+
 
         //adjust position and size based on borders
         if(borderMode == BorderMode::TOP_BOTTOM || borderMode == BorderMode::FULL)
@@ -161,12 +159,14 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         uint32_t fontId = *fontIdPtr;
         GIM_ASSERT(mFontStorage.count(fontId) != 0, "font id " + std::to_string(fontId) + " set on an element but such a font doesn't exist");
         Font& font = mFontStorage.at(fontId).font;
+
         const uint32_t* textSizeUPtr = element.findAttribute<uint32_t>("text_size");
         const int32_t* textSizePtr = element.findAttribute<int32_t>("text_size");
         GIM_ASSERT(textSizeUPtr != nullptr || textSizePtr != nullptr, "cannot give an element text without also giving it a text_size");
         uint32_t textSize = textSizeUPtr ? *textSizeUPtr : *textSizePtr;
-        const Color* colorPtr = element.findAttribute<Color>("text_color");
-        Color color = colorPtr ? *colorPtr : Color{255, 255, 255, 255};
+
+        const Color& color = getOrFallback<Color>(element, "text_color", Color{255, 255, 255, 255});
+        float textScale = getOrFallback<float>(element, "text_scale", 1.0f);
         
         gim::Utf8Decoder utf8Decoder;
         std::vector<uint32_t> codePoints = utf8Decoder.decode(utf8string);
@@ -184,6 +184,24 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         TextureCoordinates texCoords;
         for(uint32_t codePoint : codePoints)
         {
+            //special characters
+            if(codePoint == ' ')
+            {
+                x += hspace;
+                continue;
+            }
+            else if(codePoint == '\t')
+            {
+                x += hspace * 4; //4 spaces for tabs. Configurable later on
+                continue;
+            }
+            else if(codePoint == '\n')
+            {
+                x = position.x;
+                y += vspace;
+                continue;
+            }
+
             auto texCoordsPtr = fontStorage->textureCoordinates.glyphCoords(codePoint, textSize);
 
             Glyph::Metrics metrics;
@@ -210,24 +228,6 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             
             x += font.kerning(previousCodePoint, codePoint);
             previousCodePoint = codePoint;
-
-            //special characters
-            if(codePoint == ' ')
-            {
-                x += hspace;
-                continue;
-            }
-            else if(codePoint == '\t')
-            {
-                x += hspace * 4; //4 spaces for tabs. Configurable later on
-                continue;
-            }
-            else if(codePoint == '\n')
-            {
-                x = position.x;
-                y += vspace;
-                continue;
-            }
 
             //make quad
 
