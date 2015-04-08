@@ -172,7 +172,9 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         //get optional attributes
         const Color& color = getOrFallback<Color>(element, "text_color", Color{255, 255, 255, 255});
         float textScale = getOrFallback<float>(element, "text_scale", 1.0f);
-        
+        float characterSpacing = getOrFallback<float>(element, "character_spacing", 0.0f);
+        float lineSpacing = getOrFallback<float>(element, "line_spacing", 0.0f);
+
         //render text
         gim::Utf8Decoder utf8Decoder;
         std::vector<uint32_t> codePoints = utf8Decoder.decode(utf8string);
@@ -182,9 +184,9 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
         float x = position.x;
         float y = position.y + textSize * textScale;
-        float hspace = getHSpace(fontId, textSize) * textScale;
+        float hspace = (getHSpace(fontId, textSize) + characterSpacing) * textScale;
         font.resize(textSize);
-        float vspace = font.lineSpacing() * textScale;
+        float vspace = (font.lineSpacing() + lineSpacing) * textScale;
         uint32_t previousCodePoint = 0;
 
         TextureCoordinates texCoords;
@@ -251,7 +253,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                                    renderData.textTexCoords,
                                    texCoords.flipped);
 
-            x += metrics.advance * textScale;
+            x += (metrics.advance + characterSpacing) * textScale;
         }
     }
 

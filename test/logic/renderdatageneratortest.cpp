@@ -606,7 +606,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
 
             std::vector<gim::RenderData> data = generator.generate(element);
 
-            THEN("quads for the text is returned with reasonable texture coordinates")
+            THEN("quads for the text is returned with reasonable colour values")
             {
                 CHECK(data[0].positions.size() == 0);
                 CHECK(data[0].colors.size() == 0);
@@ -632,7 +632,6 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 {"position", Vec2({0, 0})},
                 {"size",     Vec2({48, 48})},
                 {"text", std::string("hej")},
-                {"text_color", Color{100, 0, 255, 200}},
                 {"text_size", 16},
                 {"text_scale", 1.0f},
                 {"font", ids.fontId}
@@ -644,7 +643,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
 
             std::vector<gim::RenderData> bigData = generator.generate(element);
 
-            THEN("quads for the text is returned with reasonable texture coordinates")
+            THEN("the small data is smaller")
             {
                 REQUIRE(smallData[0].textPositions.size() == 54);
                 REQUIRE(smallData[0].textColors.size() == 72);
@@ -662,6 +661,55 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                     bigTotal = std::accumulate(data.textPositions.begin(), data.textPositions.end(), bigTotal);
 
                 CHECK(smallTotal < bigTotal);
+            }
+        }
+
+        WHEN("character spacing and line spacing can be used to control extra spacing amounts betweens characters and lines")
+        {
+            gim::Element element({"text"},
+            {
+                {"position", Vec2({0, 0})},
+                {"size",     Vec2({48, 48})},
+                {"text", std::string("hej")},
+                {"text_size", 16},
+                {"character_spacing", 0.0f},
+                {"line_spacing", 0.0f},
+                {"font", ids.fontId}
+            });
+
+            std::vector<gim::RenderData> neutralData = generator.generate(element);
+
+            element.setAttribute("character_spacing", 10.0f);
+            std::vector<gim::RenderData> characterSpacedData = generator.generate(element);
+
+            element.setAttribute("character_spacing", 0.0f);
+            element.setAttribute("text", std::string("h\ne\nj"));
+            std::vector<gim::RenderData> neutralData2 = generator.generate(element);
+            element.setAttribute("line_spacing", 20.0f);
+            std::vector<gim::RenderData> lineSpacedData = generator.generate(element);
+
+            THEN("the quads are spaced accordingly")
+            {
+                REQUIRE(neutralData[0].textPositions.size() == 54);
+                REQUIRE(neutralData[0].textColors.size() == 72);
+                REQUIRE(neutralData[0].textTexCoords.size() == 36);
+                REQUIRE(characterSpacedData[0].textPositions.size() == 54);
+                REQUIRE(characterSpacedData[0].textColors.size() == 72);
+                REQUIRE(characterSpacedData[0].textTexCoords.size() == 36);
+                REQUIRE(neutralData2[0].textPositions.size() == 54);
+                REQUIRE(neutralData2[0].textColors.size() == 72);
+                REQUIRE(neutralData2[0].textTexCoords.size() == 36);
+                REQUIRE(lineSpacedData[0].textPositions.size() == 54);
+                REQUIRE(lineSpacedData[0].textColors.size() == 72);
+                REQUIRE(lineSpacedData[0].textTexCoords.size() == 36);
+
+                CHECK(neutralData[0].textPositions[0]  == Approx(characterSpacedData[0].textPositions[0]));
+                CHECK(neutralData[0].textPositions[18] == Approx(characterSpacedData[0].textPositions[18] - 10.0f));
+                CHECK(neutralData[0].textPositions[36] == Approx(characterSpacedData[0].textPositions[36] - 20.0f));
+
+                CHECK(neutralData2[0].textPositions[1]  == Approx(lineSpacedData[0].textPositions[1]));
+                CHECK(neutralData2[0].textPositions[19] == Approx(lineSpacedData[0].textPositions[19] - 20.0f));
+                CHECK(neutralData2[0].textPositions[37] == Approx(lineSpacedData[0].textPositions[37] - 40.0f));
             }
         }
     }
