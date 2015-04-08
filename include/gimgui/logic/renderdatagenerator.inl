@@ -35,8 +35,8 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
     renderData.element = &element;
 
     //generate positions
-    Vec2 position = absoluteMap.getAbsoluteOf(element);
-    Vec2 size = element.getAttribute<Vec2>("size");
+    const Vec2 position = absoluteMap.getAbsoluteOf(element);
+    const Vec2 size = element.getAttribute<Vec2>("size");
 
     //generate colors, default white
     const Color& color = getOrFallback<Color>(element, "color", Color{255, 255, 255, 255});
@@ -47,6 +47,8 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
     const std::string* textPtr = element.findAttribute<std::string>("text");
     if(imageIdPtr != nullptr)
     {
+        Vec2 mainQuadPosition = position;
+        Vec2 mainQuadSize = size;
         GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("image_coords"), "currentElement has an image id registered but lacks 'image_coords'");
         GIM_ASSERT(mImageSizes.count(*imageIdPtr) != 0, "image_id " + std::to_string(*imageIdPtr) + " given to an currentElement but that id has not been registered in the RenderDataGenerator");
 
@@ -66,8 +68,8 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             const Rectangle<Vec2>& topImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_t");
             const Rectangle<Vec2>& bottomImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_b");
 
-            position.y += topImageCoords.size.y;
-            size.y -= bottomImageCoords.size.y * 2;
+            mainQuadPosition.y += topImageCoords.size.y;
+            mainQuadSize.y -= bottomImageCoords.size.y * 2;
         }
 
         if(borderMode == BorderMode::LEFT_RIGHT || borderMode == BorderMode::FULL)
@@ -78,12 +80,12 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             const Rectangle<Vec2>& leftImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_l");
             const Rectangle<Vec2>& rightImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_r");
 
-            position.x += leftImageCoords.size.x;
-            size.x -= rightImageCoords.size.x * 2;
+            mainQuadPosition.x += leftImageCoords.size.x;
+            mainQuadSize.x -= rightImageCoords.size.x * 2;
         }
 
         //find out the amount of tiles it would have based on image size and size. Then based on stretch mode, set x, y or both, to 1. Then calculate underneath stuff and loop for all tiles
-        Vec2 tileAmount({size.x / imageCoords.size.x + 1, size.y / imageCoords.size.y + 1});
+        Vec2 tileAmount({mainQuadSize.x / imageCoords.size.x + 1, mainQuadSize.y / imageCoords.size.y + 1});
 
         if(stretchMode == StretchMode::STRETCHED)
         {
@@ -104,16 +106,16 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             for(int32_t x = 0; x < tileAmount.x; x++)
             {
                 Vec2 quadPosition;
-                quadPosition.x = position.x + x * imageCoords.size.x;
-                quadPosition.y = position.y + y * imageCoords.size.y;
+                quadPosition.x = mainQuadPosition.x + x * imageCoords.size.x;
+                quadPosition.y = mainQuadPosition.y + y * imageCoords.size.y;
 
                 Vec2 quadSize;
 
                 bool lastX = x == tileAmount.x - 1;
                 bool lastY = y == tileAmount.y - 1;
 
-                quadSize.x = (!lastX) ? (imageCoords.size.x) : (size.x % imageCoords.size.x);
-                quadSize.y = (!lastY) ? (imageCoords.size.y) : (size.y % imageCoords.size.y);
+                quadSize.x = (!lastX) ? (imageCoords.size.x) : (mainQuadSize.x % imageCoords.size.x);
+                quadSize.y = (!lastY) ? (imageCoords.size.y) : (mainQuadSize.y % imageCoords.size.y);
 
                 FloatVec2 texCoordsStart;
                 texCoordsStart.x = (float)imageCoords.start.x / imageSize.x;
@@ -124,18 +126,18 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
                 if(stretchMode == StretchMode::STRETCHED)
                 {
-                    quadSize.x = size.x;
-                    quadSize.y = size.y;
+                    quadSize.x = mainQuadSize.x;
+                    quadSize.y = mainQuadSize.y;
                 }
                 else if(stretchMode == StretchMode::V_TILED)
                 {
-                    quadSize.x = size.x;
+                    quadSize.x = mainQuadSize.x;
                     texCoordsSize.y = lastY ? ((float)quadSize.y / imageSize.y) : (texCoordsSize.y);
                 }
                 else if(stretchMode == StretchMode::H_TILED)
                 {
                     texCoordsSize.x = lastX ? ((float)quadSize.x / imageSize.x) : (texCoordsSize.x);
-                    quadSize.y = size.y;
+                    quadSize.y = mainQuadSize.y;
                 }
                 else if(stretchMode == StretchMode::TILED)
                 {
@@ -146,13 +148,14 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 generateQuadWithImage(quadPosition, quadSize, color, texCoordsStart, texCoordsSize, renderData.positions, renderData.colors, renderData.texCoords);
             }
         }
-        generateBorders(element, position, size, color, imageSize, renderData.positions, renderData.colors, renderData.texCoords);
+        generateBorders(element, mainQuadPosition, mainQuadSize, color, imageSize, renderData.positions, renderData.colors, renderData.texCoords);
 
         renderData.imageId = imageId;
     }
 
     if(textPtr != nullptr)
     {
+        //get needed attributes
         const std::string utf8string = *textPtr;
         const uint32_t* fontIdPtr = element.findAttribute<uint32_t>("font");
         GIM_ASSERT(fontIdPtr != nullptr, "cannot give an element text without also giving it a font");
@@ -165,9 +168,11 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         GIM_ASSERT(textSizeUPtr != nullptr || textSizePtr != nullptr, "cannot give an element text without also giving it a text_size");
         uint32_t textSize = textSizeUPtr ? *textSizeUPtr : *textSizePtr;
 
+        //get optional attributes
         const Color& color = getOrFallback<Color>(element, "text_color", Color{255, 255, 255, 255});
         float textScale = getOrFallback<float>(element, "text_scale", 1.0f);
         
+        //render text
         gim::Utf8Decoder utf8Decoder;
         std::vector<uint32_t> codePoints = utf8Decoder.decode(utf8string);
 
@@ -175,10 +180,10 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         renderData.textImageId = fontStorage->textureId;
 
         float x = position.x;
-        float y = position.y + textSize;
-        float hspace = getHSpace(fontId, textSize);
+        float y = position.y + textSize * textScale;
+        float hspace = getHSpace(fontId, textSize) * textScale;
         font.resize(textSize);
-        float vspace = font.lineSpacing();
+        float vspace = font.lineSpacing() * textScale;
         uint32_t previousCodePoint = 0;
 
         TextureCoordinates texCoords;
@@ -192,7 +197,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             }
             else if(codePoint == '\t')
             {
-                x += hspace * 4; //4 spaces for tabs. Configurable later on
+                x += hspace * 4.0f; //4 spaces for tabs. Configurable later on
                 continue;
             }
             else if(codePoint == '\n')
@@ -226,18 +231,26 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 metrics = fontStorage->metrics.at(CodePointSize({codePoint, textSize}));
             }
             
-            x += font.kerning(previousCodePoint, codePoint);
+            x += font.kerning(previousCodePoint, codePoint) * textScale;
             previousCodePoint = codePoint;
 
+            float left = metrics.left * textScale;
+            float top = metrics.top * textScale;
+            float width = metrics.width * textScale;
+            float height = metrics.height * textScale;
+
             //make quad
+            generateQuadWithImage(Vec2({(int32_t)(x + left), (int32_t)(y + top)}),
+                                  Vec2({(int32_t)(width), (int32_t)(height)}),
+                                  color, 
+                                  {texCoords.xStart, texCoords.yStart}, 
+                                  {texCoords.xEnd - texCoords.xStart, texCoords.yEnd - texCoords.yStart},
+                                   renderData.textPositions,
+                                   renderData.textColors,
+                                   renderData.textTexCoords,
+                                   texCoords.flipped);
 
-            //float    = texCoords.xStart;
-            //float top    = texCoords.yStart;
-            //float right  = texCoords.xEnd;
-            //float bottom = texCoords.yEnd;
-            generateQuadWithImage(Vec2({(int32_t)(x + metrics.left), (int32_t)(y + metrics.top)}), Vec2({(int32_t)(metrics.width), (int32_t)(metrics.height)}), color, {texCoords.xStart, texCoords.yStart}, {texCoords.xEnd - texCoords.xStart, texCoords.yEnd - texCoords.yStart}, renderData.textPositions, renderData.textColors, renderData.textTexCoords, texCoords.flipped);
-
-            x += metrics.advance;
+            x += metrics.advance * textScale;
         }
     }
 

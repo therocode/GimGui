@@ -41,8 +41,11 @@ Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
     {
         Vec2 size = self.getAttribute<Vec2>("size");
         Vec2 newSize;
-        newSize.x = size.x + delta.x;
         newSize.y = size.y + delta.y;
+        newSize.x = newSize.y;
+
+        float newTextSize = newSize.y / 256.0f;
+        self.setAttribute("text_scale", newTextSize);
 
         self.setAttribute("size", newSize);
     }
@@ -133,7 +136,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"color",    Color(140, 35, 24)},
             {"original_color",    Color(140, 35, 24)},
             {"click_color",    Color(174, 70, 56)},
-            {"position", Vec2({200, 150})},
+            {"position", Vec2({0, 0})},
             {"size",     Vec2({256, 256})},
             {"stretch_mode", gim::StretchMode::STRETCHED},
             {"image_id", 0u},
@@ -155,6 +158,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))},
             {"text", std::string(u8"")},
             {"text_size", 30},
+            {"text_scale", 1.0f},
             {"font", 0u},
             {"text_color", Color(0, 20, 200, 150)}/*,
             {"character_spacing", 345},
