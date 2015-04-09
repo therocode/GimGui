@@ -174,6 +174,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         float textScale = getOrFallback<float>(element, "text_scale", 1.0f);
         float characterSpacing = getOrFallback<float>(element, "character_spacing", 0.0f);
         float lineSpacing = getOrFallback<float>(element, "line_spacing", 0.0f);
+        int32_t tabWidth = getOrFallback<int32_t>(element, "tab_width", 4);
 
         //render text
         gim::Utf8Decoder utf8Decoder;
@@ -200,7 +201,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             }
             else if(codePoint == '\t')
             {
-                x += hspace * 4.0f; //4 spaces for tabs. Configurable later on
+                x += hspace * tabWidth;
                 continue;
             }
             else if(codePoint == '\n')

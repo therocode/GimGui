@@ -712,5 +712,35 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 CHECK(neutralData2[0].textPositions[37] == Approx(lineSpacedData[0].textPositions[37] - 40.0f));
             }
         }
+
+        WHEN("tab_width can be used to control now many spaces a tab character is equivalent to")
+        {
+            gim::Element element({"text"},
+            {
+                {"position", Vec2({0, 0})},
+                {"size",     Vec2({48, 48})},
+                {"text", std::string("\thej")},
+                {"text_size", 16},
+                {"tab_width", 4},
+                {"font", ids.fontId}
+            });
+
+            std::vector<gim::RenderData> neutralData = generator.generate(element);
+
+            element.setAttribute("tab_width", 8);
+            std::vector<gim::RenderData> doubleTabbedData = generator.generate(element);
+
+            THEN("the double tabbed data is twice as much spaced")
+            {
+                REQUIRE(neutralData[0].textPositions.size() == 54);
+                REQUIRE(neutralData[0].textColors.size() == 72);
+                REQUIRE(neutralData[0].textTexCoords.size() == 36);
+                REQUIRE(doubleTabbedData[0].textPositions.size() == 54);
+                REQUIRE(doubleTabbedData[0].textColors.size() == 72);
+                REQUIRE(doubleTabbedData[0].textTexCoords.size() == 36);
+
+                CHECK(neutralData[0].textPositions[0]  == Approx(doubleTabbedData[0].textPositions[0] / 2.0f));
+            }
+        }
     }
 }
