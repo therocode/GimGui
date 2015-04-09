@@ -20,7 +20,7 @@ namespace gim
         public:
             template <typename TextureAdaptor>
             FontTextureCache(TextureAdaptor textureAdaptor);
-            std::unique_ptr<TextureCoordinates> glyphCoords(uint32_t codePoint, uint32_t size);
+            std::unique_ptr<TextureCoordinates> glyphCoords(uint32_t codePoint, uint32_t size, bool bold);
             TextureCoordinates add(const Glyph& glyph);
         private:
             BitMap flipBitMap(const BitMap& bitMap) const;

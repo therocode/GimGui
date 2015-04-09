@@ -206,7 +206,12 @@ SCENARIO("Glyph bitmaps can be generated", "[data]")
             }
             THEN("the bold one is wider than the other")
             {
-                CHECK(bold->metrics.width > normal->metrics.width);
+                CHECK(bold->metrics.advance > normal->metrics.advance);
+            }
+            THEN("the bold glyph is bold and the other is not")
+            {
+                CHECK(bold->bold);
+                CHECK_FALSE(normal->bold);
             }
         }
     }

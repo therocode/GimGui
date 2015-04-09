@@ -264,6 +264,7 @@ namespace gim
             toReturn->metrics.top = -mFace->face()->glyph->metrics.horiBearingY / 64.0f;
             toReturn->metrics.width = mFace->face()->glyph->metrics.width / 64.0f;
             toReturn->metrics.height = mFace->face()->glyph->metrics.height / 64.0f;
+            toReturn->bold = bold;
 
             uint32_t width = bitmap.width;
             uint32_t height = bitmap.rows;

@@ -2,9 +2,9 @@
 
 namespace gim
 {
-    std::unique_ptr<TextureCoordinates> FontTextureCache::glyphCoords(uint32_t codePoint, uint32_t size)
+    std::unique_ptr<TextureCoordinates> FontTextureCache::glyphCoords(uint32_t codePoint, uint32_t size, bool bold)
     {
-        auto glyphRectangleIterator = mGlyphRectangles.find({codePoint, size});
+        auto glyphRectangleIterator = mGlyphRectangles.find({codePoint, size, bold});
 
         if(glyphRectangleIterator != mGlyphRectangles.end())
         {
@@ -42,7 +42,7 @@ namespace gim
                 }
             }
 
-            mGlyphRectangles.emplace(CodePointSize({glyph.codePoint, glyph.size}), std::pair<Rectangle, bool>({rectangle, flipped}));
+            mGlyphRectangles.emplace(CodePointSize({glyph.codePoint, glyph.size, glyph.bold}), std::pair<Rectangle, bool>({rectangle, flipped}));
 
             mWriteBitmap(rectangle.start.x, rectangle.start.y, flipped ? flipBitMap(glyph.image) : glyph.image);
 

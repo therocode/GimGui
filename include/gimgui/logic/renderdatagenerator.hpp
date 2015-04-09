@@ -49,7 +49,7 @@ namespace gim
             void generateQuadTexCoords(const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outTexCoords, bool flipTexCoords = false);
             void generateBorders(const Element& element, const FloatVec2& position, const FloatVec2& size, const Color& color, const FloatVec2& imageSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords);
 
-            float getHSpace(uint32_t fontId, uint32_t size);
+            float getHSpace(uint32_t fontId, uint32_t size, bool bold);
 
             std::unordered_map<uint32_t, Vec2> mImageSizes;
 

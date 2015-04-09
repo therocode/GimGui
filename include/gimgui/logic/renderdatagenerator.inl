@@ -176,6 +176,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         float lineSpacing = getOrFallback<float>(element, "line_spacing", 0.0f);
         int32_t tabWidth = getOrFallback<int32_t>(element, "tab_width", 4);
         TextStyle style = getOrFallback<TextStyle>(element, "text_style", TextStyle::NORMAL);
+        bool bold = style == TextStyle::BOLD;
 
         //render text
         gim::Utf8Decoder utf8Decoder;
@@ -186,7 +187,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
         float x = position.x;
         float y = position.y + textSize * textScale;
-        float hspace = (getHSpace(fontId, textSize) + characterSpacing) * textScale;
+        float hspace = (getHSpace(fontId, textSize, bold) + characterSpacing) * textScale;
         font.resize(textSize);
         float vspace = (font.lineSpacing() + lineSpacing) * textScale;
         uint32_t previousCodePoint = 0;
@@ -212,18 +213,18 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 continue;
             }
 
-            auto texCoordsPtr = fontStorage->textureCoordinates.glyphCoords(codePoint, textSize);
+            auto texCoordsPtr = fontStorage->textureCoordinates.glyphCoords(codePoint, textSize, bold);
 
             Glyph::Metrics metrics;
             if(texCoordsPtr == nullptr)
             {
-                auto glyphPtr = font.generateGlyph(codePoint);
+                auto glyphPtr = font.generateGlyph(codePoint, bold);
 
                 if(glyphPtr)
                 {
                     metrics = glyphPtr->metrics;
                     texCoords = fontStorage->textureCoordinates.add(*glyphPtr);
-                    fontStorage->metrics.emplace(CodePointSize({codePoint, textSize}), metrics);
+                    fontStorage->metrics.emplace(CodePointSize({codePoint, textSize, bold}), metrics);
                 }
                 else
                 {//codepoint doesn't exist - do nothing
@@ -233,7 +234,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             else
             {
                 texCoords = *texCoordsPtr;
-                metrics = fontStorage->metrics.at(CodePointSize({codePoint, textSize}));
+                metrics = fontStorage->metrics.at(CodePointSize({codePoint, textSize, bold}));
             }
             
             x += font.kerning(previousCodePoint, codePoint) * textScale;
@@ -479,12 +480,12 @@ void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, c
 }
 
 template <typename Vec2, typename Color>
-float RenderDataGenerator<Vec2, Color>::getHSpace(uint32_t fontId, uint32_t size)
+float RenderDataGenerator<Vec2, Color>::getHSpace(uint32_t fontId, uint32_t size, bool bold)
 {
     uint32_t whitespace = ' ';
     auto& fontStorage = mFontStorage.at(fontId);
 
-    auto metricsIter = fontStorage.metrics.find(CodePointSize({whitespace, size}));
+    auto metricsIter = fontStorage.metrics.find(CodePointSize({whitespace, size, bold}));
     
     if(metricsIter != fontStorage.metrics.end())
     {
@@ -492,12 +493,12 @@ float RenderDataGenerator<Vec2, Color>::getHSpace(uint32_t fontId, uint32_t size
     }
     else
     {
-        auto glyphPtr = fontStorage.font.generateGlyph(whitespace);
+        auto glyphPtr = fontStorage.font.generateGlyph(whitespace, bold);
 
         GIM_ASSERT(glyphPtr != nullptr, "font didn't contain codepoint for ' ' (whitespace)");
 
         fontStorage.textureCoordinates.add(*glyphPtr);
-        fontStorage.metrics.emplace(CodePointSize({whitespace, size}), glyphPtr->metrics);
+        fontStorage.metrics.emplace(CodePointSize({whitespace, size, bold}), glyphPtr->metrics);
 
         return glyphPtr->metrics.advance;
     }
