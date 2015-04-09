@@ -20,7 +20,7 @@ namespace gim
                 Freetype& operator=(Freetype&& other);
                 Freetype(const Freetype& other) = delete;
                 Freetype& operator=(const Freetype& other) = delete;
-                FT_Library& library();
+                FT_Library& library() const;
                 std::unique_ptr<FT_Library> mLibrary;
         };
 
@@ -52,7 +52,7 @@ namespace gim
             float lineSpacing() const;
             float underlinePosition() const;
             float underlineThickness() const;
-            std::unique_ptr<Glyph> generateGlyph(uint32_t codePoint) const;
+            std::unique_ptr<Glyph> generateGlyph(uint32_t codePoint, bool bold = false) const;
         private:
             Freetype mFreetype;
             std::unique_ptr<FontFace> mFace;

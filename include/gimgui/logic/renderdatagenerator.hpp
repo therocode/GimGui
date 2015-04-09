@@ -2,6 +2,7 @@
 #include <gimgui/data/rectangle.hpp>
 #include <gimgui/data/renderdata.hpp>
 #include <gimgui/data/rendermodes.hpp>
+#include <gimgui/data/textstyles.hpp>
 #include <gimgui/logic/allpropagator.hpp>
 #include <gimgui/logic/absolutemap.hpp>
 #include <gimgui/logic/fonttexturecache.hpp>

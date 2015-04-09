@@ -193,5 +193,21 @@ SCENARIO("Glyph bitmaps can be generated", "[data]")
                 CHECK(font.generateGlyph(-1) == nullptr);
             }
         }
+
+        WHEN("a normal and a bold glyph are generated, the bold glyph is more filled than the other")
+        {
+            std::unique_ptr<gim::Glyph> normal = font.generateGlyph('M');
+            std::unique_ptr<gim::Glyph> bold = font.generateGlyph('M', true);
+
+            THEN("the bold one is more filled than the other")
+            {
+                CHECK(std::accumulate(bold->image.pixels.begin(), bold->image.pixels.end(), 0) > 
+                      std::accumulate(normal->image.pixels.begin(), normal->image.pixels.end(), 0));
+            }
+            THEN("the bold one is wider than the other")
+            {
+                CHECK(bold->metrics.width > normal->metrics.width);
+            }
+        }
     }
 }

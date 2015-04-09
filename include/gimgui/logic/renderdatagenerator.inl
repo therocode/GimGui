@@ -175,6 +175,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         float characterSpacing = getOrFallback<float>(element, "character_spacing", 0.0f);
         float lineSpacing = getOrFallback<float>(element, "line_spacing", 0.0f);
         int32_t tabWidth = getOrFallback<int32_t>(element, "tab_width", 4);
+        TextStyle style = getOrFallback<TextStyle>(element, "text_style", TextStyle::NORMAL);
 
         //render text
         gim::Utf8Decoder utf8Decoder;

@@ -163,10 +163,9 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"text_color", Color(0, 20, 200, 150)},
             {"character_spacing", 55.0f},
             {"line_spacing", 54.0f},
-            {"tab_width", 4}/*,
-            {"text_style", gim::Bold | gim::Underlined | gim::Slanted | gim::StrikeThrough | gim::Hollow},
+            {"tab_width", 4},
+            /*{"text_style", gim::NORMAL | gim::BOLD | gim::UNDERLINED | gim::SLANTED | gim::STRIKETHROUGH | gim::HOLLOW},
             {"text_bg_color", Color(100, 200, 20, 12)},
-            {"text_scale", 1.0f},
             {"text_alignment, [gim::LEFT_ALIGN|gim::RIGHT_ALIGN|gim::CENTER_ALIGN|gim::JUSTIFY_ALIGN]
             {"line_wrap", true},
             {"text_border, ""},//default to element borders

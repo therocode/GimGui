@@ -742,5 +742,43 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 CHECK(neutralData[0].textPositions[0]  == Approx(doubleTabbedData[0].textPositions[0] / 2.0f));
             }
         }
+
+        WHEN("text_style can be used to control the display style of the text")
+        {
+            gim::Element element({"text"},
+            {
+                {"position", Vec2({0, 0})},
+                {"size",     Vec2({48, 48})},
+                {"text", std::string("hej")},
+                {"text_size", 16},
+                {"text_style", gim::TextStyle::NORMAL},
+                {"font", ids.fontId}
+            });
+
+            std::vector<gim::RenderData> normalData = generator.generate(element);
+
+            element.setAttribute("text_style", gim::TextStyle::BOLD);
+            std::vector<gim::RenderData> boldData = generator.generate(element);
+
+            THEN("the bold data is bigger")
+            {
+                REQUIRE(normalData[0].textPositions.size() == 54);
+                REQUIRE(normalData[0].textColors.size() == 72);
+                REQUIRE(normalData[0].textTexCoords.size() == 36);
+                REQUIRE(boldData[0].textPositions.size() == 54);
+                REQUIRE(boldData[0].textColors.size() == 72);
+                REQUIRE(boldData[0].textTexCoords.size() == 36);
+
+                float normalTotal = 0.0f;
+                for(auto& data : normalData)
+                    normalTotal = std::accumulate(data.textPositions.begin(), data.textPositions.end(), normalTotal);
+
+                float boldTotal = 0.0f;
+                for(auto& data : boldData)
+                    boldTotal = std::accumulate(data.textPositions.begin(), data.textPositions.end(), boldTotal);
+
+                CHECK(normalTotal < boldTotal);
+            }
+        }
     }
 }

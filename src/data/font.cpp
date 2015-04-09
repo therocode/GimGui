@@ -3,6 +3,8 @@
 #include <vector>
 #include <algorithm>
 #include FT_GLYPH_H
+#include FT_OUTLINE_H
+#include FT_BITMAP_H
 
 namespace gim
 {
@@ -34,7 +36,7 @@ namespace gim
         return *this;
     }
     
-    FT_Library& Font::Freetype::library()
+    FT_Library& Font::Freetype::library() const
     {
         return *mLibrary;
     }
@@ -106,7 +108,10 @@ namespace gim
         if(isFreelyScalable())
             resize(16);
         else
-            resize(availableSizes().front());
+        {
+            if(availableSizes().size() != 0)
+                resize(availableSizes().front());
+        }
     }
 
     Font::Font(Font&& other)
@@ -157,7 +162,8 @@ namespace gim
         {
             if(!isFreelyScalable())
             {
-                GIM_ASSERT(std::count(availableSizes().begin(), availableSizes().end(), size) != 0,"trying to resize a font which is not isFreelyScalable() to a size not in the list of availableSizes()");
+                auto sizes = availableSizes();
+                GIM_ASSERT(std::count(sizes.begin(), sizes.end(), size) != 0,"trying to resize a font which is not isFreelyScalable() to a size not in the list of availableSizes()");
             }
 
             mSize = size;
@@ -222,7 +228,7 @@ namespace gim
         }
     }
     
-    std::unique_ptr<Glyph> Font::generateGlyph(uint32_t codePoint) const
+    std::unique_ptr<Glyph> Font::generateGlyph(uint32_t codePoint, bool bold) const
     {
         int32_t charError = FT_Load_Char(mFace->face(), codePoint, FT_LOAD_TARGET_NORMAL | FT_LOAD_FORCE_AUTOHINT);
 
@@ -233,12 +239,27 @@ namespace gim
         if(charError + glyphError == 0 && hasGlyph)
         {
             std::unique_ptr<Glyph> toReturn = std::unique_ptr<Glyph>(new Glyph());
+            bool outline = glyph->format == FT_GLYPH_FORMAT_OUTLINE;
+            FT_Pos weight = 64;
+            if(bold && outline)
+            {
+                FT_OutlineGlyph outlineGlyph = (FT_OutlineGlyph)glyph;
+                FT_Outline_Embolden(&outlineGlyph->outline, weight);
+            }
+
             FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, 1);
             FT_Bitmap& bitmap = reinterpret_cast<FT_BitmapGlyph>(glyph)->bitmap;
+
+            if(bold && !outline)
+            {
+                FT_Bitmap_Embolden(mFreetype.library(), &bitmap, weight, weight);
+            }
 
             toReturn->size = size();
             toReturn->codePoint = codePoint;
             toReturn->metrics.advance = mFace->face()->glyph->metrics.horiAdvance / 64.0f;
+            if(bold)
+                toReturn->metrics.advance += (float)weight / 64.0f;
             toReturn->metrics.left = mFace->face()->glyph->metrics.horiBearingX / 64.0f;
             toReturn->metrics.top = -mFace->face()->glyph->metrics.horiBearingY / 64.0f;
             toReturn->metrics.width = mFace->face()->glyph->metrics.width / 64.0f;
@@ -272,6 +293,7 @@ namespace gim
         }
         else
         {
+            FT_Done_Glyph(glyph);
             return nullptr;
         }
     }
