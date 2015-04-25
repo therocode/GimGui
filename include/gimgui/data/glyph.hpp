@@ -18,6 +18,5 @@ namespace gim
         uint32_t size;
         BitMap image;
         Metrics metrics;
-        bool bold;
     };
 }

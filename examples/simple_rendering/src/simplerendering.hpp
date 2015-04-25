@@ -34,6 +34,8 @@ class SimpleRendering
         std::unordered_map<int32_t, std::unique_ptr<Texture>> mTextures;
         std::ifstream mFontFile;
         gim::Font mFont;
+        std::ifstream mBoldFontFile;
+        gim::Font mBoldFont;
         gim::Element mRoot;
 
         GLint mPositionLocation;

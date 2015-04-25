@@ -33,7 +33,7 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 #Set source files.
 set(source_files
     src/data/element.cpp
-    src/data/codepointsize.cpp
+    src/data/codepointsizeid.cpp
     src/data/font.cpp
     src/data/fontloadexception.cpp
     src/data/texturecoordinates.cpp
@@ -48,7 +48,7 @@ set(source_files
 set(header_files
     include/gimgui/assert.hpp
     include/gimgui/data/bitmap.hpp
-    include/gimgui/data/codepointsize.hpp
+    include/gimgui/data/codepointsizeid.hpp
     include/gimgui/data/element.hpp
     include/gimgui/data/element.inl
     include/gimgui/data/font.hpp
@@ -80,6 +80,8 @@ set(header_files
     include/gimgui/util/getorfallback.hpp
     include/gimgui/util/getorfallback.inl
     include/gimgui/util/guillotinebinpack.hpp
+    include/gimgui/util/ref.hpp
+    include/gimgui/util/ref.inl
     include/gimgui/util/resolve.hpp
     include/gimgui/util/resolve.inl
 )
@@ -117,6 +119,7 @@ if(BUILD_TESTS)
         "test/util/getorfallbacktest.cpp"
         "test/util/guillotinebinpacktest.cpp"
         "test/util/resolvetest.cpp"
+        "test/util/reftest.cpp"
 
         "test/helpers/color.cpp"
         "test/helpers/closeenough.cpp"

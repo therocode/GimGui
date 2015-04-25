@@ -158,11 +158,11 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
     {
         //get needed attributes
         const std::string utf8string = *textPtr;
-        const uint32_t* fontIdPtr = element.findAttribute<uint32_t>("font");
-        GIM_ASSERT(fontIdPtr != nullptr, "cannot give an element text without also giving it a font");
-        uint32_t fontId = *fontIdPtr;
-        GIM_ASSERT(mFontStorage.count(fontId) != 0, "font id " + std::to_string(fontId) + " set on an element but such a font doesn't exist");
-        Font& font = mFontStorage.at(fontId).font;
+        const gim::ref<Font>* fontPtr = element.findAttribute<gim::ref<Font>>("font");
+        GIM_ASSERT(fontPtr != nullptr, "cannot give an element text without also giving it a font");
+        Font& font = *fontPtr;
+        GIM_ASSERT(mFontCacheIds.count(font.name()) != 0, "no texture registered for the given font '" + font.name() + "'");
+        uint32_t fontCacheId = mFontCacheIds.at(font.name());
 
         const uint32_t* textSizeUPtr = element.findAttribute<uint32_t>("text_size");
         const int32_t* textSizePtr = element.findAttribute<int32_t>("text_size");
@@ -176,20 +176,40 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         float lineSpacing = getOrFallback<float>(element, "line_spacing", 0.0f);
         int32_t tabWidth = getOrFallback<int32_t>(element, "tab_width", 4);
         TextStyle style = getOrFallback<TextStyle>(element, "text_style", TextStyle::NORMAL);
-        bool bold = style == TextStyle::BOLD;
+        bool bold = style & TextStyle::BOLD;
 
         //render text
         gim::Utf8Decoder utf8Decoder;
         std::vector<uint32_t> codePoints = utf8Decoder.decode(utf8string);
 
-        FontStorageEntry* fontStorage = &mFontStorage.at(fontId);
-        renderData.textImageId = fontStorage->textureId;
+        FontCacheEntry& fontCache = *mFontCache.at(fontCacheId);
+        MetricsMap* metricsMap = &fontCache.metrics;
+        FontTextureCache* textureCache = &fontCache.textureCoordinates; 
+
+        Font* currentFont = &font;
+
+        if(bold)
+        {
+            const gim::ref<Font>* boldFontPtr = element.findAttribute<gim::ref<Font>>("bold_font");
+            GIM_ASSERT(boldFontPtr != nullptr, "cannot use TextStyle::BOLD with element lacking bold_font");
+            currentFont = &boldFontPtr->get();
+            GIM_ASSERT(mFontCacheIds.count(currentFont->name()) != 0, "no texture registered for the given bold_font '" + currentFont->name() + "'");
+            uint32_t boldFontCacheId = mFontCacheIds.at(currentFont->name());
+
+            FontCacheEntry& boldFontCache = *mFontCache.at(boldFontCacheId);
+            metricsMap = &boldFontCache.metrics;
+            textureCache = &boldFontCache.textureCoordinates;
+
+            fontCacheId = boldFontCacheId;
+        }
+
+        renderData.textImageId = fontCache.textureId;
 
         float x = position.x;
         float y = position.y + textSize * textScale;
-        float hspace = (getHSpace(fontId, textSize, bold) + characterSpacing) * textScale;
-        font.resize(textSize);
-        float vspace = (font.lineSpacing() + lineSpacing) * textScale;
+        float hspace = (getHSpace(*currentFont, textSize) + characterSpacing) * textScale;
+        currentFont->resize(textSize);
+        float vspace = (currentFont->lineSpacing() + lineSpacing) * textScale;
         uint32_t previousCodePoint = 0;
 
         TextureCoordinates texCoords;
@@ -213,18 +233,18 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 continue;
             }
 
-            auto texCoordsPtr = fontStorage->textureCoordinates.glyphCoords(codePoint, textSize, bold);
+            auto texCoordsPtr = textureCache->glyphCoords(codePoint, textSize, fontCacheId);
 
             Glyph::Metrics metrics;
             if(texCoordsPtr == nullptr)
             {
-                auto glyphPtr = font.generateGlyph(codePoint, bold);
+                auto glyphPtr = currentFont->generateGlyph(codePoint);
 
                 if(glyphPtr)
                 {
                     metrics = glyphPtr->metrics;
-                    texCoords = fontStorage->textureCoordinates.add(*glyphPtr);
-                    fontStorage->metrics.emplace(CodePointSize({codePoint, textSize, bold}), metrics);
+                    texCoords = textureCache->add(*glyphPtr, fontCacheId);
+                    metricsMap->emplace(CodePointSizeId({codePoint, textSize, fontCacheId}), metrics);
                 }
                 else
                 {//codepoint doesn't exist - do nothing
@@ -233,11 +253,12 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             }
             else
             {
+                GIM_ASSERT(metricsMap->count(CodePointSizeId({codePoint, textSize, fontCacheId})) != 0, "glyph existed in texture but not in metrics map. this is a bug.");
                 texCoords = *texCoordsPtr;
-                metrics = fontStorage->metrics.at(CodePointSize({codePoint, textSize, bold}));
+                metrics = metricsMap->at(CodePointSizeId({codePoint, textSize, fontCacheId}));
             }
             
-            x += font.kerning(previousCodePoint, codePoint) * textScale;
+            x += currentFont->kerning(previousCodePoint, codePoint) * textScale;
             previousCodePoint = codePoint;
 
             float left = metrics.left * textScale;
@@ -275,14 +296,20 @@ uint32_t RenderDataGenerator<Vec2, Color>::registerImageInfo(const Vec2& imageSi
 
 template <typename Vec2, typename Color>
 template <typename TextureAdaptor>
-typename RenderDataGenerator<Vec2, Color>::Ids RenderDataGenerator<Vec2, Color>::registerFont(Font& font, const TextureAdaptor& textureAdaptor)
+uint32_t RenderDataGenerator<Vec2, Color>::registerFontStorage(const std::vector<std::reference_wrapper<const Font>>& fonts, const TextureAdaptor& textureAdaptor)
 {
     uint32_t newImageId = mNextImageId++;   
-    uint32_t newFontId = mNextFontId++;   
 
-    mFontStorage.emplace(newFontId, FontStorageEntry({font, FontTextureCache(textureAdaptor), newImageId}));
+    std::shared_ptr<FontCacheEntry> textureCache = std::make_shared<FontCacheEntry>(FontCacheEntry{FontTextureCache(textureAdaptor), newImageId});
+    for(auto& font : fonts)
+    {
+        uint32_t newFontId = mNextFontId++;   
+        GIM_ASSERT(mFontCacheIds.count(font.get().name()) == 0, "trying to register font '" + font.get().name() + "' but it has already been registered");
+        mFontCacheIds.emplace(font.get().name(), newFontId);
+        mFontCache.emplace(newFontId, textureCache);
+    }
 
-    return Ids({newFontId, newImageId});
+    return newImageId;
 }
 
 template <typename Vec2, typename Color>
@@ -480,25 +507,26 @@ void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, c
 }
 
 template <typename Vec2, typename Color>
-float RenderDataGenerator<Vec2, Color>::getHSpace(uint32_t fontId, uint32_t size, bool bold)
+float RenderDataGenerator<Vec2, Color>::getHSpace(const Font& font, uint32_t size)
 {
     uint32_t whitespace = ' ';
-    auto& fontStorage = mFontStorage.at(fontId);
+    uint32_t fontId = mFontCacheIds.at(font.name());
+    auto& fontCache = *mFontCache.at(fontId);
 
-    auto metricsIter = fontStorage.metrics.find(CodePointSize({whitespace, size, bold}));
+    auto metricsIter = fontCache.metrics.find(CodePointSizeId({whitespace, size, fontId}));
     
-    if(metricsIter != fontStorage.metrics.end())
+    if(metricsIter != fontCache.metrics.end())
     {
         return metricsIter->second.advance;
     }
     else
     {
-        auto glyphPtr = fontStorage.font.generateGlyph(whitespace, bold);
+        auto glyphPtr = font.generateGlyph(whitespace);
 
         GIM_ASSERT(glyphPtr != nullptr, "font didn't contain codepoint for ' ' (whitespace)");
 
-        fontStorage.textureCoordinates.add(*glyphPtr);
-        fontStorage.metrics.emplace(CodePointSize({whitespace, size, bold}), glyphPtr->metrics);
+        fontCache.textureCoordinates.add(*glyphPtr, fontId);
+        fontCache.metrics.emplace(CodePointSizeId({whitespace, size, fontId}), glyphPtr->metrics);
 
         return glyphPtr->metrics.advance;
     }

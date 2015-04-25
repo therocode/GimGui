@@ -103,6 +103,7 @@ namespace gim
 
         //Store the font name
         mFamily = mFace->face()->family_name ? mFace->face()->family_name : std::string();
+        mStyle = mFace->face()->style_name ? mFace->face()->style_name : std::string();
         
         //default size
         if(isFreelyScalable())
@@ -151,9 +152,19 @@ namespace gim
         return  sizeList;
     }
 
-    const std::string Font::family() const
+    const std::string& Font::family() const
     {
         return mFamily;
+    }
+
+    const std::string& Font::style() const
+    {
+        return mStyle;
+    }
+
+    std::string Font::name() const
+    {
+        return mStyle != "" ? mFamily + " " + mStyle : mFamily;
     }
 
     void Font::resize(uint32_t size)
@@ -228,7 +239,7 @@ namespace gim
         }
     }
     
-    std::unique_ptr<Glyph> Font::generateGlyph(uint32_t codePoint, bool bold) const
+    std::unique_ptr<Glyph> Font::generateGlyph(uint32_t codePoint) const
     {
         int32_t charError = FT_Load_Char(mFace->face(), codePoint, FT_LOAD_TARGET_NORMAL | FT_LOAD_FORCE_AUTOHINT);
 
@@ -239,32 +250,17 @@ namespace gim
         if(charError + glyphError == 0 && hasGlyph)
         {
             std::unique_ptr<Glyph> toReturn = std::unique_ptr<Glyph>(new Glyph());
-            bool outline = glyph->format == FT_GLYPH_FORMAT_OUTLINE;
-            FT_Pos weight = 64;
-            if(bold && outline)
-            {
-                FT_OutlineGlyph outlineGlyph = (FT_OutlineGlyph)glyph;
-                FT_Outline_Embolden(&outlineGlyph->outline, weight);
-            }
 
             FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, 1);
             FT_Bitmap& bitmap = reinterpret_cast<FT_BitmapGlyph>(glyph)->bitmap;
 
-            if(bold && !outline)
-            {
-                FT_Bitmap_Embolden(mFreetype.library(), &bitmap, weight, weight);
-            }
-
             toReturn->size = size();
             toReturn->codePoint = codePoint;
             toReturn->metrics.advance = mFace->face()->glyph->metrics.horiAdvance / 64.0f;
-            if(bold)
-                toReturn->metrics.advance += (float)weight / 64.0f;
             toReturn->metrics.left = mFace->face()->glyph->metrics.horiBearingX / 64.0f;
             toReturn->metrics.top = -mFace->face()->glyph->metrics.horiBearingY / 64.0f;
             toReturn->metrics.width = mFace->face()->glyph->metrics.width / 64.0f;
             toReturn->metrics.height = mFace->face()->glyph->metrics.height / 64.0f;
-            toReturn->bold = bold;
 
             uint32_t width = bitmap.width;
             uint32_t height = bitmap.rows;

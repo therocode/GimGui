@@ -80,6 +80,22 @@ SCENARIO("Fonts can be used to access various information", "[data]")
             }
         }
 
+        WHEN("the font style is accessed")
+        {
+            THEN("it matches the loaded file")
+            {
+                CHECK(font.style() == "Regular");
+            }
+        }
+
+        WHEN("the font name is accessed")
+        {
+            THEN("it consists of the family and the style concatenated")
+            {
+                CHECK(font.name() == "Liberation Sans Regular");
+            }
+        }
+
         WHEN("the kerning of valid code points are accessed")
         {
             THEN("they are correct")
@@ -191,27 +207,6 @@ SCENARIO("Glyph bitmaps can be generated", "[data]")
             THEN("a null pointer is returned")
             {
                 CHECK(font.generateGlyph(-1) == nullptr);
-            }
-        }
-
-        WHEN("a normal and a bold glyph are generated, the bold glyph is more filled than the other")
-        {
-            std::unique_ptr<gim::Glyph> normal = font.generateGlyph('M');
-            std::unique_ptr<gim::Glyph> bold = font.generateGlyph('M', true);
-
-            THEN("the bold one is more filled than the other")
-            {
-                CHECK(std::accumulate(bold->image.pixels.begin(), bold->image.pixels.end(), 0) > 
-                      std::accumulate(normal->image.pixels.begin(), normal->image.pixels.end(), 0));
-            }
-            THEN("the bold one is wider than the other")
-            {
-                CHECK(bold->metrics.advance > normal->metrics.advance);
-            }
-            THEN("the bold glyph is bold and the other is not")
-            {
-                CHECK(bold->bold);
-                CHECK_FALSE(normal->bold);
             }
         }
     }

@@ -129,7 +129,9 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mTexCoords(Buffer::ARRAY_BUFFER, Buffer::DYNAMIC),
     mLastPosition({-1000, -1000}),
     mFontFile("resources/fonts/LiberationSans-Regular.ttf", std::ios::binary),
+    mBoldFontFile("resources/fonts/LiberationSans-Bold.ttf", std::ios::binary),
     mFont(mFontFile),
+    mBoldFont(mBoldFontFile),
     mRoot({"container"},
         {
             {"name" , std::string("red")},
@@ -159,13 +161,14 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"text", std::string(u8"")},
             {"text_size", 30},
             {"text_scale", 1.0f},
-            {"font", 0u},
+            {"font", gim::makeRef(mFont)},
+            {"bold_font", gim::makeRef(mBoldFont)},
             {"text_color", Color(0, 20, 200, 150)},
             {"character_spacing", 0.0f},
             {"line_spacing", 0.0f},
             {"tab_width", 4},
             {"text_style", gim::TextStyle::NORMAL},
-            /*{"text_style", gim::NORMAL | gim::BOLD | gim::UNDERLINED | gim::SLANTED | gim::STRIKETHROUGH | gim::HOLLOW},
+            /*{"text_style", gim::NORMAL | gim::BOLD | gim::UNDERLINED | gim::ITALIC | gim::STRIKETHROUGH | gim::HOLLOW},
             {"text_bg_color", Color(100, 200, 20, 12)},
             {"text_alignment, [gim::LEFT_ALIGN|gim::RIGHT_ALIGN|gim::CENTER_ALIGN|gim::JUSTIFY_ALIGN]
             {"line_wrap", true},
@@ -262,9 +265,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
         })
 {
     std::unique_ptr<Texture> fontTexture = std::unique_ptr<Texture>(new Texture());
-    auto result = mRenderDataGenerator.registerFont(mFont, TextureAdaptor(*fontTexture));
-    mTextures.emplace(result.textureId, std::move(fontTexture));
-    mRoot.setAttribute("font", result.fontId);
+    auto textureId = mRenderDataGenerator.registerFontStorage({mFont, mBoldFont}, TextureAdaptor(*fontTexture));
+    mTextures.emplace(textureId, std::move(fontTexture));
 
     //load textures
     uint32_t textureIdA = mRenderDataGenerator.registerImageInfo({64, 64});

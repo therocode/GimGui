@@ -45,19 +45,22 @@ namespace gim
             Font& operator=(const Font& other) = delete;
             bool isFreelyScalable() const;
             std::vector<uint32_t> availableSizes() const;
-            const std::string family() const;
+            const std::string& family() const;
+            const std::string& style() const;
+            std::string name() const;
             void resize(uint32_t size);
             uint32_t size() const;
             float kerning(uint32_t codePointA, uint32_t codePointB) const;
             float lineSpacing() const;
             float underlinePosition() const;
             float underlineThickness() const;
-            std::unique_ptr<Glyph> generateGlyph(uint32_t codePoint, bool bold = false) const;
+            std::unique_ptr<Glyph> generateGlyph(uint32_t codePoint) const;
         private:
             Freetype mFreetype;
             std::unique_ptr<FontFace> mFace;
             std::vector<char> mFontDataVector;
             std::string mFamily;
+            std::string mStyle;
             uint32_t mSize;
     };
 }

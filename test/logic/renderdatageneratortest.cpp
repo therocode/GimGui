@@ -1,5 +1,6 @@
 #include <fstream>
 #include <catch.hpp>
+#include <gimgui/util/ref.hpp>
 #include <gimgui/data/element.hpp>
 #include <gimgui/data/font.hpp>
 #include <gimgui/logic/renderdatagenerator.hpp>
@@ -548,11 +549,13 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
     {
         std::ifstream file("resources/fonts/LiberationSans-Regular.ttf", std::ios::binary);
         gim::Font font(file);
+        std::ifstream fileBold("resources/fonts/LiberationSans-Bold.ttf", std::ios::binary);
+        gim::Font boldFont(fileBold);
         TextureInterfaceStub textureAdaptor;
 
         gim::RenderDataGenerator<Vec2, Color> generator;
 
-        auto ids = generator.registerFont(font, textureAdaptor);
+        uint32_t textureId = generator.registerFontStorage({font, boldFont}, textureAdaptor);
 
         WHEN("a gui element with the attributes 'text' and 'text_font' are set, and render data generated")
         {
@@ -562,7 +565,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 {"size",     Vec2({48, 48})},
                 {"text", std::string("AAbbA")},
                 {"text_size", 16},
-                {"font", ids.fontId}
+                {"font", gim::makeRef(font)}
             });
 
             std::vector<gim::RenderData> data = generator.generate(element);
@@ -576,7 +579,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 REQUIRE(data[0].textPositions.size() == 90);
                 REQUIRE(data[0].textColors.size() == 120);
                 REQUIRE(data[0].textTexCoords.size() == 60);
-                CHECK(data[0].textImageId == ids.textureId);
+                CHECK(data[0].textImageId == textureId);
 
                 //first A equals second A
                 CHECK(std::equal(data[0].textTexCoords.begin() + 0, data[0].textTexCoords.begin() + 12, data[0].textTexCoords.begin() + 12));
@@ -601,7 +604,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 {"text", std::string("hej")},
                 {"text_color", Color{100, 0, 255, 200}},
                 {"text_size", 16},
-                {"font", ids.fontId}
+                {"font", makeRef(font)}
             });
 
             std::vector<gim::RenderData> data = generator.generate(element);
@@ -615,7 +618,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 REQUIRE(data[0].textPositions.size() == 54);
                 REQUIRE(data[0].textColors.size() == 72);
                 REQUIRE(data[0].textTexCoords.size() == 36);
-                CHECK(data[0].textImageId == ids.textureId);
+                CHECK(data[0].textImageId == textureId);
 
                 //colors are correct
                 CHECK(data[0].textColors[0] == Approx(0.39215686274f));
@@ -634,7 +637,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 {"text", std::string("hej")},
                 {"text_size", 16},
                 {"text_scale", 1.0f},
-                {"font", ids.fontId}
+                {"font", makeRef(font)}
             });
 
             std::vector<gim::RenderData> smallData = generator.generate(element);
@@ -674,7 +677,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 {"text_size", 16},
                 {"character_spacing", 0.0f},
                 {"line_spacing", 0.0f},
-                {"font", ids.fontId}
+                {"font", gim::makeRef(font)}
             });
 
             std::vector<gim::RenderData> neutralData = generator.generate(element);
@@ -722,7 +725,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 {"text", std::string("\thej")},
                 {"text_size", 16},
                 {"tab_width", 4},
-                {"font", ids.fontId}
+                {"font", gim::makeRef(font)}
             });
 
             std::vector<gim::RenderData> neutralData = generator.generate(element);
@@ -752,7 +755,8 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 {"text", std::string("hej")},
                 {"text_size", 16},
                 {"text_style", gim::TextStyle::NORMAL},
-                {"font", ids.fontId}
+                {"font", gim::makeRef(font)},
+                {"bold_font", gim::makeRef(boldFont)},
             });
 
             std::vector<gim::RenderData> normalData = generator.generate(element);
@@ -760,7 +764,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
             element.setAttribute("text_style", gim::TextStyle::BOLD);
             std::vector<gim::RenderData> boldData = generator.generate(element);
 
-            THEN("the bold data is bigger")
+            THEN("the bold data has different texture coordinates")
             {
                 REQUIRE(normalData[0].textPositions.size() == 54);
                 REQUIRE(normalData[0].textColors.size() == 72);
@@ -769,15 +773,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 REQUIRE(boldData[0].textColors.size() == 72);
                 REQUIRE(boldData[0].textTexCoords.size() == 36);
 
-                float normalTotal = 0.0f;
-                for(auto& data : normalData)
-                    normalTotal = std::accumulate(data.textPositions.begin(), data.textPositions.end(), normalTotal);
-
-                float boldTotal = 0.0f;
-                for(auto& data : boldData)
-                    boldTotal = std::accumulate(data.textPositions.begin(), data.textPositions.end(), boldTotal);
-
-                CHECK(normalTotal < boldTotal);
+                CHECK((normalData[0].textTexCoords[0] != boldData[0].textTexCoords[0] || normalData[0].textTexCoords[1] != boldData[0].textTexCoords[1]));
             }
         }
     }
