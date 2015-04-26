@@ -37,6 +37,7 @@ set(source_files
     src/data/font.cpp
     src/data/fontloadexception.cpp
     src/data/texturecoordinates.cpp
+    src/data/textstyles.cpp
     src/data/variant.cpp
     src/logic/allpropagator.cpp
     src/logic/attributepopulator.cpp

@@ -33,9 +33,13 @@ class SimpleRendering
         Vec2 mLastPosition;
         std::unordered_map<int32_t, std::unique_ptr<Texture>> mTextures;
         std::ifstream mFontFile;
-        gim::Font mFont;
         std::ifstream mBoldFontFile;
+        std::ifstream mItalicFontFile;
+        std::ifstream mBoldItalicFontFile;
+        gim::Font mFont;
         gim::Font mBoldFont;
+        gim::Font mItalicFont;
+        gim::Font mBoldItalicFont;
         gim::Element mRoot;
 
         GLint mPositionLocation;

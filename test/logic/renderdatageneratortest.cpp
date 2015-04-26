@@ -551,11 +551,15 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
         gim::Font font(file);
         std::ifstream fileBold("resources/fonts/LiberationSans-Bold.ttf", std::ios::binary);
         gim::Font boldFont(fileBold);
+        std::ifstream fileItalic("resources/fonts/LiberationSans-Italic.ttf", std::ios::binary);
+        gim::Font italicFont(fileItalic);
+        std::ifstream fileBoldItalic("resources/fonts/LiberationSans-BoldItalic.ttf", std::ios::binary);
+        gim::Font boldItalicFont(fileBoldItalic);
         TextureInterfaceStub textureAdaptor;
 
         gim::RenderDataGenerator<Vec2, Color> generator;
 
-        uint32_t textureId = generator.registerFontStorage({font, boldFont}, textureAdaptor);
+        uint32_t textureId = generator.registerFontStorage({font, boldFont, italicFont, boldItalicFont}, textureAdaptor);
 
         WHEN("a gui element with the attributes 'text' and 'text_font' are set, and render data generated")
         {
@@ -757,6 +761,8 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 {"text_style", gim::TextStyle::NORMAL},
                 {"font", gim::makeRef(font)},
                 {"bold_font", gim::makeRef(boldFont)},
+                {"italic_font", gim::makeRef(italicFont)},
+                {"bold_italic_font", gim::makeRef(boldItalicFont)},
             });
 
             std::vector<gim::RenderData> normalData = generator.generate(element);
@@ -764,7 +770,13 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
             element.setAttribute("text_style", gim::TextStyle::BOLD);
             std::vector<gim::RenderData> boldData = generator.generate(element);
 
-            THEN("the bold data has different texture coordinates")
+            element.setAttribute("text_style", gim::TextStyle::ITALIC);
+            std::vector<gim::RenderData> italicData = generator.generate(element);
+
+            element.setAttribute("text_style", gim::TextStyle::BOLD | gim::TextStyle::ITALIC);
+            std::vector<gim::RenderData> boldItalicData = generator.generate(element);
+
+            THEN("normal/bold/italic/bold-italic font data all have unique texture coordinates")
             {
                 REQUIRE(normalData[0].textPositions.size() == 54);
                 REQUIRE(normalData[0].textColors.size() == 72);
@@ -772,8 +784,19 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 REQUIRE(boldData[0].textPositions.size() == 54);
                 REQUIRE(boldData[0].textColors.size() == 72);
                 REQUIRE(boldData[0].textTexCoords.size() == 36);
+                REQUIRE(italicData[0].textPositions.size() == 54);
+                REQUIRE(italicData[0].textColors.size() == 72);
+                REQUIRE(italicData[0].textTexCoords.size() == 36);
+                REQUIRE(boldItalicData[0].textPositions.size() == 54);
+                REQUIRE(boldItalicData[0].textColors.size() == 72);
+                REQUIRE(boldItalicData[0].textTexCoords.size() == 36);
 
-                CHECK((normalData[0].textTexCoords[0] != boldData[0].textTexCoords[0] || normalData[0].textTexCoords[1] != boldData[0].textTexCoords[1]));
+                CHECK((normalData[0].textTexCoords[0] != boldData[0].textTexCoords[0]       || normalData[0].textTexCoords[1] != boldData[0].textTexCoords[1]));
+                CHECK((normalData[0].textTexCoords[0] != italicData[0].textTexCoords[0]     || normalData[0].textTexCoords[1] != italicData[0].textTexCoords[1]));
+                CHECK((normalData[0].textTexCoords[0] != boldItalicData[0].textTexCoords[0] || normalData[0].textTexCoords[1] != boldItalicData[0].textTexCoords[1]));
+                CHECK((boldData[0].textTexCoords[0]   != italicData[0].textTexCoords[0]     || boldData[0].textTexCoords[1]   != italicData[0].textTexCoords[1]));
+                CHECK((boldData[0].textTexCoords[0]   != boldItalicData[0].textTexCoords[0] || boldData[0].textTexCoords[1]   != boldItalicData[0].textTexCoords[1]));
+                CHECK((italicData[0].textTexCoords[0] != boldItalicData[0].textTexCoords[0] || italicData[0].textTexCoords[1] != boldItalicData[0].textTexCoords[1]));
             }
         }
     }

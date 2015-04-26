@@ -47,6 +47,7 @@ namespace gim
             void generateBorders(const Element& element, const FloatVec2& position, const FloatVec2& size, const Color& color, const FloatVec2& imageSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords);
 
             float getHSpace(const Font& font, uint32_t size);
+            std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> loadGlyphData(uint32_t codePoint, uint32_t textSize, uint32_t fontCacheId, FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font);
 
             std::unordered_map<uint32_t, Vec2> mImageSizes;
 

@@ -203,11 +203,15 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         }
         else if(!(style & TextStyle::BOLD) && (style & TextStyle::ITALIC))
         {
-            GIM_ASSERT(false, "not implemented");
+            const gim::ref<Font>* fontPtr = element.findAttribute<gim::ref<Font>>("italic_font");
+            GIM_ASSERT(fontPtr != nullptr, "cannot use TextStyle::ITALIC without setting the 'italic_font' attribute to a font");
+            loadFont(*fontPtr);
         }
         else if((style & TextStyle::BOLD) && (style & TextStyle::ITALIC))
         {
-            GIM_ASSERT(false, "not implemented");
+            const gim::ref<Font>* fontPtr = element.findAttribute<gim::ref<Font>>("bold_italic_font");
+            GIM_ASSERT(fontPtr != nullptr, "cannot use TextStyle::BOLD and TextStyle::ITALIC without setting the 'bold_italic_font' attribute to a font");
+            loadFont(*fontPtr);
         }
 
         //render text
@@ -224,6 +228,44 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         uint32_t previousCodePoint = 0;
 
         TextureCoordinates texCoords;
+
+        struct CharacterQuad
+        {
+            FloatVec2 start;
+            FloatVec2 size;
+            Color color;
+            TextureCoordinates texCoords;
+        };
+
+        std::vector<CharacterQuad> currentRow;
+
+        for(uint32_t codePoint : codePoints)
+        {
+            //need row start
+            //need row length
+            
+            //special characters
+            //if(codePoint == ' ')
+            //{
+            //    x += hspace;
+            //    continue;
+            //}
+            //else if(codePoint == '\t')
+            //{
+            //    x += hspace * tabWidth;
+            //    continue;
+            //}
+            //else if(codePoint == '\n')
+            //{
+            //    x = position.x;
+            //    y += vspace;
+            //    //must terminate line
+            //    continue;
+            //}
+
+            //CharacterQuad newQuad;           
+        }
+
         for(uint32_t codePoint : codePoints)
         {
             //special characters
@@ -243,52 +285,37 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 y += vspace;
                 continue;
             }
-
-            auto texCoordsPtr = currentTextureCache->glyphCoords(codePoint, textSize, currentFontCacheId);
-
-            Glyph::Metrics metrics;
-            if(texCoordsPtr == nullptr)
-            {
-                auto glyphPtr = currentFont->generateGlyph(codePoint);
-
-                if(glyphPtr)
-                {
-                    metrics = glyphPtr->metrics;
-                    texCoords = currentTextureCache->add(*glyphPtr, currentFontCacheId);
-                    currentMetricsMap->emplace(CodePointSizeId({codePoint, textSize, currentFontCacheId}), metrics);
-                }
-                else
-                {//codepoint doesn't exist - do nothing
-                    continue;
-                }
-            }
-            else
-            {
-                GIM_ASSERT(currentMetricsMap->count(CodePointSizeId({codePoint, textSize, currentFontCacheId})) != 0, "glyph existed in texture but not in metrics map. this is a bug.");
-                texCoords = *texCoordsPtr;
-                metrics = currentMetricsMap->at(CodePointSizeId({codePoint, textSize, currentFontCacheId}));
-            }
             
-            x += currentFont->kerning(previousCodePoint, codePoint) * textScale;
-            previousCodePoint = codePoint;
+            auto glyphData = loadGlyphData(codePoint, textSize, currentFontCacheId, *currentTextureCache, *currentMetricsMap, *currentFont);
 
-            float left = metrics.left * textScale;
-            float top = metrics.top * textScale;
-            float width = metrics.width * textScale;
-            float height = metrics.height * textScale;
+            if(glyphData)
+            {
+                TextureCoordinates texCoords;
+                Glyph::Metrics metrics;
 
-            //make quad
-            generateQuadWithImage(FloatVec2({x + left, y + top}),
-                                  FloatVec2({width, height}),
-                                  color, 
-                                  {texCoords.xStart, texCoords.yStart}, 
-                                  {texCoords.xEnd - texCoords.xStart, texCoords.yEnd - texCoords.yStart},
-                                   renderData.textPositions,
-                                   renderData.textColors,
-                                   renderData.textTexCoords,
-                                   texCoords.flipped);
+                std::tie(texCoords, metrics) = *glyphData;
 
-            x += (metrics.advance + characterSpacing) * textScale;
+                x += currentFont->kerning(previousCodePoint, codePoint) * textScale;
+                previousCodePoint = codePoint;
+
+                float left = metrics.left * textScale;
+                float top = metrics.top * textScale;
+                float width = metrics.width * textScale;
+                float height = metrics.height * textScale;
+
+                //make quad
+                generateQuadWithImage(FloatVec2({x + left, y + top}),
+                        FloatVec2({width, height}),
+                        color, 
+                        {texCoords.xStart, texCoords.yStart}, 
+                        {texCoords.xEnd - texCoords.xStart, texCoords.yEnd - texCoords.yStart},
+                        renderData.textPositions,
+                        renderData.textColors,
+                        renderData.textTexCoords,
+                        texCoords.flipped);
+
+                x += (metrics.advance + characterSpacing) * textScale;
+            }
         }
     }
 
@@ -541,4 +568,36 @@ float RenderDataGenerator<Vec2, Color>::getHSpace(const Font& font, uint32_t siz
 
         return glyphPtr->metrics.advance;
     }
+}
+
+template <typename Vec2, typename Color>
+std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> RenderDataGenerator<Vec2, Color>::loadGlyphData(uint32_t codePoint, uint32_t textSize, uint32_t fontCacheId, FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font)
+{
+    auto texCoordsPtr = textureCache.glyphCoords(codePoint, textSize, fontCacheId);
+    TextureCoordinates texCoords;
+    Glyph::Metrics metrics;
+
+    if(texCoordsPtr == nullptr)
+    {
+        auto glyphPtr = font.generateGlyph(codePoint);
+
+        if(glyphPtr)
+        {
+            metrics = glyphPtr->metrics;
+            texCoords = textureCache.add(*glyphPtr, fontCacheId);
+            metricsMap.emplace(CodePointSizeId({codePoint, textSize, fontCacheId}), metrics);
+        }
+        else
+        {//codepoint doesn't exist - do nothing
+            return nullptr;
+        }
+    }
+    else
+    {
+        GIM_ASSERT(metricsMap.count(CodePointSizeId({codePoint, textSize, fontCacheId})) != 0, "glyph existed in texture but not in metrics map. this is a bug.");
+        texCoords = *texCoordsPtr;
+        metrics = metricsMap.at(CodePointSizeId({codePoint, textSize, fontCacheId}));
+    }
+
+    return std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>>(new std::tuple<TextureCoordinates, Glyph::Metrics>(texCoords, metrics));
 }

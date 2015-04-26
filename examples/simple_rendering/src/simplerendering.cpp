@@ -130,8 +130,12 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mLastPosition({-1000, -1000}),
     mFontFile("resources/fonts/LiberationSans-Regular.ttf", std::ios::binary),
     mBoldFontFile("resources/fonts/LiberationSans-Bold.ttf", std::ios::binary),
+    mItalicFontFile("resources/fonts/LiberationSans-Italic.ttf", std::ios::binary),
+    mBoldItalicFontFile("resources/fonts/LiberationSans-BoldItalic.ttf", std::ios::binary),
     mFont(mFontFile),
     mBoldFont(mBoldFontFile),
+    mItalicFont(mItalicFontFile),
+    mBoldItalicFont(mBoldItalicFontFile),
     mRoot({"container"},
         {
             {"name" , std::string("red")},
@@ -163,15 +167,17 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"text_scale", 1.0f},
             {"font", gim::makeRef(mFont)},
             {"bold_font", gim::makeRef(mBoldFont)},
+            {"italic_font", gim::makeRef(mItalicFont)},
+            {"bold_italic_font", gim::makeRef(mBoldItalicFont)},
             {"text_color", Color(0, 20, 200, 150)},
             {"character_spacing", 0.0f},
             {"line_spacing", 0.0f},
             {"tab_width", 4},
-            {"text_style", gim::TextStyle::BOLD},
+            {"text_style", gim::TextStyle::BOLD | gim::TextStyle::ITALIC},
+            {"line_wrap", true},
             /*{"text_style", gim::NORMAL | gim::BOLD | gim::UNDERLINED | gim::ITALIC | gim::STRIKETHROUGH | gim::HOLLOW},
             {"text_bg_color", Color(100, 200, 20, 12)},
             {"text_alignment, [gim::LEFT_ALIGN|gim::RIGHT_ALIGN|gim::CENTER_ALIGN|gim::JUSTIFY_ALIGN]
-            {"line_wrap", true},
             {"text_border, ""},//default to element borders
             {"text_avoid_blocks", std::vector<Rectanglee>()},
             {"markup", true"}
@@ -265,7 +271,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
         })
 {
     std::unique_ptr<Texture> fontTexture = std::unique_ptr<Texture>(new Texture());
-    auto textureId = mRenderDataGenerator.registerFontStorage({mFont, mBoldFont}, TextureAdaptor(*fontTexture));
+    auto textureId = mRenderDataGenerator.registerFontStorage({mFont, mBoldFont, mItalicFont, mBoldItalicFont}, TextureAdaptor(*fontTexture));
     mTextures.emplace(textureId, std::move(fontTexture));
 
     //load textures
