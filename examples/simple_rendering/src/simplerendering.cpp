@@ -167,7 +167,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"character_spacing", 0.0f},
             {"line_spacing", 0.0f},
             {"tab_width", 4},
-            {"text_style", gim::TextStyle::NORMAL},
+            {"text_style", gim::TextStyle::BOLD},
             /*{"text_style", gim::NORMAL | gim::BOLD | gim::UNDERLINED | gim::ITALIC | gim::STRIKETHROUGH | gim::HOLLOW},
             {"text_bg_color", Color(100, 200, 20, 12)},
             {"text_alignment, [gim::LEFT_ALIGN|gim::RIGHT_ALIGN|gim::CENTER_ALIGN|gim::JUSTIFY_ALIGN]

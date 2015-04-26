@@ -158,11 +158,6 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
     {
         //get needed attributes
         const std::string utf8string = *textPtr;
-        const gim::ref<Font>* fontPtr = element.findAttribute<gim::ref<Font>>("font");
-        GIM_ASSERT(fontPtr != nullptr, "cannot give an element text without also giving it a font");
-        Font& font = *fontPtr;
-        GIM_ASSERT(mFontCacheIds.count(font.name()) != 0, "no texture registered for the given font '" + font.name() + "'");
-        uint32_t fontCacheId = mFontCacheIds.at(font.name());
 
         const uint32_t* textSizeUPtr = element.findAttribute<uint32_t>("text_size");
         const int32_t* textSizePtr = element.findAttribute<int32_t>("text_size");
@@ -176,34 +171,50 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         float lineSpacing = getOrFallback<float>(element, "line_spacing", 0.0f);
         int32_t tabWidth = getOrFallback<int32_t>(element, "tab_width", 4);
         TextStyle style = getOrFallback<TextStyle>(element, "text_style", TextStyle::NORMAL);
-        bool bold = style & TextStyle::BOLD;
+
+        MetricsMap* currentMetricsMap;
+        FontTextureCache* currentTextureCache; 
+        Font* currentFont;
+        uint32_t currentFontCacheId;
+        uint32_t currentFontTextureId;
+
+        auto loadFont = [this, &currentMetricsMap, &currentTextureCache, &currentFont, &currentFontCacheId, &currentFontTextureId] (Font& font)
+        {
+            GIM_ASSERT(mFontCacheIds.count(font.name()) != 0, "no texture registered for the given font '" + font.name() + "'");
+            currentFontCacheId = mFontCacheIds.at(font.name());
+            FontCacheEntry& fontCache = *mFontCache.at(currentFontCacheId);
+            currentMetricsMap = &fontCache.metrics;
+            currentTextureCache = &fontCache.textureCoordinates; 
+            currentFont = &font;
+            currentFontTextureId = fontCache.textureId;
+        };
+
+        if(!(style & TextStyle::BOLD) && !(style & TextStyle::ITALIC))
+        {
+            const gim::ref<Font>* fontPtr = element.findAttribute<gim::ref<Font>>("font");
+            GIM_ASSERT(fontPtr != nullptr, "cannot use TextStyle::NORMAL without setting the 'font' attribute to a font");
+            loadFont(*fontPtr);
+        }
+        else if((style & TextStyle::BOLD) && !(style & TextStyle::ITALIC))
+        {
+            const gim::ref<Font>* fontPtr = element.findAttribute<gim::ref<Font>>("bold_font");
+            GIM_ASSERT(fontPtr != nullptr, "cannot use TextStyle::BOLD without setting the 'bold_font' attribute to a font");
+            loadFont(*fontPtr);
+        }
+        else if(!(style & TextStyle::BOLD) && (style & TextStyle::ITALIC))
+        {
+            GIM_ASSERT(false, "not implemented");
+        }
+        else if((style & TextStyle::BOLD) && (style & TextStyle::ITALIC))
+        {
+            GIM_ASSERT(false, "not implemented");
+        }
 
         //render text
         gim::Utf8Decoder utf8Decoder;
         std::vector<uint32_t> codePoints = utf8Decoder.decode(utf8string);
 
-        FontCacheEntry& fontCache = *mFontCache.at(fontCacheId);
-        MetricsMap* metricsMap = &fontCache.metrics;
-        FontTextureCache* textureCache = &fontCache.textureCoordinates; 
-
-        Font* currentFont = &font;
-
-        if(bold)
-        {
-            const gim::ref<Font>* boldFontPtr = element.findAttribute<gim::ref<Font>>("bold_font");
-            GIM_ASSERT(boldFontPtr != nullptr, "cannot use TextStyle::BOLD with element lacking bold_font");
-            currentFont = &boldFontPtr->get();
-            GIM_ASSERT(mFontCacheIds.count(currentFont->name()) != 0, "no texture registered for the given bold_font '" + currentFont->name() + "'");
-            uint32_t boldFontCacheId = mFontCacheIds.at(currentFont->name());
-
-            FontCacheEntry& boldFontCache = *mFontCache.at(boldFontCacheId);
-            metricsMap = &boldFontCache.metrics;
-            textureCache = &boldFontCache.textureCoordinates;
-
-            fontCacheId = boldFontCacheId;
-        }
-
-        renderData.textImageId = fontCache.textureId;
+        renderData.textImageId = currentFontTextureId;
 
         float x = position.x;
         float y = position.y + textSize * textScale;
@@ -233,7 +244,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 continue;
             }
 
-            auto texCoordsPtr = textureCache->glyphCoords(codePoint, textSize, fontCacheId);
+            auto texCoordsPtr = currentTextureCache->glyphCoords(codePoint, textSize, currentFontCacheId);
 
             Glyph::Metrics metrics;
             if(texCoordsPtr == nullptr)
@@ -243,8 +254,8 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 if(glyphPtr)
                 {
                     metrics = glyphPtr->metrics;
-                    texCoords = textureCache->add(*glyphPtr, fontCacheId);
-                    metricsMap->emplace(CodePointSizeId({codePoint, textSize, fontCacheId}), metrics);
+                    texCoords = currentTextureCache->add(*glyphPtr, currentFontCacheId);
+                    currentMetricsMap->emplace(CodePointSizeId({codePoint, textSize, currentFontCacheId}), metrics);
                 }
                 else
                 {//codepoint doesn't exist - do nothing
@@ -253,9 +264,9 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             }
             else
             {
-                GIM_ASSERT(metricsMap->count(CodePointSizeId({codePoint, textSize, fontCacheId})) != 0, "glyph existed in texture but not in metrics map. this is a bug.");
+                GIM_ASSERT(currentMetricsMap->count(CodePointSizeId({codePoint, textSize, currentFontCacheId})) != 0, "glyph existed in texture but not in metrics map. this is a bug.");
                 texCoords = *texCoordsPtr;
-                metrics = metricsMap->at(CodePointSizeId({codePoint, textSize, fontCacheId}));
+                metrics = currentMetricsMap->at(CodePointSizeId({codePoint, textSize, currentFontCacheId}));
             }
             
             x += currentFont->kerning(previousCodePoint, codePoint) * textScale;
