@@ -64,6 +64,7 @@ set(header_files
     include/gimgui/data/texturecoordinates.hpp
     include/gimgui/data/variant.hpp
     include/gimgui/data/variant.inl
+    include/gimgui/data/wrapmode.hpp
     include/gimgui/logic/absolutemap.hpp
     include/gimgui/logic/absolutemap.inl
     include/gimgui/logic/allpropagator.hpp

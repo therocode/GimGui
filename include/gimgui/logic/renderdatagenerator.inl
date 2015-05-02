@@ -172,6 +172,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         int32_t tabWidth = getOrFallback<int32_t>(element, "tab_width", 4);
         TextStyle style = getOrFallback<TextStyle>(element, "text_style", TextStyle::NORMAL);
         const Rectangle<Vec2>& textBorders = getOrFallback<Rectangle<Vec2>>(element, "text_borders", Rectangle<Vec2>(Vec2({0, 0}), Vec2(size)));
+        const WrapMode wrapMode = getOrFallback<WrapMode>(element, "line_wrap", WrapMode::WORDS);
         
 
         MetricsMap* currentMetricsMap;
@@ -295,7 +296,10 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                     float height = metrics.height * textScale;
 
                     if(x + left + width > position.x + textBorders.size.x)
-                        newLine(currentRow);
+                    {
+                        if(currentRow.size() > 0)
+                            newLine(currentRow);
+                    }
 
                     CharacterQuad characterQuad;
                     characterQuad.start = FloatVec2({x + left, y + top});

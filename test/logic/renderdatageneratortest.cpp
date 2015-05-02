@@ -543,23 +543,22 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
     }
 }
 
-SCENARIO("By registering a font and a texture with it, the RenderDataGenerator can output text quads", "[logic]")
+gim::Font loadFont(const std::string& path)
+{
+    std::ifstream file(path, std::ios::binary);
+    return gim::Font(file);
+}
+
+SCENARIO("Text quads can be generated from the RenderDataGenerator, with a few basic properties", "[logic]")
 {
     GIVEN("A RenderDataGenerator with a font and texture registered")
     {
-        std::ifstream file("resources/fonts/LiberationSans-Regular.ttf", std::ios::binary);
-        gim::Font font(file);
-        std::ifstream fileBold("resources/fonts/LiberationSans-Bold.ttf", std::ios::binary);
-        gim::Font boldFont(fileBold);
-        std::ifstream fileItalic("resources/fonts/LiberationSans-Italic.ttf", std::ios::binary);
-        gim::Font italicFont(fileItalic);
-        std::ifstream fileBoldItalic("resources/fonts/LiberationSans-BoldItalic.ttf", std::ios::binary);
-        gim::Font boldItalicFont(fileBoldItalic);
-        TextureInterfaceStub textureAdaptor;
+        gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
+        TextureInterfaceStub textureAdaptor;
         gim::RenderDataGenerator<Vec2, Color> generator;
 
-        uint32_t textureId = generator.registerFontStorage({font, boldFont, italicFont, boldItalicFont}, textureAdaptor);
+        uint32_t textureId = generator.registerFontStorage({font}, textureAdaptor);
 
         WHEN("a gui element with the attributes 'text' and 'text_font' are set, and render data generated")
         {
@@ -670,8 +669,21 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 CHECK(smallTotal < bigTotal);
             }
         }
+    }
+}
 
-        WHEN("character spacing and line spacing can be used to control extra spacing amounts betweens characters and lines")
+SCENARIO("Character spacing can be controlled in different ways when rendering text", "[logic]")
+{
+    GIVEN("A RenderDataGenerator with a font and texture registered")
+    {
+        gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
+
+        TextureInterfaceStub textureAdaptor;
+        gim::RenderDataGenerator<Vec2, Color> generator;
+
+        uint32_t textureId = generator.registerFontStorage({font}, textureAdaptor);
+
+        WHEN("character_spacing and line_spacing are set")
         {
             gim::Element element({"text"},
             {
@@ -720,7 +732,7 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
             }
         }
 
-        WHEN("tab_width can be used to control now many spaces a tab character is equivalent to")
+        WHEN("tab_width is set to different things")
         {
             gim::Element element({"text"},
             {
@@ -749,8 +761,24 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 CHECK(neutralData[0].textPositions[0]  == Approx(doubleTabbedData[0].textPositions[0] / 2.0f));
             }
         }
+    }
+}
 
-        WHEN("text_style can be used to control the display style of the text")
+SCENARIO("Different text styles can be applied using the text_style attribute", "[logic]")
+{
+    GIVEN("A RenderDataGenerator with fonts and texture registered")
+    {
+        gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
+        gim::Font boldFont = loadFont("resources/fonts/LiberationSans-Bold.ttf");
+        gim::Font italicFont = loadFont("resources/fonts/LiberationSans-Italic.ttf");
+        gim::Font boldItalicFont = loadFont("resources/fonts/LiberationSans-BoldItalic.ttf");
+
+        TextureInterfaceStub textureAdaptor;
+        gim::RenderDataGenerator<Vec2, Color> generator;
+
+        uint32_t textureId = generator.registerFontStorage({font, boldFont, italicFont, boldItalicFont}, textureAdaptor);
+
+        WHEN("text_style is set to different styles")
         {
             gim::Element element({"text"},
             {
@@ -798,6 +826,34 @@ SCENARIO("By registering a font and a texture with it, the RenderDataGenerator c
                 CHECK((boldData[0].textTexCoords[0]   != boldItalicData[0].textTexCoords[0] || boldData[0].textTexCoords[1]   != boldItalicData[0].textTexCoords[1]));
                 CHECK((italicData[0].textTexCoords[0] != boldItalicData[0].textTexCoords[0] || italicData[0].textTexCoords[1] != boldItalicData[0].textTexCoords[1]));
             }
+        }
+    }
+}
+
+SCENARIO("Text flow behaviour can be controlled using text_borders and line_wrap", "[logic]")
+{
+    GIVEN("A RenderDataGenerator with a font and texture registered")
+    {
+        gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
+
+        TextureInterfaceStub textureAdaptor;
+        gim::RenderDataGenerator<Vec2, Color> generator;
+
+        uint32_t textureId = generator.registerFontStorage({font}, textureAdaptor);
+
+        WHEN("text_borders can control positioning and line breaking of text")
+        {
+            gim::Element element({"text"},
+            {
+                {"position", Vec2({0, 0})},
+                {"size",     Vec2({48, 48})},
+                {"text", std::string("hej")},
+                {"text_size", 16},
+                {"text_style", gim::TextStyle::NORMAL},
+                {"font", gim::makeRef(font)}
+            });
+
+            std::vector<gim::RenderData> normalData = generator.generate(element);
         }
     }
 }
