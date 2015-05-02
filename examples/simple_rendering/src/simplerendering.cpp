@@ -174,11 +174,11 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"line_spacing", 0.0f},
             {"tab_width", 4},
             {"text_style", gim::TextStyle::BOLD | gim::TextStyle::ITALIC},
-            {"line_wrap", true},
+            //{"line_wrap", gim::Wrap::Characters},
+            {"text_borders", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({250, 250}))},
             /*{"text_style", gim::NORMAL | gim::BOLD | gim::UNDERLINED | gim::ITALIC | gim::STRIKETHROUGH | gim::HOLLOW},
             {"text_bg_color", Color(100, 200, 20, 12)},
             {"text_alignment, [gim::LEFT_ALIGN|gim::RIGHT_ALIGN|gim::CENTER_ALIGN|gim::JUSTIFY_ALIGN]
-            {"text_border, ""},//default to element borders
             {"text_avoid_blocks", std::vector<Rectanglee>()},
             {"markup", true"}
             */

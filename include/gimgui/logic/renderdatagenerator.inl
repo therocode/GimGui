@@ -156,9 +156,9 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
     if(textPtr != nullptr)
     {
-        //get needed attributes
         const std::string utf8string = *textPtr;
 
+        //get needed attributes
         const uint32_t* textSizeUPtr = element.findAttribute<uint32_t>("text_size");
         const int32_t* textSizePtr = element.findAttribute<int32_t>("text_size");
         GIM_ASSERT(textSizeUPtr != nullptr || textSizePtr != nullptr, "cannot give an element text without also giving it a text_size");
@@ -171,6 +171,8 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         float lineSpacing = getOrFallback<float>(element, "line_spacing", 0.0f);
         int32_t tabWidth = getOrFallback<int32_t>(element, "tab_width", 4);
         TextStyle style = getOrFallback<TextStyle>(element, "text_style", TextStyle::NORMAL);
+        const Rectangle<Vec2>& textBorders = getOrFallback<Rectangle<Vec2>>(element, "text_borders", Rectangle<Vec2>(Vec2({0, 0}), Vec2(size)));
+        
 
         MetricsMap* currentMetricsMap;
         FontTextureCache* currentTextureCache; 
@@ -239,32 +241,21 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
         std::vector<CharacterQuad> currentRow;
 
-        for(uint32_t codePoint : codePoints)
+        auto flushRow = [this, &renderData] (std::vector<CharacterQuad>& quads)
         {
-            //need row start
-            //need row length
-            
-            //special characters
-            //if(codePoint == ' ')
-            //{
-            //    x += hspace;
-            //    continue;
-            //}
-            //else if(codePoint == '\t')
-            //{
-            //    x += hspace * tabWidth;
-            //    continue;
-            //}
-            //else if(codePoint == '\n')
-            //{
-            //    x = position.x;
-            //    y += vspace;
-            //    //must terminate line
-            //    continue;
-            //}
+            for(const auto& quad : quads)
+            {
+                generateQuadWithImage(quad.start, quad.size, quad.color, {quad.texCoords.xStart, quad.texCoords.yStart}, {quad.texCoords.xEnd - quad.texCoords.xStart, quad.texCoords.yEnd - quad.texCoords.yStart}, renderData.textPositions, renderData.textColors, renderData.textTexCoords, quad.texCoords.flipped);
+            }
+            quads.clear();
+        };
 
-            //CharacterQuad newQuad;           
-        }
+        auto newLine = [&x, &y, &position, &vspace, flushRow] (std::vector<CharacterQuad>& quads)
+        {
+            flushRow(quads);
+            x = position.x;
+            y += vspace;
+        };
 
         for(uint32_t codePoint : codePoints)
         {
@@ -272,51 +263,54 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             if(codePoint == ' ')
             {
                 x += hspace;
-                continue;
             }
             else if(codePoint == '\t')
             {
                 x += hspace * tabWidth;
-                continue;
             }
             else if(codePoint == '\n')
             {
-                x = position.x;
-                y += vspace;
-                continue;
+                newLine(currentRow);
             }
-            
-            auto glyphData = loadGlyphData(codePoint, textSize, currentFontCacheId, *currentTextureCache, *currentMetricsMap, *currentFont);
-
-            if(glyphData)
+            else
             {
-                TextureCoordinates texCoords;
-                Glyph::Metrics metrics;
 
-                std::tie(texCoords, metrics) = *glyphData;
+                auto glyphData = loadGlyphData(codePoint, textSize, currentFontCacheId, *currentTextureCache, *currentMetricsMap, *currentFont);
 
-                x += currentFont->kerning(previousCodePoint, codePoint) * textScale;
-                previousCodePoint = codePoint;
+                if(glyphData)
+                {
+                    TextureCoordinates texCoords;
+                    Glyph::Metrics metrics;
 
-                float left = metrics.left * textScale;
-                float top = metrics.top * textScale;
-                float width = metrics.width * textScale;
-                float height = metrics.height * textScale;
+                    std::tie(texCoords, metrics) = *glyphData;
+                    float kerning = currentFont->kerning(previousCodePoint, codePoint) * textScale;
 
-                //make quad
-                generateQuadWithImage(FloatVec2({x + left, y + top}),
-                        FloatVec2({width, height}),
-                        color, 
-                        {texCoords.xStart, texCoords.yStart}, 
-                        {texCoords.xEnd - texCoords.xStart, texCoords.yEnd - texCoords.yStart},
-                        renderData.textPositions,
-                        renderData.textColors,
-                        renderData.textTexCoords,
-                        texCoords.flipped);
+                    x += kerning;
 
-                x += (metrics.advance + characterSpacing) * textScale;
+                    previousCodePoint = codePoint;
+
+                    float left = metrics.left * textScale;
+                    float top = metrics.top * textScale;
+                    float width = metrics.width * textScale;
+                    float height = metrics.height * textScale;
+
+                    if(x + left + width > position.x + textBorders.size.x)
+                        newLine(currentRow);
+
+                    CharacterQuad characterQuad;
+                    characterQuad.start = FloatVec2({x + left, y + top});
+                    characterQuad.size = FloatVec2({width, height});
+                    characterQuad.color = color;
+                    characterQuad.texCoords = texCoords;
+
+                    currentRow.push_back(characterQuad);
+
+                    x += (metrics.advance + characterSpacing) * textScale;
+                }
             }
         }
+
+        flushRow(currentRow);
     }
 
     return renderData;
