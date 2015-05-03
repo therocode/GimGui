@@ -224,8 +224,9 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
         renderData.textImageId = currentFontTextureId;
 
-        float x = position.x;
-        float y = position.y + textSize * textScale;
+        const Vec2 textStart({position.x + textBorders.start.x, position.y + textBorders.start.y});
+        float x = textStart.x;
+        float y = textStart.y + textSize * textScale;
         float hspace = (getHSpace(*currentFont, textSize) + characterSpacing) * textScale;
         currentFont->resize(textSize);
         float vspace = (currentFont->lineSpacing() + lineSpacing) * textScale;
@@ -253,10 +254,10 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             quads.clear();
         };
 
-        auto newLine = [&x, &y, &position, &vspace, flushRow] (std::vector<CharacterQuad>& quads)
+        auto newLine = [&x, &y, &textStart, &vspace, flushRow] (std::vector<CharacterQuad>& quads)
         {
             flushRow(quads);
-            x = position.x;
+            x = textStart.x;
             y += vspace;
         };
 

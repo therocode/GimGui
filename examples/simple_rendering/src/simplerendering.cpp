@@ -16,7 +16,7 @@
 
 Callback addText = [] (gim::Element& self, const Parameters& parameters)
 {
-    const std::string source = u8"this is a space: and this is a tab\tand this is a newline\ndone";
+    const std::string source = u8"Blu-tack is a reusable putty-like pressure-sensitive adhesive produced by Bostik, commonly used to attach lightweight objects (such as posters or sheets of paper) to walls or other dry surfaces. Traditionally blue, it is also available in other colours. Generic versions of the product are also available from other manufacturers.";
 
     std::string text = self.getAttribute<std::string>("text");
     text.push_back(source[text.size()]);
@@ -47,7 +47,9 @@ Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
         float newTextSize = newSize.y / 256.0f;
         //self.setAttribute("text_scale", newTextSize);
 
+        Vec2 textSize = Vec2({size.x - 20, size.y - 20});
         self.setAttribute("size", newSize);
+        self.setAttribute("text_borders", gim::Rectangle<Vec2>(Vec2({10, 10}), textSize));
     }
 };
 
@@ -139,8 +141,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mRoot({"container"},
         {
             {"name" , std::string("red")},
-            {"color",    Color(140, 35, 24)},
-            {"original_color",    Color(140, 35, 24)},
+            {"color",    Color(40, 40, 40)},
+            {"original_color",    Color(40, 40, 40)},
             {"click_color",    Color(174, 70, 56)},
             {"position", Vec2({0, 0})},
             {"size",     Vec2({100, 156})},
@@ -162,20 +164,20 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))},
             {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({8 ,8 }))},
             {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))},
-            {"text", std::string(u8"Hello, I like old pillows")},
+            {"text", std::string(u8"")},
             {"text_size", 16},
             {"text_scale", 1.0f},
             {"font", gim::makeRef(mFont)},
             {"bold_font", gim::makeRef(mBoldFont)},
             {"italic_font", gim::makeRef(mItalicFont)},
             {"bold_italic_font", gim::makeRef(mBoldItalicFont)},
-            {"text_color", Color(0, 20, 200, 150)},
+            {"text_color", Color(210, 210, 210)},
             {"character_spacing", 0.0f},
-            //{"line_spacing", 0.0f},
+            {"line_spacing", 0.0f},
             {"tab_width", 4},
             {"text_style", gim::TextStyle::NORMAL},
             {"line_wrap", gim::WrapMode::WORDS},
-            //{"text_borders", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({250, 250}))},
+            {"text_borders", gim::Rectangle<Vec2>(Vec2({10, 10}), Vec2({80, 136}))},
             /*{"text_style", gim::NORMAL | gim::BOLD | gim::UNDERLINED | gim::ITALIC | gim::STRIKETHROUGH | gim::HOLLOW},
             {"text_bg_color", Color(100, 200, 20, 12)},
             {"text_alignment, [gim::LEFT_ALIGN|gim::RIGHT_ALIGN|gim::CENTER_ALIGN|gim::JUSTIFY_ALIGN]
