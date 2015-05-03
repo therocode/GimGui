@@ -45,7 +45,7 @@ Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
         newSize.x = newSize.y;
 
         float newTextSize = newSize.y / 256.0f;
-        self.setAttribute("text_scale", newTextSize);
+        //self.setAttribute("text_scale", newTextSize);
 
         self.setAttribute("size", newSize);
     }
@@ -143,7 +143,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"original_color",    Color(140, 35, 24)},
             {"click_color",    Color(174, 70, 56)},
             {"position", Vec2({0, 0})},
-            {"size",     Vec2({256, 256})},
+            {"size",     Vec2({100, 156})},
             {"stretch_mode", gim::StretchMode::STRETCHED},
             {"image_id", 0u},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
@@ -162,8 +162,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))},
             {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({8 ,8 }))},
             {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))},
-            {"text", std::string(u8"")},
-            {"text_size", 30},
+            {"text", std::string(u8"Hello, I like old pillows")},
+            {"text_size", 16},
             {"text_scale", 1.0f},
             {"font", gim::makeRef(mFont)},
             {"bold_font", gim::makeRef(mBoldFont)},
@@ -171,11 +171,11 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"bold_italic_font", gim::makeRef(mBoldItalicFont)},
             {"text_color", Color(0, 20, 200, 150)},
             {"character_spacing", 0.0f},
-            {"line_spacing", 0.0f},
+            //{"line_spacing", 0.0f},
             {"tab_width", 4},
-            {"text_style", gim::TextStyle::BOLD | gim::TextStyle::ITALIC},
-            //{"line_wrap", gim::Wrap::Characters},
-            {"text_borders", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({250, 250}))},
+            {"text_style", gim::TextStyle::NORMAL},
+            {"line_wrap", gim::WrapMode::WORDS},
+            //{"text_borders", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({250, 250}))},
             /*{"text_style", gim::NORMAL | gim::BOLD | gim::UNDERLINED | gim::ITALIC | gim::STRIKETHROUGH | gim::HOLLOW},
             {"text_bg_color", Color(100, 200, 20, 12)},
             {"text_alignment, [gim::LEFT_ALIGN|gim::RIGHT_ALIGN|gim::CENTER_ALIGN|gim::JUSTIFY_ALIGN]

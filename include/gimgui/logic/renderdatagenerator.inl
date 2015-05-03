@@ -219,7 +219,8 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
         //render text
         gim::Utf8Decoder utf8Decoder;
-        std::vector<uint32_t> codePoints = utf8Decoder.decode(utf8string);
+        auto codePointsVector = utf8Decoder.decode(utf8string);
+        std::deque<uint32_t> codePoints(codePointsVector.begin(), codePointsVector.end());
 
         renderData.textImageId = currentFontTextureId;
 
@@ -238,6 +239,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             FloatVec2 size;
             Color color;
             TextureCoordinates texCoords;
+            uint32_t codePoint;
         };
 
         std::vector<CharacterQuad> currentRow;
@@ -258,20 +260,29 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             y += vspace;
         };
 
-        for(uint32_t codePoint : codePoints)
+        size_t currentWordStart = 0;
+        int32_t wordsSinceLineStart = 0;
+        for(uint32_t codePointIndex = 0; codePointIndex < codePoints.size(); codePointIndex++)
         {
+            uint32_t codePoint = codePoints[codePointIndex];
             //special characters
             if(codePoint == ' ')
             {
                 x += hspace;
+                currentWordStart = currentRow.size();
+                ++wordsSinceLineStart;
             }
             else if(codePoint == '\t')
             {
                 x += hspace * tabWidth;
+                currentWordStart = currentRow.size();
+                ++wordsSinceLineStart;
             }
             else if(codePoint == '\n')
             {
                 newLine(currentRow);
+                currentWordStart = currentRow.size();
+                wordsSinceLineStart = 0;
             }
             else
             {
@@ -297,15 +308,40 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
                     if(x + left + width > position.x + textBorders.size.x)
                     {
-                        if(currentRow.size() > 0)
-                            newLine(currentRow);
-                    }
+                        if(wrapMode == WrapMode::CHARACTERS)
+                        {
+                            if(currentRow.size() > 0)
+                            {
+                                newLine(currentRow);
+                                currentWordStart = currentRow.size();
+                                wordsSinceLineStart = 0;
+                            }
+                        }
+                        else if(wrapMode == WrapMode::WORDS)
+                        {
+                            if(wordsSinceLineStart > 0)
+                            {
+                                while(currentRow.size() > currentWordStart)
+                                {
+                                    uint32_t codePointToTransfer = currentRow.back().codePoint;
+                                    currentRow.pop_back();
+                                    codePoints.insert(codePoints.begin() + codePointIndex, codePointToTransfer);
+                                }
+                                newLine(currentRow);
+                                wordsSinceLineStart = 0;
+                                currentWordStart = currentRow.size();
 
+                                codePointIndex--;//repeat this codepoint, now on a new line
+                                continue;
+                            }
+                        }
+                    }
                     CharacterQuad characterQuad;
                     characterQuad.start = FloatVec2({x + left, y + top});
                     characterQuad.size = FloatVec2({width, height});
                     characterQuad.color = color;
                     characterQuad.texCoords = texCoords;
+                    characterQuad.codePoint = codePoint;
 
                     currentRow.push_back(characterQuad);
 
