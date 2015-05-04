@@ -173,6 +173,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         TextStyle style = getOrFallback<TextStyle>(element, "text_style", TextStyle::NORMAL);
         const Rectangle<Vec2>& textBorders = getOrFallback<Rectangle<Vec2>>(element, "text_borders", Rectangle<Vec2>(Vec2({0, 0}), Vec2(size)));
         const WrapMode wrapMode = getOrFallback<WrapMode>(element, "line_wrap", WrapMode::WORDS);
+        const TextAlign textAlign = getOrFallback<TextAlign>(element, "text_alignment", TextAlign::LEFT);
         
 
         MetricsMap* currentMetricsMap;
@@ -245,13 +246,25 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
         std::vector<CharacterQuad> currentRow;
 
-        auto flushRow = [this, &renderData] (std::vector<CharacterQuad>& quads)
+        auto flushRow = [this, &renderData, &textAlign, &textBorders, &textStart] (std::vector<CharacterQuad>& quads)
         {
-            for(const auto& quad : quads)
+            if(!quads.empty())
             {
-                generateQuadWithImage(quad.start, quad.size, quad.color, {quad.texCoords.xStart, quad.texCoords.yStart}, {quad.texCoords.xEnd - quad.texCoords.xStart, quad.texCoords.yEnd - quad.texCoords.yStart}, renderData.textPositions, renderData.textColors, renderData.textTexCoords, quad.texCoords.flipped);
+                float rowOffset = 0.0f;
+
+                if(textAlign == TextAlign::RIGHT)
+                {
+                    rowOffset = textBorders.size.x - quads.back().start.x - quads.back().size.x + textStart.x;
+                    std::cout << rowOffset << "\n";
+                }
+
+                for(const auto& quad : quads)
+                {
+                    FloatVec2 start({quad.start.x + rowOffset, quad.start.y});
+                    generateQuadWithImage(start, quad.size, quad.color, {quad.texCoords.xStart, quad.texCoords.yStart}, {quad.texCoords.xEnd - quad.texCoords.xStart, quad.texCoords.yEnd - quad.texCoords.yStart}, renderData.textPositions, renderData.textColors, renderData.textTexCoords, quad.texCoords.flipped);
+                }
+                quads.clear();
             }
-            quads.clear();
         };
 
         auto newLine = [&x, &y, &textStart, &vspace, flushRow] (std::vector<CharacterQuad>& quads)

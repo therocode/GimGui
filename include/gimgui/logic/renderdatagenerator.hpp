@@ -3,6 +3,7 @@
 #include <gimgui/data/renderdata.hpp>
 #include <gimgui/data/rendermodes.hpp>
 #include <gimgui/data/textstyles.hpp>
+#include <gimgui/data/textalignments.hpp>
 #include <gimgui/data/wrapmode.hpp>
 #include <gimgui/logic/allpropagator.hpp>
 #include <gimgui/logic/absolutemap.hpp>

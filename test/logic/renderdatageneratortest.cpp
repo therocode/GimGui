@@ -848,15 +848,34 @@ SCENARIO("Text flow behaviour can be controlled using text_borders and line_wrap
             {"text", std::string("Hello, I like old pillows")},
             {"text_size", 16},
             {"text_style", gim::TextStyle::NORMAL},
-            {"font", gim::makeRef(font)},
-            {"line_wrap", gim::WrapMode::NONE}
+            {"font", gim::makeRef(font)}
         });
 
         std::vector<gim::RenderData> normalData = generator.generate(element);
 
+        WHEN("line_wrap is set to WORDS")
+        {
+            element.createAttribute("line_wrap", gim::WrapMode::WORDS);
+
+            std::vector<gim::RenderData> wordWrappedData = generator.generate(element);
+
+            THEN("it is the same as without since it is the default")
+            {
+                CHECK(normalData[0].textPositions == wordWrappedData[0].textPositions);
+            }
+
+            THEN("it wraps the whole word which reaches the border of the element")
+            {
+                REQUIRE(normalData[0].textPositions.size() > 0);
+                REQUIRE(wordWrappedData[0].textPositions.size() > 0);
+
+                CHECK(wordWrappedData[0].textPositions[10 * 3 * 3 * 2] > wordWrappedData[0].textPositions[11 * 3 * 3 * 2]);
+            }
+        }
+
         WHEN("line_wrap is set to CHARACTERS, and data is generated")
         {
-            element.setAttribute("line_wrap", gim::WrapMode::CHARACTERS);
+            element.createAttribute("line_wrap", gim::WrapMode::CHARACTERS);
 
             std::vector<gim::RenderData> characterWrappedData = generator.generate(element);
 
@@ -865,24 +884,66 @@ SCENARIO("Text flow behaviour can be controlled using text_borders and line_wrap
                 REQUIRE(normalData[0].textPositions.size() > 0);
                 REQUIRE(characterWrappedData[0].textPositions.size() > 0);
 
-                CHECK(normalData[0].textPositions[12 * 3 * 3 * 2 + 1] == characterWrappedData[0].textPositions[12 * 3 * 3 * 2 + 1]);
-                CHECK_FALSE(normalData[0].textPositions[13 * 3 * 3 * 2 + 1] == characterWrappedData[0].textPositions[13 * 3 * 3 * 2 + 1]);
+                CHECK_FALSE(normalData[0].textPositions[12 * 3 * 3 * 2 + 1] == characterWrappedData[0].textPositions[12 * 3 * 3 * 2 + 1]);
+                CHECK(normalData[0].textPositions[13 * 3 * 3 * 2 + 1] == characterWrappedData[0].textPositions[13 * 3 * 3 * 2 + 1]);
             }
         }
 
-        WHEN("line_wrap is set to WORDS, and data is generated")
+        WHEN("line_wrap is set to NONE, and data is generated")
         {
-            element.setAttribute("line_wrap", gim::WrapMode::WORDS);
+            element.createAttribute("line_wrap", gim::WrapMode::NONE);
 
-            std::vector<gim::RenderData> characterWrappedData = generator.generate(element);
+            std::vector<gim::RenderData> noneWrappedData = generator.generate(element);
 
-            THEN("it wraps the whole word which reaches the border of the element")
+            THEN("There is no wrapping at all")
             {
                 REQUIRE(normalData[0].textPositions.size() > 0);
-                REQUIRE(characterWrappedData[0].textPositions.size() > 0);
+                REQUIRE(noneWrappedData[0].textPositions.size() > 0);
 
-                CHECK(normalData[0].textPositions[10 * 3 * 3 * 2 + 1] == characterWrappedData[0].textPositions[10 * 3 * 3 * 2 + 1]);
-                CHECK_FALSE(normalData[0].textPositions[11 * 3 * 3 * 2 + 1] == characterWrappedData[0].textPositions[11 * 3 * 3 * 2 + 1]);
+                CHECK_FALSE(normalData[0].textPositions[20 * 3 * 3 * 2 + 1] == noneWrappedData[0].textPositions[20 * 3 * 3 * 2 + 1]);
+            }
+        }
+    }
+}
+
+SCENARIO("Text row alignment behavior can be controlled using the text_alignment attribute", "[logic]")
+{
+    GIVEN("A RenderDataGenerator with a font and texture registered, and render data without text alignment specified")
+    {
+        gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
+
+        TextureInterfaceStub textureAdaptor;
+        gim::RenderDataGenerator<Vec2, Color> generator;
+
+        uint32_t textureId = generator.registerFontStorage({font}, textureAdaptor);
+
+        gim::Element element({"text"},
+        {
+            {"position", Vec2({0, 0})},
+            {"size",     Vec2({100, 256})},
+            {"text", std::string("This is a text which will span more than two lines")},
+            {"text_size", 16},
+            {"text_style", gim::TextStyle::NORMAL},
+            {"font", gim::makeRef(font)}
+        });
+
+        std::vector<gim::RenderData> normalData = generator.generate(element);
+
+        WHEN("text_alignment is set to LEFT")
+        {
+            element.createAttribute("text_alignment", gim::TextAlign::LEFT);
+
+            std::vector<gim::RenderData> leftWrappedData = generator.generate(element);
+
+            THEN("it is the same as without since it is the default")
+            {
+                CHECK(normalData[0].textPositions == leftWrappedData[0].textPositions);
+            }
+
+            THEN()
+            {
+                CHECK((leftWrappedData[0].textPositions[0 * 3 * 3 * 2] - leftWrappedData[0].textPositions[11 * 3 * 3 * 2]) < 5.0f);
+                CHECK((leftWrappedData[0].textPositions[0 * 3 * 3 * 2] - leftWrappedData[0].textPositions[20 * 3 * 3 * 2]) < 5.0f);
             }
         }
     }

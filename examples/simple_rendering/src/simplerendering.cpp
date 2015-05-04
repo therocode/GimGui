@@ -16,7 +16,7 @@
 
 Callback addText = [] (gim::Element& self, const Parameters& parameters)
 {
-    const std::string source = u8"Blu-tack is a reusable putty-like pressure-sensitive adhesive produced by Bostik, commonly used to attach lightweight objects (such as posters or sheets of paper) to walls or other dry surfaces. Traditionally blue, it is also available in other colours. Generic versions of the product are also available from other manufacturers.";
+    const std::string source = u8"This is a text which will span more than two lines";
 
     std::string text = self.getAttribute<std::string>("text");
     text.push_back(source[text.size()]);
@@ -49,7 +49,7 @@ Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
 
         Vec2 textSize = Vec2({size.x - 20, size.y - 20});
         self.setAttribute("size", newSize);
-        self.setAttribute("text_borders", gim::Rectangle<Vec2>(Vec2({10, 10}), textSize));
+        //self.setAttribute("text_borders", gim::Rectangle<Vec2>(Vec2({10, 10}), textSize));
     }
 };
 
@@ -177,10 +177,11 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"tab_width", 4},
             {"text_style", gim::TextStyle::NORMAL},
             {"line_wrap", gim::WrapMode::WORDS},
-            {"text_borders", gim::Rectangle<Vec2>(Vec2({10, 10}), Vec2({80, 136}))},
+            //{"text_borders", gim::Rectangle<Vec2>(Vec2({10, 10}), Vec2({80, 136}))},
+            {"text_alignment", gim::TextAlign::RIGHT},
+            //{"text_alignment", [gim::LEFT_ALIGN|gim::RIGHT_ALIGN|gim::CENTER_ALIGN|gim::JUSTIFY_ALIGN]},
             /*{"text_style", gim::NORMAL | gim::BOLD | gim::UNDERLINED | gim::ITALIC | gim::STRIKETHROUGH | gim::HOLLOW},
             {"text_bg_color", Color(100, 200, 20, 12)},
-            {"text_alignment, [gim::LEFT_ALIGN|gim::RIGHT_ALIGN|gim::CENTER_ALIGN|gim::JUSTIFY_ALIGN]
             {"text_avoid_blocks", std::vector<Rectanglee>()},
             {"markup", true"}
             */

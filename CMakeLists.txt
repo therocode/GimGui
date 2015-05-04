@@ -60,6 +60,7 @@ set(header_files
     include/gimgui/data/rectangle.hpp
     include/gimgui/data/rectangle.inl
     include/gimgui/data/types.hpp
+    include/gimgui/data/textalignments.hpp
     include/gimgui/data/textstyles.hpp
     include/gimgui/data/texturecoordinates.hpp
     include/gimgui/data/variant.hpp
