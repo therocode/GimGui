@@ -942,8 +942,36 @@ SCENARIO("Text row alignment behavior can be controlled using the text_alignment
 
             THEN()
             {
-                CHECK((leftWrappedData[0].textPositions[0 * 3 * 3 * 2] - leftWrappedData[0].textPositions[11 * 3 * 3 * 2]) < 5.0f);
-                CHECK((leftWrappedData[0].textPositions[0 * 3 * 3 * 2] - leftWrappedData[0].textPositions[20 * 3 * 3 * 2]) < 5.0f);
+                CHECK(fabs(leftWrappedData[0].textPositions[0 * 3 * 3 * 2] - leftWrappedData[0].textPositions[11 * 3 * 3 * 2]) < 5.0f);
+                CHECK(fabs(leftWrappedData[0].textPositions[0 * 3 * 3 * 2] - leftWrappedData[0].textPositions[20 * 3 * 3 * 2]) < 5.0f);
+            }
+        }
+
+        WHEN("text_alignment is set to RIGHT")
+        {
+            element.createAttribute("text_alignment", gim::TextAlign::RIGHT);
+
+            std::vector<gim::RenderData> rightWrappedData = generator.generate(element);
+
+            THEN()
+            {
+                CHECK(fabs(rightWrappedData[0].textPositions[10 * 3 * 3 * 2] - rightWrappedData[0].textPositions[19 * 3 * 3 * 2]) < 5.0f);
+                CHECK(fabs(rightWrappedData[0].textPositions[10 * 3 * 3 * 2] - rightWrappedData[0].textPositions[27 * 3 * 3 * 2]) < 5.0f);
+            }
+        }
+
+        WHEN("text_alignment is set to CENTER")
+        {
+            element.createAttribute("text_alignment", gim::TextAlign::CENTER);
+
+            std::vector<gim::RenderData> centerWrappedData = generator.generate(element);
+
+            THEN()
+            {
+                CHECK_FALSE(fabs(centerWrappedData[0].textPositions[0 * 3 * 3 * 2] - centerWrappedData[0].textPositions[11 * 3 * 3 * 2]) < 5.0f);
+                CHECK_FALSE(fabs(centerWrappedData[0].textPositions[0 * 3 * 3 * 2] - centerWrappedData[0].textPositions[20 * 3 * 3 * 2]) < 5.0f);
+                CHECK_FALSE(fabs(centerWrappedData[0].textPositions[10 * 3 * 3 * 2] - centerWrappedData[0].textPositions[19 * 3 * 3 * 2]) < 5.0f);
+                CHECK_FALSE(fabs(centerWrappedData[0].textPositions[10 * 3 * 3 * 2] - centerWrappedData[0].textPositions[27 * 3 * 3 * 2]) < 5.0f);
             }
         }
     }

@@ -2,5 +2,5 @@
 
 namespace gim
 {
-    enum class TextAlign { LEFT, RIGHT, CENTER, JUSTIFY };
+    enum class TextAlign { LEFT, RIGHT, CENTER };
 }

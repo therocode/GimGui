@@ -246,7 +246,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
         std::vector<CharacterQuad> currentRow;
 
-        auto flushRow = [this, &renderData, &textAlign, &textBorders, &textStart] (std::vector<CharacterQuad>& quads)
+        auto flushRow = [this, &renderData, &textAlign, &textBorders, &textStart] (std::vector<CharacterQuad>& quads, bool lineFull)
         {
             if(!quads.empty())
             {
@@ -270,9 +270,9 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             }
         };
 
-        auto newLine = [&x, &y, &textStart, &vspace, flushRow] (std::vector<CharacterQuad>& quads)
+        auto newLine = [&x, &y, &textStart, &vspace, flushRow] (std::vector<CharacterQuad>& quads, bool lineFull)
         {
-            flushRow(quads);
+            flushRow(quads, lineFull);
             x = textStart.x;
             y += vspace;
         };
@@ -297,7 +297,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             }
             else if(codePoint == '\n')
             {
-                newLine(currentRow);
+                newLine(currentRow, false);
                 currentWordStart = currentRow.size();
                 wordsSinceLineStart = 0;
             }
@@ -329,7 +329,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                         {
                             if(currentRow.size() > 0)
                             {
-                                newLine(currentRow);
+                                newLine(currentRow, true);
                                 currentWordStart = currentRow.size();
                                 wordsSinceLineStart = 0;
                             }
@@ -344,7 +344,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                                     currentRow.pop_back();
                                     codePoints.insert(codePoints.begin() + codePointIndex, codePointToTransfer);
                                 }
-                                newLine(currentRow);
+                                newLine(currentRow, true);
                                 wordsSinceLineStart = 0;
                                 currentWordStart = currentRow.size();
 
@@ -367,7 +367,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
             }
         }
 
-        flushRow(currentRow);
+        flushRow(currentRow, false);
     }
 
     return renderData;
