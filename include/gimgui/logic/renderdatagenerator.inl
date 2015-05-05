@@ -255,7 +255,10 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 if(textAlign == TextAlign::RIGHT)
                 {
                     rowOffset = textBorders.size.x - quads.back().start.x - quads.back().size.x + textStart.x;
-                    std::cout << rowOffset << "\n";
+                }
+                else if(textAlign == TextAlign::CENTER)
+                {
+                    rowOffset = std::floor((textBorders.size.x - quads.back().start.x - quads.back().size.x + textStart.x) / 2.0f);
                 }
 
                 for(const auto& quad : quads)
