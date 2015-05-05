@@ -4,7 +4,7 @@
 #include <helpers/textureinterfacestub.hpp>
 #include <fstream>
 
-SCENARIO("FontTextureCache can be used to store and access glyph texture coordinates","[util]")
+SCENARIO("FontTextureCache can be used to store and access glyph texture coordinates","[logic]")
 {
     GIVEN("a FontTextureCache setup with a texture interface, and a font")
     {
@@ -52,6 +52,32 @@ SCENARIO("FontTextureCache can be used to store and access glyph texture coordin
                 CHECK(sameGlyph == nullptr);
                 CHECK(sameSize == nullptr);
             }
+        }
+    }
+}
+
+SCENARIO("FontTextureCache can be used to access coordinates of a whole-filled quad","[logic]")
+{
+    GIVEN("a FontTextureCache setup with a texture interface")
+    {
+        TextureInterfaceStub textureInterface;
+        gim::FontTextureCache textureCache(textureInterface);
+
+        WHEN("the coordinates of the solid quad are accessed")
+        {
+             auto texCoords = textureCache.solidCoords();
+             
+             THEN("the returned texcoords are sane")
+             {
+                 CHECK(texCoords.xStart >= 0.0f);
+                 CHECK(texCoords.yStart >= 0.0f);
+                 CHECK(texCoords.xEnd >= 0.0f);
+                 CHECK(texCoords.yEnd >= 0.0f);
+                 CHECK(texCoords.xStart <= 1.0f);
+                 CHECK(texCoords.yStart <= 1.0f);
+                 CHECK(texCoords.xEnd <= 1.0f);
+                 CHECK(texCoords.yEnd <= 1.0f);
+             }
         }
     }
 }

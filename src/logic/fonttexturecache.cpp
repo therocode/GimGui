@@ -52,7 +52,7 @@ namespace gim
         return {0.0f, 0.0f, 0.0f, 0.0f};
     }
 
-    TextureCoordinates FontTextureCache::generateTexCoords(const Rectangle rectangle, bool flipped)
+    TextureCoordinates FontTextureCache::generateTexCoords(const Rectangle rectangle, bool flipped) const
     {
         TextureCoordinates coordinates;
 
@@ -81,5 +81,11 @@ namespace gim
         }
 
         return flipped;
+    }
+    
+    TextureCoordinates FontTextureCache::solidCoords() const
+    {
+        auto texCoords = generateTexCoords(mSolidCoords, false);
+        return texCoords;
     }
 }

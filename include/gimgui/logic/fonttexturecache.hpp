@@ -22,6 +22,7 @@ namespace gim
             FontTextureCache(TextureAdaptor textureAdaptor);
             std::unique_ptr<TextureCoordinates> glyphCoords(uint32_t codePoint, uint32_t size, uint32_t fontId);
             TextureCoordinates add(const Glyph& glyph, uint32_t fontId);
+            TextureCoordinates solidCoords() const;
         private:
             BitMap flipBitMap(const BitMap& bitMap) const;
             std::function<void(uint32_t, uint32_t)> mResizeStorage;
@@ -29,9 +30,10 @@ namespace gim
 
             RectanglePacker<Vec2> mGlyphPacker;
             using Rectangle = decltype(mGlyphPacker.insert(Vec2()));
-            TextureCoordinates generateTexCoords(const Rectangle, bool flipped);
+            TextureCoordinates generateTexCoords(const Rectangle, bool flipped) const;
             std::unordered_map<CodePointSizeId, std::pair<Rectangle, bool>> mGlyphRectangles;
             uint32_t mCurrentSize;
+            Rectangle mSolidCoords;
     };
 #include <gimgui/logic/fonttexturecache.inl>
 }
