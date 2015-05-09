@@ -39,7 +39,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
     const Vec2 size = element.getAttribute<Vec2>("size");
 
     //generate colors, default white
-    const Color& color = getOrFallback<Color>(element, "color", Color{255, 255, 255, 255});
+    const Color color = getOrFallback<Color>(element, "color", Color{255, 255, 255, 255});
 
     //generate texcoords if the element has an image
     const uint32_t* imageIdPtr = element.findAttribute<uint32_t>("image_id");

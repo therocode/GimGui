@@ -88,12 +88,14 @@ SCENARIO("Element hierarchies can be created inline using the constructor of ele
             THEN("they are retreived according to the hierarchy")
             {
                 auto containers = root.findChildren({"container"});
+
+                REQUIRE(containers.size() == 2);
+
                 auto firstContainerChildren = containers[0]->findChildren({"leaf1"});
                 auto secondContainerChildren = containers[1]->findChildren({"leaf2"});
 
                 REQUIRE(containers[1]->parent() != nullptr);
 
-                REQUIRE(containers.size() == 2);
                 CHECK(firstContainerChildren.size() == 1);
                 CHECK(secondContainerChildren.size() == 3);
                 CHECK(containers[1]->parent()->tags().count("root") == 1);

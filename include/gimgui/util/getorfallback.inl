@@ -1,14 +1,14 @@
 #pragma once
 
 template <typename AttributeType>
-const AttributeType& getOrFallback(const Element& element, const std::string& name, const AttributeType& fallback)
+AttributeType getOrFallback(const Element& element, const std::string& name, AttributeType fallback)
 {
     const AttributeType* attributePtr = element.findAttribute<AttributeType>(name);
     return attributePtr ? *attributePtr : fallback;
 }
 
 template <typename AttributeType>
-const AttributeType& getOrFallback(const std::unordered_map<std::string, Variant>& map, const std::string& name, const AttributeType& fallback)
+AttributeType getOrFallback(const std::unordered_map<std::string, Variant>& map, const std::string& name, AttributeType fallback)
 {
  
     const auto iterator = map.find(name);

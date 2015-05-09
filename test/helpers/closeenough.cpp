@@ -1,5 +1,6 @@
 #include <helpers/closeenough.hpp>
 #include <cmath>
+#include <iostream>
 
 bool closeEnough(float a, float b)
 {
