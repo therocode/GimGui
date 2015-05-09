@@ -323,7 +323,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                     float width = metrics.width * textScale;
                     float height = metrics.height * textScale;
 
-                    if(x + left + width > position.x + textBorders.size.x)
+                    if(x + left + width > textStart.x + textBorders.size.x)
                     {
                         if(wrapMode == WrapMode::CHARACTERS)
                         {

@@ -49,7 +49,7 @@ Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
 
         Vec2 textSize = Vec2({size.x - 20, size.y - 20});
         self.setAttribute("size", newSize);
-        //self.setAttribute("text_borders", gim::Rectangle<Vec2>(Vec2({10, 10}), textSize));
+        self.setAttribute("text_borders", gim::Rectangle<Vec2>(Vec2({10, 10}), textSize));
     }
 };
 
@@ -177,11 +177,10 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"tab_width", 4},
             {"text_style", gim::TextStyle::NORMAL},
             {"line_wrap", gim::WrapMode::WORDS},
-            //{"text_borders", gim::Rectangle<Vec2>(Vec2({10, 10}), Vec2({80, 136}))},
+            {"text_borders", gim::Rectangle<Vec2>(Vec2({10, 10}), Vec2({80, 136}))},
             {"text_alignment", gim::TextAlign::LEFT},
             /*{"text_style", gim::NORMAL | gim::BOLD | gim::UNDERLINED | gim::ITALIC | gim::STRIKETHROUGH | gim::HOLLOW},
             {"text_bg_color", Color(100, 200, 20, 12)},
-            {"text_avoid_blocks", std::vector<Rectanglee>()},
             {"markup", true"}
             */
         },
