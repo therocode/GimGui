@@ -144,8 +144,8 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"color",    Color(40, 40, 40)},
             {"original_color",    Color(40, 40, 40)},
             {"click_color",    Color(174, 70, 56)},
-            {"position", Vec2({0, 0})},
-            {"size",     Vec2({100, 156})},
+            {"position", Vec2({10, 20})},
+            {"size",     Vec2({30, 40})},
             {"stretch_mode", gim::StretchMode::STRETCHED},
             {"image_id", 0u},
             {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
@@ -164,7 +164,7 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))},
             {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({8 ,8 }))},
             {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))},
-            {"text", std::string(u8"")},
+            {"text", std::string(u8"This is a text which is somewhat long so that it would span many lines and that is a good thing for the test.")},
             {"text_size", 16},
             {"text_scale", 1.0f},
             {"font", gim::makeRef(mFont)},
@@ -177,9 +177,9 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"tab_width", 4},
             {"text_style", gim::TextStyle::NORMAL},
             {"line_wrap", gim::WrapMode::WORDS},
-            {"text_borders", gim::Rectangle<Vec2>(Vec2({10, 10}), Vec2({80, 136}))},
+            {"text_borders", gim::Rectangle<Vec2>(Vec2({40, 70}), Vec2({150, 400}))},
             {"text_alignment", gim::TextAlign::LEFT},
-            /*{"text_style", gim::NORMAL | gim::BOLD | gim::UNDERLINED | gim::ITALIC | gim::STRIKETHROUGH | gim::HOLLOW},
+            /*{"text_style", gim::UNDERLINE | gim::STRIKETHROUGH | gim::HOLLOW},
             {"text_bg_color", Color(100, 200, 20, 12)},
             {"markup", true"}
             */
@@ -370,13 +370,25 @@ void SimpleRendering::loop()
             mColors.setData(renderData.textColors);
             mTexCoords.setData(renderData.textTexCoords);
 
+            if(renderData.clipRectangle)
+            {
+                glEnable(GL_SCISSOR_TEST);
+                glScissor(renderData.clipRectangle->xStart, mViewSize.y - (renderData.clipRectangle->yStart + renderData.clipRectangle->height), renderData.clipRectangle->width, renderData.clipRectangle->height);
+            }
+
             glDrawArrays(GL_TRIANGLES, 0, mTriangles.getElementAmount() / 3);
+
+            if(renderData.clipRectangle)
+            {
+                glDisable(GL_SCISSOR_TEST);
+            }
         }
     }
 }
 
 void SimpleRendering::setViewSize(const Vec2& viewSize)
 {
+    mViewSize = viewSize;
     Projection proj;
     mProjection = proj.createOrthoProjection(0.0f, (GLfloat)viewSize.x, 0.0f, (GLfloat)viewSize.y, 0.000000001f, 100.0f);
     glViewport(0, 0, viewSize.x, viewSize.y);

@@ -45,4 +45,6 @@ class SimpleRendering
         GLint mPositionLocation;
         GLint mColorLocation;
         GLint mTexCoordLocation;
+
+        Vec2 mViewSize;
 };

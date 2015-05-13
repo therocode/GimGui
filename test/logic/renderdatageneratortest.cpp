@@ -830,7 +830,7 @@ SCENARIO("Different text styles can be applied using the text_style attribute", 
     }
 }
 
-SCENARIO("Text flow behaviour can be controlled using text_borders and line_wrap", "[logic]")
+SCENARIO("Text flow behaviour can be controlled using line_wrap", "[logic]")
 {
     GIVEN("A RenderDataGenerator with a font and texture registered, and render data without line wrapping")
     {
@@ -976,3 +976,144 @@ SCENARIO("Text row alignment behavior can be controlled using the text_alignment
         }
     }
 }
+
+SCENARIO("text_borders can be used to control position and wrap position of text", "[logic]")
+{
+    GIVEN("A RenderDataGenerator with a font and texture registered, and render data without text clipping disabled")
+    {
+        gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
+
+        TextureInterfaceStub textureAdaptor;
+        gim::RenderDataGenerator<Vec2, Color> generator;
+
+        uint32_t textureId = generator.registerFontStorage({font}, textureAdaptor);
+
+        gim::Element element({"text"},
+        {
+            {"position", Vec2({10, 20})},
+            {"size",     Vec2({100, 30})},
+            {"text", std::string("This is a text which is somewhat long so that it would span many lines and that is a good thing for the test.")},
+            {"text_size", 16},
+            //{"text_borders", gim::Rectangle<Vec2>(Vec2({5, 15}), Vec2({25, 35}))},
+            {"font", gim::makeRef(font)},
+        });
+
+        WHEN("the default value is used")
+        {
+            std::vector<gim::RenderData> defaultData = generator.generate(element);
+
+            THEN("the text generated is limited by the position and size of the element")
+            {
+                REQUIRE(defaultData[0].textPositions.size() > 0);
+
+                bool allInRange = true;
+                for(int32_t i = 0; i < defaultData[0].textPositions.size(); i += 3)
+                {
+                    float x = defaultData[0].textPositions[i + 0];   
+                    float y = defaultData[0].textPositions[i + 1];   
+                    float z = defaultData[0].textPositions[i + 2];   
+
+                    if(x < 8.0f || x > 110.0f || y < 18.0f)
+                    {
+                        FAIL("failed for index " <<  std::to_string(i / 3) << " with x y z: " << std::to_string(x) << " " << std::to_string(y) << " " << std::to_string(z));
+                        allInRange = false;
+                    }
+                }
+
+                CHECK(allInRange);
+            }
+        }
+
+        WHEN("the text_borders attribute is set to a region")
+        {
+            element.createAttribute("text_borders", gim::Rectangle<Vec2>(Vec2({40, 70}), Vec2({150, 10})));
+            std::vector<gim::RenderData> textBordersData = generator.generate(element);
+
+            THEN("the text generated is limited by the position and size of the text_borders")
+            {
+                REQUIRE(textBordersData[0].textPositions.size() > 0);
+
+                bool allInRange = true;
+                for(int32_t i = 0; i < textBordersData[0].textPositions.size(); i += 3)
+                {
+                    float x = textBordersData[0].textPositions[i + 0];   
+                    float y = textBordersData[0].textPositions[i + 1];   
+                    float z = textBordersData[0].textPositions[i + 2];   
+
+                    if(x < 48.0f || x > 202.0f || y < 90.0f)
+                    {
+                        FAIL("failed for index " <<  std::to_string(i / 3) << " with x y z: " << std::to_string(x) << " " << std::to_string(y) << " " << std::to_string(z));
+                        allInRange = false;
+                    }
+                }
+
+                CHECK(allInRange);
+            }
+        }
+    }
+}
+
+SCENARIO("By default, the RenderData contains text clip rectangles but these can be switched off", "[logic]")
+{
+    GIVEN("A RenderDataGenerator with a font and texture registered, and render data without text clipping disabled")
+    {
+        gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
+
+        TextureInterfaceStub textureAdaptor;
+        gim::RenderDataGenerator<Vec2, Color> generator;
+
+        uint32_t textureId = generator.registerFontStorage({font}, textureAdaptor);
+
+        gim::Element element({"text"},
+        {
+            {"position", Vec2({10, 20})},
+            {"size",     Vec2({30, 40})},
+            {"text", std::string("This is a text")},
+            {"text_size", 16},
+            {"text_borders", gim::Rectangle<Vec2>(Vec2({5, 15}), Vec2({25, 35}))},
+            {"font", gim::makeRef(font)},
+        });
+
+        std::vector<gim::RenderData> normalData = generator.generate(element);
+
+        WHEN("text_clipping is set to true")
+        {
+            element.createAttribute("text_clipping", true);
+
+            std::vector<gim::RenderData> textClippedData = generator.generate(element);
+
+            THEN("it is the same as without since it is the default")
+            {
+                REQUIRE(normalData[0].clipRectangle != nullptr);
+                REQUIRE(textClippedData[0].clipRectangle != nullptr);
+                CHECK(normalData[0].clipRectangle->xStart == textClippedData[0].clipRectangle->xStart);
+                CHECK(normalData[0].clipRectangle->yStart == textClippedData[0].clipRectangle->yStart);
+                CHECK(normalData[0].clipRectangle->width == textClippedData[0].clipRectangle->width);
+                CHECK(normalData[0].clipRectangle->height == textClippedData[0].clipRectangle->height);
+            }
+
+            THEN("it is positioned correctly in regards to the text_borders")
+            {
+                REQUIRE(normalData[0].clipRectangle != nullptr);
+                auto rectangle = *normalData[0].clipRectangle;
+                CHECK(rectangle.xStart == Approx(15.0f));
+                CHECK(rectangle.yStart == Approx(35.0f));
+                CHECK(rectangle.width == Approx(25.0f));
+                CHECK(rectangle.height == Approx(35.0f));
+            }
+        }
+
+        WHEN("text_clipping is set to false")
+        {
+            element.createAttribute("text_clipping", false);
+
+            std::vector<gim::RenderData> noClipData = generator.generate(element);
+
+            THEN("it contains no clipping rectangle")
+            {
+                CHECK(noClipData[0].clipRectangle == nullptr);
+            }
+        }
+    }
+}
+

@@ -36,6 +36,7 @@ set(source_files
     src/data/codepointsizeid.cpp
     src/data/font.cpp
     src/data/fontloadexception.cpp
+    src/data/renderdata.cpp
     src/data/texturecoordinates.cpp
     src/data/textstyles.cpp
     src/data/variant.cpp

@@ -174,7 +174,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         const Rectangle<Vec2>& textBorders = getOrFallback<Rectangle<Vec2>>(element, "text_borders", Rectangle<Vec2>(Vec2({0, 0}), Vec2(size)));
         const WrapMode wrapMode = getOrFallback<WrapMode>(element, "line_wrap", WrapMode::WORDS);
         const TextAlign textAlign = getOrFallback<TextAlign>(element, "text_alignment", TextAlign::LEFT);
-        
+        bool clipText = getOrFallback<bool>(element, "text_clipping", true);
 
         MetricsMap* currentMetricsMap;
         FontTextureCache* currentTextureCache; 
@@ -233,6 +233,15 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         float vspace = (currentFont->lineSpacing() + lineSpacing) * textScale;
         uint32_t previousCodePoint = 0;
 
+        if(clipText)
+        {
+            renderData.clipRectangle = std::unique_ptr<RenderData::ClipRect>(new RenderData::ClipRect());
+            renderData.clipRectangle->xStart = textStart.x;
+            renderData.clipRectangle->yStart = textStart.y;
+            renderData.clipRectangle->width = textBorders.size.x;
+            renderData.clipRectangle->height = textBorders.size.y;
+        }
+
         TextureCoordinates texCoords;
 
         struct CharacterQuad
@@ -288,18 +297,21 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                 x += hspace;
                 currentWordStart = currentRow.size();
                 ++wordsSinceLineStart;
+                previousCodePoint = 0;
             }
             else if(codePoint == '\t')
             {
                 x += hspace * tabWidth;
                 currentWordStart = currentRow.size();
                 ++wordsSinceLineStart;
+                previousCodePoint = 0;
             }
             else if(codePoint == '\n')
             {
                 newLine(currentRow, false);
                 currentWordStart = currentRow.size();
                 wordsSinceLineStart = 0;
+                previousCodePoint = 0;
             }
             else
             {
@@ -322,6 +334,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                     float top = metrics.top * textScale;
                     float width = metrics.width * textScale;
                     float height = metrics.height * textScale;
+
 
                     if(x + left + width > textStart.x + textBorders.size.x)
                     {
@@ -353,6 +366,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                             }
                         }
                     }
+
                     CharacterQuad characterQuad;
                     characterQuad.start = FloatVec2({x + left, y + top});
                     characterQuad.size = FloatVec2({width, height});
