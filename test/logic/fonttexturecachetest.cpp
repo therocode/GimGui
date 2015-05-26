@@ -8,7 +8,7 @@ SCENARIO("FontTextureCache can be used to store and access glyph texture coordin
 {
     GIVEN("a FontTextureCache setup with a texture interface, and a font")
     {
-        TextureInterfaceStub textureInterface;
+        TextureInterfaceStub textureInterface({5, 5});
         std::ifstream file("resources/fonts/LiberationSans-Regular.ttf", std::ios::binary);
         gim::Font font(file);
         gim::FontTextureCache textureCache(textureInterface);
@@ -60,7 +60,7 @@ SCENARIO("FontTextureCache can be used to access coordinates of a whole-filled q
 {
     GIVEN("a FontTextureCache setup with a texture interface")
     {
-        TextureInterfaceStub textureInterface;
+        TextureInterfaceStub textureInterface({10, 10});
         gim::FontTextureCache textureCache(textureInterface);
 
         WHEN("the coordinates of the solid quad are accessed")

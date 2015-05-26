@@ -3,6 +3,7 @@
 #include <opengl.hpp>
 #include <helpers/color.hpp>
 #include <memory>
+#include <helpers/vec2.hpp>
 
 class Texture
 {
@@ -16,7 +17,7 @@ class Texture
         void create(uint32_t width, uint32_t height, const uint8_t* imageData, bool smooth = false, bool interactive = false);
         void create(uint32_t width, uint32_t height, const Color& color, bool smooth = false, bool interactive = false);
         void resize(uint32_t width, uint32_t height);
-        //glm::uvec2 getSize() const;
+        Vec2 size() const;
         void destroy();
         void setPixel(uint32_t x, uint32_t y, const Color& color);
         Color getPixel(uint32_t x, uint32_t y) const;

@@ -276,11 +276,14 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
     mTextures.emplace(textureId, std::move(fontTexture));
 
     //load textures
-    uint32_t textureIdA = mRenderDataGenerator.registerImageInfo({64, 64});
-    uint32_t textureIdB = mRenderDataGenerator.registerImageInfo({56, 18});
+    auto textureA = std::unique_ptr<Texture>(new Texture(loadTexture("resources/borders.png")));
+    auto textureB = std::unique_ptr<Texture>(new Texture(loadTexture("resources/button.png")));
 
-    mTextures.emplace(textureIdA, std::unique_ptr<Texture>(new Texture(loadTexture("resources/borders.png"))));
-    mTextures.emplace(textureIdB, std::unique_ptr<Texture>(new Texture(loadTexture("resources/button.png"))));
+    uint32_t textureIdA = mRenderDataGenerator.registerTexture(TextureAdaptor(*textureA));
+    uint32_t textureIdB = mRenderDataGenerator.registerTexture(TextureAdaptor(*textureB));
+
+    mTextures.emplace(textureIdA, std::move(textureA));
+    mTextures.emplace(textureIdB, std::move(textureB));
 
     mRoot.setAttribute("image_id", textureIdA);
     for(auto& child : mRoot.children())

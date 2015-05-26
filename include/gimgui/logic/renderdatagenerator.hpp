@@ -36,7 +36,8 @@ namespace gim
         public:
             RenderDataGenerator();
             std::vector<RenderData> generate(const gim::Element& element);
-            uint32_t registerImageInfo(const Vec2& imageSize);
+            template <typename TextureAdaptor>
+            uint32_t registerTexture(const TextureAdaptor& texture);
             template <typename TextureAdaptor>
             uint32_t registerFontStorage(const std::vector<std::reference_wrapper<const Font>>& fonts, const TextureAdaptor& textureAdaptor);
         private:
@@ -51,10 +52,10 @@ namespace gim
             float getHSpace(const Font& font, uint32_t size);
             std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> loadGlyphData(uint32_t codePoint, uint32_t textSize, uint32_t fontCacheId, FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font);
 
-            std::unordered_map<uint32_t, Vec2> mImageSizes;
+            std::unordered_map<uint32_t, Vec2> mTextureSizes;
 
             //fonts
-            uint32_t mNextImageId;
+            uint32_t mNextTextureId;
             uint32_t mNextFontId;
 
             std::unordered_map<std::string, uint32_t> mFontCacheIds;

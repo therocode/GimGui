@@ -1,6 +1,6 @@
 template <typename Vec2, typename Color>
 RenderDataGenerator<Vec2, Color>::RenderDataGenerator():
-    mNextImageId(0),
+    mNextTextureId(0),
     mNextFontId(0)
 {
 }
@@ -50,12 +50,12 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         FloatVec2 mainQuadPosition{(float)position.x, (float)position.y};
         FloatVec2 mainQuadSize{(float)size.x, (float)size.y};
         GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("image_coords"), "currentElement has an image id registered but lacks 'image_coords'");
-        GIM_ASSERT(mImageSizes.count(*imageIdPtr) != 0, "image_id " + std::to_string(*imageIdPtr) + " given to an currentElement but that id has not been registered in the RenderDataGenerator");
+        GIM_ASSERT(mTextureSizes.count(*imageIdPtr) != 0, "image_id " + std::to_string(*imageIdPtr) + " given to an currentElement but that id has not been registered in the RenderDataGenerator");
 
         uint32_t imageId = *imageIdPtr;
         StretchMode stretchMode = getOrFallback<StretchMode>(element, "stretch_mode", StretchMode::STRETCHED);
         const Rectangle<Vec2>& imageCoords = element.getAttribute<Rectangle<Vec2>>("image_coords");
-        const Vec2& imageSizeInt = mImageSizes.at(imageId);
+        const Vec2& imageSizeInt = mTextureSizes.at(imageId);
         const FloatVec2 imageSize{(float)imageSizeInt.x, (float)imageSizeInt.y};
         BorderMode borderMode = getOrFallback<BorderMode>(element, "border_mode", BorderMode::NONE);
 
@@ -388,12 +388,15 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 }
 
 template <typename Vec2, typename Color>
-uint32_t RenderDataGenerator<Vec2, Color>::registerImageInfo(const Vec2& imageSize)
+template <typename TextureAdaptor>
+uint32_t RenderDataGenerator<Vec2, Color>::registerTexture(const TextureAdaptor& texture)
 {
-    GIM_ASSERT(imageSize.x > 0 && imageSize.y > 0, "trying to add an image of size (" + std::to_string(imageSize.x) + "," + std::to_string(imageSize.y) + "). Both components must be above zero");
+    Vec2 textureSize = texture.size();
 
-    uint32_t newId = mNextImageId++;
-    mImageSizes[newId] = imageSize;
+    GIM_ASSERT(textureSize.x > 0 && textureSize.y > 0, "trying to register a texture of size (" + std::to_string(textureSize.x) + "," + std::to_string(textureSize.y) + "). Both components must be above zero");
+
+    uint32_t newId = mNextTextureId++;
+    mTextureSizes[newId] = textureSize;
     return newId;
 }
 
@@ -401,7 +404,7 @@ template <typename Vec2, typename Color>
 template <typename TextureAdaptor>
 uint32_t RenderDataGenerator<Vec2, Color>::registerFontStorage(const std::vector<std::reference_wrapper<const Font>>& fonts, const TextureAdaptor& textureAdaptor)
 {
-    uint32_t newImageId = mNextImageId++;   
+    uint32_t newImageId = mNextTextureId++;   
 
     std::shared_ptr<FontCacheEntry> textureCache = std::make_shared<FontCacheEntry>(FontCacheEntry{FontTextureCache(textureAdaptor), newImageId});
     for(auto& font : fonts)

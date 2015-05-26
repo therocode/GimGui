@@ -112,10 +112,10 @@ void Texture::resize(uint32_t width, uint32_t height)
     create(width, height, newPixels.get(), false, true);
 }
 
-//glm::uvec2 Texture::getSize() const
-//{
-//    return glm::uvec2(mWidth, mHeight);
-//}
+Vec2 Texture::size() const
+{
+    return Vec2({(int32_t)mWidth, (int32_t)mHeight});
+}
 
 void Texture::destroy()
 {
