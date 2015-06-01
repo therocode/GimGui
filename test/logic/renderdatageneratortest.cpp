@@ -5,6 +5,7 @@
 #include <gimgui/data/font.hpp>
 #include <gimgui/logic/renderdatagenerator.hpp>
 #include <helpers/vec2.hpp>
+#include <helpers/rectangle.hpp>
 #include <helpers/color.hpp>
 #include <helpers/closeenough.hpp>
 #include <helpers/textureinterfacestub.hpp>
@@ -79,7 +80,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 {
     GIVEN("a gui tree with elements with the attributes width and height, and a RenderDataGenerator")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
 
         gim::Element root({"container"},
@@ -88,7 +89,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {"position", Vec2({5, 5})},
             {"size",     Vec2({40, 30})},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+            {"image_coords", Rectangle({{0, 0}, {32, 32}})}
         },
         {
             gim::Element({"child"},
@@ -128,7 +129,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
     //tiles
     GIVEN("an element set to not be tiled")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
 
         gim::Element element({"non-tiled"},
@@ -137,7 +138,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {"size",     Vec2({40, 30})},
             {"stretch_mode", gim::StretchMode::STRETCHED},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+            {"image_coords", Rectangle({{0, 0}, {32, 32}})}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
@@ -155,7 +156,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element bigger than one tile set to be fully tiled")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
         gim::Element element({"tiled"},
         {
@@ -163,7 +164,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {"size",     Vec2({70, 37})},
             {"stretch_mode", gim::StretchMode::TILED},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+            {"image_coords", Rectangle({{0, 0}, {32, 32}})}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
@@ -202,7 +203,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element smaller than one tile set to be fully tiled")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
         gim::Element element({"tiled"},
         {
@@ -210,7 +211,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {"size",     Vec2({20, 10})},
             {"stretch_mode", gim::StretchMode::TILED},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+            {"image_coords", Rectangle({{0, 0}, {32, 32}})}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
@@ -228,7 +229,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element bigger than one tile set to be vertically tiled")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
         gim::Element element({"tiled"},
         {
@@ -236,7 +237,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {"size",     Vec2({70, 37})},
             {"stretch_mode", gim::StretchMode::V_TILED},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+            {"image_coords", Rectangle({{0, 0}, {32, 32}})}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
@@ -258,7 +259,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element smaller than one tile set to be vertically tiled")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
         gim::Element element({"tiled"},
         {
@@ -266,7 +267,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {"size",     Vec2({20, 10})},
             {"stretch_mode", gim::StretchMode::V_TILED},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+            {"image_coords", Rectangle({{0, 0}, {32, 32}})}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
@@ -284,7 +285,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element bigger than one tile set to be horizontally tiled")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
         gim::Element element({"tiled"},
         {
@@ -292,7 +293,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {"size",     Vec2({70, 37})},
             {"stretch_mode", gim::StretchMode::H_TILED},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+            {"image_coords", Rectangle({{0, 0}, {32, 32}})}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
@@ -318,7 +319,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element smaller than one tile set to be horizontally tiled")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
         gim::Element element({"tiled"},
         {
@@ -326,7 +327,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {"size",     Vec2({20, 10})},
             {"stretch_mode", gim::StretchMode::H_TILED},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))}
+            {"image_coords", Rectangle({{0, 0}, {32, 32}})}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
@@ -344,7 +345,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element smaller than one tile and having an image being a full subset of another one set to be fully tiled")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
         gim::Element element({"tiled"},
         {
@@ -352,7 +353,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             {"size",     Vec2({8, 8})},
             {"stretch_mode", gim::StretchMode::TILED},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({16, 16}), Vec2({32, 32}))}
+            {"image_coords", Rectangle({{16, 16}, {32, 32}})}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
@@ -371,14 +372,14 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
     //borders
     GIVEN("an element set to have no border")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
         gim::Element element({"no border"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({32, 32})},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
+            {"image_coords", Rectangle({{0, 0}, {32, 32}})},
             {"border_mode", gim::BorderMode::NONE}
         });
 
@@ -397,17 +398,17 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element set to have left-right border")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
         gim::Element element({"left-right"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({32, 32})},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
+            {"image_coords", Rectangle({{0, 0}, {32, 32}})},
             {"border_mode", gim::BorderMode::LEFT_RIGHT},
-            {"border_coords_l", gim::Rectangle<Vec2>(Vec2({32,0}), Vec2({8,32}))},
-            {"border_coords_r", gim::Rectangle<Vec2>(Vec2({40,0}), Vec2({8,32}))}
+            {"border_coords_l", Rectangle({{32,0}, {8,32}})},
+            {"border_coords_r", Rectangle({{40,0}, {8,32}})}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
@@ -433,17 +434,17 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element set to have top-bottom border")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
         gim::Element element({"top-bottom"},
         {
             {"position", Vec2({5, 5})},
             {"size",     Vec2({32, 32})},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({0, 0}), Vec2({32, 32}))},
+            {"image_coords", Rectangle({{0, 0}, {32, 32}})},
             {"border_mode", gim::BorderMode::TOP_BOTTOM},
-            {"border_coords_t", gim::Rectangle<Vec2>(Vec2({0,32}), Vec2({32,8}))},
-            {"border_coords_b", gim::Rectangle<Vec2>(Vec2({0,40}), Vec2({32,8}))}
+            {"border_coords_t", Rectangle({{0,32}, {32,8}})},
+            {"border_coords_b", Rectangle({{0,40}, {32,8}})}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
@@ -469,23 +470,23 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element set to have full border")
     {
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
         uint32_t imageId = generator.registerTexture(TextureInterfaceStub(Vec2({64, 64})));
         gim::Element element({"full"},
         {
             {"position", Vec2({0, 0})},
             {"size",     Vec2({48, 48})},
             {"image_id", imageId},
-            {"image_coords", gim::Rectangle<Vec2>(Vec2({8, 8}), Vec2({48, 48}))},
+            {"image_coords", Rectangle({{8, 8}, {48, 48}})},
             {"border_mode", gim::BorderMode::FULL},
-            {"border_coords_tl", gim::Rectangle<Vec2>(Vec2({0 ,0 }), Vec2({8 ,8 }))},
-            {"border_coords_t",  gim::Rectangle<Vec2>(Vec2({8 ,0 }), Vec2({48,8 }))},
-            {"border_coords_tr", gim::Rectangle<Vec2>(Vec2({56,0 }), Vec2({8 ,8 }))},
-            {"border_coords_r",  gim::Rectangle<Vec2>(Vec2({56,8 }), Vec2({8 ,48}))},
-            {"border_coords_br", gim::Rectangle<Vec2>(Vec2({56,56}), Vec2({8 ,8 }))},
-            {"border_coords_b",  gim::Rectangle<Vec2>(Vec2({8 ,56}), Vec2({48,8 }))},
-            {"border_coords_bl", gim::Rectangle<Vec2>(Vec2({0 ,56}), Vec2({8 ,8 }))},
-            {"border_coords_l",  gim::Rectangle<Vec2>(Vec2({0 ,8 }), Vec2({8 ,48}))}
+            {"border_coords_tl", Rectangle({{0 ,0 }, {8 ,8 }})},
+            {"border_coords_t",  Rectangle({{8 ,0 }, {48,8 }})},
+            {"border_coords_tr", Rectangle({{56,0 }, {8 ,8 }})},
+            {"border_coords_r",  Rectangle({{56,8 }, {8 ,48}})},
+            {"border_coords_br", Rectangle({{56,56}, {8 ,8 }})},
+            {"border_coords_b",  Rectangle({{8 ,56}, {48,8 }})},
+            {"border_coords_bl", Rectangle({{0 ,56}, {8 ,8 }})},
+            {"border_coords_l",  Rectangle({{0 ,8 }, {8 ,48}})}
         });
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
@@ -556,7 +557,7 @@ SCENARIO("Text quads can be generated from the RenderDataGenerator, with a few b
         gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20});
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
 
         uint32_t textureId = generator.registerFontStorage({font}, textureAdaptor);
 
@@ -679,7 +680,7 @@ SCENARIO("Character spacing can be controlled in different ways when rendering t
         gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20});
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
 
         uint32_t textureId = generator.registerFontStorage({font}, textureAdaptor);
 
@@ -774,7 +775,7 @@ SCENARIO("Different text styles can be applied using the text_style attribute", 
         gim::Font boldItalicFont = loadFont("resources/fonts/LiberationSans-BoldItalic.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20});
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
 
         uint32_t textureId = generator.registerFontStorage({font, boldFont, italicFont, boldItalicFont}, textureAdaptor);
 
@@ -837,7 +838,7 @@ SCENARIO("Text flow behaviour can be controlled using line_wrap", "[logic]")
         gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20});
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
 
         uint32_t textureId = generator.registerFontStorage({font}, textureAdaptor);
 
@@ -913,7 +914,7 @@ SCENARIO("Text row alignment behavior can be controlled using the text_alignment
         gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20});
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
 
         uint32_t textureId = generator.registerFontStorage({font}, textureAdaptor);
 
@@ -984,7 +985,7 @@ SCENARIO("text_borders can be used to control position and wrap position of text
         gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20});
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
 
         uint32_t textureId = generator.registerFontStorage({font}, textureAdaptor);
 
@@ -994,7 +995,7 @@ SCENARIO("text_borders can be used to control position and wrap position of text
             {"size",     Vec2({100, 30})},
             {"text", std::string("This is a text which is somewhat long so that it would span many lines and that is a good thing for the test.")},
             {"text_size", 16},
-            //{"text_borders", gim::Rectangle<Vec2>(Vec2({5, 15}), Vec2({25, 35}))},
+            //{"text_borders", Rectangle({{5, 15}, {25, 35}})},
             {"font", gim::makeRef(font)},
         });
 
@@ -1026,7 +1027,7 @@ SCENARIO("text_borders can be used to control position and wrap position of text
 
         WHEN("the text_borders attribute is set to a region")
         {
-            element.createAttribute("text_borders", gim::Rectangle<Vec2>(Vec2({40, 70}), Vec2({150, 10})));
+            element.createAttribute("text_borders", Rectangle({{40, 70}, {150, 10}}));
             std::vector<gim::RenderData> textBordersData = generator.generate(element);
 
             THEN("the text generated is limited by the position and size of the text_borders")
@@ -1060,7 +1061,7 @@ SCENARIO("By default, the RenderData contains text clip rectangles but these can
         gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20});
-        gim::RenderDataGenerator<Vec2, Color> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
 
         uint32_t textureId = generator.registerFontStorage({font}, textureAdaptor);
 
@@ -1070,7 +1071,7 @@ SCENARIO("By default, the RenderData contains text clip rectangles but these can
             {"size",     Vec2({30, 40})},
             {"text", std::string("This is a text")},
             {"text_size", 16},
-            {"text_borders", gim::Rectangle<Vec2>(Vec2({5, 15}), Vec2({25, 35}))},
+            {"text_borders", Rectangle({{5, 15}, {25, 35}})},
             {"font", gim::makeRef(font)},
         });
 

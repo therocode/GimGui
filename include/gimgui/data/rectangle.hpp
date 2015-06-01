@@ -1,15 +1,14 @@
 #pragma once
+#include <gimgui/data/ivec2.hpp>
 
 namespace gim
 {
-    template<typename Vec2>
-    struct Rectangle
+    namespace internal
     {
-        Rectangle();
-        Rectangle(const Vec2& startParameter, const Vec2& sizeParameter);
-        Vec2 start;
-        Vec2 size;
-    };
-
-#include <gimgui/data/rectangle.inl>
+        struct Rectangle
+        {
+            IVec2 start;
+            IVec2 size;
+        };
+    }
 }

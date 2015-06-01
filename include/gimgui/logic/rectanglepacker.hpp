@@ -8,20 +8,21 @@
 
 namespace gim
 {
-    template <typename Vec2>
-    class RectanglePacker
+    namespace internal
     {
-        public:
-            RectanglePacker(const int32_t size);
-            Rectangle<Vec2> insert(const Vec2& size);
-        private:
-            Rectangle<Vec2> pack(const Vec2& size);
-            int32_t indexToOrder(int32_t index);
-            Vec2 indexToPosition(int32_t index);
-            int32_t orderToSize(int32_t order);
+            class RectanglePacker
+            {
+                public:
+                    RectanglePacker(const int32_t size);
+                    Rectangle insert(const IVec2& size);
+                private:
+                    Rectangle pack(const IVec2& size);
+                    int32_t indexToOrder(int32_t index);
+                    IVec2 indexToPosition(int32_t index);
+                    int32_t orderToSize(int32_t order);
 
-            int32_t mInitialSize;
-            std::vector<GuillotineBinPack> mPackers;
-    };
-#include <gimgui/logic/rectanglepacker.inl>
+                    int32_t mInitialSize;
+                    std::vector<GuillotineBinPack> mPackers;
+            };
+    }
 }

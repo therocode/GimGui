@@ -18,7 +18,7 @@ namespace gim
 {
     class Font;
 
-    template <typename Vec2, typename Color>
+    template <typename Vec2, typename Rectangle, typename Color>
     class RenderDataGenerator
     {
         using MetricsMap = std::unordered_map<CodePointSizeId, Glyph::Metrics>;
@@ -29,19 +29,19 @@ namespace gim
         };
         struct FontCacheEntry
         {
-            FontTextureCache textureCoordinates;
+            internal::FontTextureCache textureCoordinates;
             uint32_t textureId;
             MetricsMap metrics;
         };
         public:
             RenderDataGenerator();
             std::vector<RenderData> generate(const gim::Element& element);
-            template <typename TextureAdaptor>
-            uint32_t registerTexture(const TextureAdaptor& texture);
-            template <typename TextureAdaptor>
-            uint32_t registerFontStorage(const std::vector<std::reference_wrapper<const Font>>& fonts, const TextureAdaptor& textureAdaptor);
+            template <typename Texture>
+            uint32_t registerTexture(const Texture& texture);
+            template <typename Texture>
+            uint32_t registerFontStorage(const std::vector<std::reference_wrapper<const Font>>& fonts, const Texture& texture);
         private:
-            RenderData generateElementData(const Element& element, gim::AbsoluteMap<Vec2>& absoluteMap);
+            RenderData generateElementData(const Element& element, gim::AbsoluteMap<typename Vec2::Native>& absoluteMap);
             void generateQuadWithoutImage(const FloatVec2& position, const FloatVec2& size, const Color& color, std::vector<float>& outPositions, std::vector<float>& outColors);
             void generateQuadWithImage(const FloatVec2& position, const FloatVec2& size, const Color& color, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords, bool flipTexCoords = false);
             void generateQuadPositions(const FloatVec2& position, const FloatVec2& size, std::vector<float>& outPositions);
@@ -50,7 +50,7 @@ namespace gim
             void generateBorders(const Element& element, const FloatVec2& position, const FloatVec2& size, const Color& color, const FloatVec2& imageSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords);
 
             float getHSpace(const Font& font, uint32_t size);
-            std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> loadGlyphData(uint32_t codePoint, uint32_t textSize, uint32_t fontCacheId, FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font);
+            std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> loadGlyphData(uint32_t codePoint, uint32_t textSize, uint32_t fontCacheId, internal::FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font);
 
             std::unordered_map<uint32_t, Vec2> mTextureSizes;
 

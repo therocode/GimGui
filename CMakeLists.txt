@@ -43,6 +43,7 @@ set(source_files
     src/logic/allpropagator.cpp
     src/logic/attributepopulator.cpp
     src/logic/fonttexturecache.cpp
+    src/logic/rectanglepacker.cpp
     src/logic/utf8decoder.cpp
     src/util/guillotinebinpack.cpp
 )
@@ -56,10 +57,10 @@ set(header_files
     include/gimgui/data/font.hpp
     include/gimgui/data/fontloadexception.hpp
     include/gimgui/data/glyph.hpp
+    include/gimgui/data/ivec2.hpp
     include/gimgui/data/renderdata.hpp
     include/gimgui/data/rendermodes.hpp
     include/gimgui/data/rectangle.hpp
-    include/gimgui/data/rectangle.inl
     include/gimgui/data/types.hpp
     include/gimgui/data/textalignments.hpp
     include/gimgui/data/textstyles.hpp
@@ -129,6 +130,7 @@ if(BUILD_TESTS)
         "test/helpers/closeenough.cpp"
         "test/helpers/textureinterfacestub.cpp"
         "test/helpers/vec2.cpp"
+        "test/helpers/rectangle.cpp"
         )
 
     target_link_libraries(tests ${project_name})
@@ -170,6 +172,7 @@ if(BUILD_EXAMPLES)
         ${simple_src}/simplerendering.cpp
         ${simple_src}/events.cpp
         test/helpers/vec2.cpp
+        test/helpers/rectangle.cpp
         test/helpers/color.cpp
         )
 

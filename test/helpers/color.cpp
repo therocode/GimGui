@@ -19,3 +19,37 @@ bool Color::operator!=(const Color& other) const
 {
     return !(other == *this);
 }
+
+ColorAdaptor::ColorAdaptor()
+{
+}
+
+ColorAdaptor::ColorAdaptor(uint8_t r, uint8_t g, uint8_t b, uint8_t a):
+    mColor({r, g, b, a})
+{
+}
+
+ColorAdaptor::ColorAdaptor(const Color& color):
+    mColor(color)
+{
+}
+
+uint8_t ColorAdaptor::r() const
+{
+    return mColor.r;
+}
+
+uint8_t ColorAdaptor::g() const
+{
+    return mColor.g;
+}
+
+uint8_t ColorAdaptor::b() const
+{
+    return mColor.b;
+}
+
+uint8_t ColorAdaptor::a() const
+{
+    return mColor.a;
+}

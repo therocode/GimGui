@@ -7,6 +7,7 @@
 #include <glutils/texture.hpp>
 #include <gimgui/logic/renderdatagenerator.hpp>
 #include <helpers/vec2.hpp>
+#include <helpers/rectangle.hpp>
 #include <helpers/color.hpp>
 
 struct Vec2;
@@ -29,7 +30,7 @@ class SimpleRendering
         Buffer mTexCoords;
         Shader mBaseShader;
         std::array<float, 16> mProjection;
-        gim::RenderDataGenerator<Vec2, Color> mRenderDataGenerator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> mRenderDataGenerator;
         Vec2 mLastPosition;
         std::unordered_map<int32_t, std::unique_ptr<Texture>> mTextures;
         std::ifstream mFontFile;

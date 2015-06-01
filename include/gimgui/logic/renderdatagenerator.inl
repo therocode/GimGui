@@ -1,19 +1,19 @@
-template <typename Vec2, typename Color>
-RenderDataGenerator<Vec2, Color>::RenderDataGenerator():
+template <typename Vec2, typename Rectangle, typename Color>
+RenderDataGenerator<Vec2, Rectangle, Color>::RenderDataGenerator():
     mNextTextureId(0),
     mNextFontId(0)
 {
 }
 
-template <typename Vec2, typename Color>
-std::vector<RenderData> RenderDataGenerator<Vec2, Color>::generate(const gim::Element& element)
+template <typename Vec2, typename Rectangle, typename Color>
+std::vector<RenderData> RenderDataGenerator<Vec2, Rectangle, Color>::generate(const gim::Element& element)
 {
     gim::AllConstPropagator all(element);
     std::vector<RenderData> result(all.size());
 
     const gim::Element* currentElement;
 
-    gim::AbsoluteMap<Vec2> absolutePositions("position");
+    gim::AbsoluteMap<typename Vec2::Native> absolutePositions("position");
 
     size_t currentIndex = 0;
     while((currentElement = all.next()))
@@ -26,8 +26,8 @@ std::vector<RenderData> RenderDataGenerator<Vec2, Color>::generate(const gim::El
     return result;
 }
 
-template <typename Vec2, typename Color>
-RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& element, gim::AbsoluteMap<Vec2>& absoluteMap)
+template <typename Vec2, typename Rectangle, typename Color>
+RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(const Element& element, gim::AbsoluteMap<typename Vec2::Native>& absoluteMap)
 {
     RenderData renderData;
 
@@ -36,10 +36,11 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
     //generate positions
     const Vec2 position = absoluteMap.getAbsoluteOf(element);
-    const Vec2 size = element.getAttribute<Vec2>("size");
+    const Vec2 size = element.getAttribute<typename Vec2::Native>("size");
 
     //generate colors, default white
-    const Color color = getOrFallback<Color>(element, "color", Color{255, 255, 255, 255});
+    const typename Color::Native* nativeColorPtr = element.findAttribute<typename Color::Native>("color");
+    const Color color = nativeColorPtr ? *nativeColorPtr : Color(255, 255, 255, 255);
 
     //generate texcoords if the element has an image
     const uint32_t* imageIdPtr = element.findAttribute<uint32_t>("image_id");
@@ -47,83 +48,83 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
     const std::string* textPtr = element.findAttribute<std::string>("text");
     if(imageIdPtr != nullptr)
     {
-        FloatVec2 mainQuadPosition{(float)position.x, (float)position.y};
-        FloatVec2 mainQuadSize{(float)size.x, (float)size.y};
-        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("image_coords"), "currentElement has an image id registered but lacks 'image_coords'");
+        FloatVec2 mainQuadPosition{(float)position.x(), (float)position.y()};
+        FloatVec2 mainQuadSize{(float)size.x(), (float)size.y()};
+        GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("image_coords"), "currentElement has an image id registered but lacks 'image_coords'");
         GIM_ASSERT(mTextureSizes.count(*imageIdPtr) != 0, "image_id " + std::to_string(*imageIdPtr) + " given to an currentElement but that id has not been registered in the RenderDataGenerator");
 
         uint32_t imageId = *imageIdPtr;
         StretchMode stretchMode = getOrFallback<StretchMode>(element, "stretch_mode", StretchMode::STRETCHED);
-        const Rectangle<Vec2>& imageCoords = element.getAttribute<Rectangle<Vec2>>("image_coords");
+        const Rectangle& imageCoords = element.getAttribute<typename Rectangle::Native>("image_coords");
         const Vec2& imageSizeInt = mTextureSizes.at(imageId);
-        const FloatVec2 imageSize{(float)imageSizeInt.x, (float)imageSizeInt.y};
+        const FloatVec2 imageSize{(float)imageSizeInt.x(), (float)imageSizeInt.y()};
         BorderMode borderMode = getOrFallback<BorderMode>(element, "border_mode", BorderMode::NONE);
 
 
         //adjust position and size based on borders
         if(borderMode == BorderMode::TOP_BOTTOM || borderMode == BorderMode::FULL)
         {//generate top and bottom borders
-            GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_t"), "currentElement set to have borders at top/bottom or full but lacks top border image coords");
-            GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_b"), "currentElement set to have borders at top/bottom or full but lacks bottom border image coords");
+            GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("border_coords_t"), "currentElement set to have borders at top/bottom or full but lacks top border image coords");
+            GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("border_coords_b"), "currentElement set to have borders at top/bottom or full but lacks bottom border image coords");
 
-            const Rectangle<Vec2>& topImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_t");
-            const Rectangle<Vec2>& bottomImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_b");
+            const Rectangle& topImageCoords = element.getAttribute<typename Rectangle::Native>("border_coords_t");
+            const Rectangle& bottomImageCoords = element.getAttribute<typename Rectangle::Native>("border_coords_b");
 
-            mainQuadPosition.y += topImageCoords.size.y;
-            mainQuadSize.y -= bottomImageCoords.size.y * 2;
+            mainQuadPosition.y += topImageCoords.size().y();
+            mainQuadSize.y -= bottomImageCoords.size().y() * 2;
         }
 
         if(borderMode == BorderMode::LEFT_RIGHT || borderMode == BorderMode::FULL)
         {//generate left and right borders
-            GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_l"), "currentElement set to have borders at left/right or full but lacks left border image coords");
-            GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_r"), "currentElement set to have borders at left/right or full but lacks right border image coords");
+            GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("border_coords_l"), "currentElement set to have borders at left/right or full but lacks left border image coords");
+            GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("border_coords_r"), "currentElement set to have borders at left/right or full but lacks right border image coords");
 
-            const Rectangle<Vec2>& leftImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_l");
-            const Rectangle<Vec2>& rightImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_r");
+            const Rectangle& leftImageCoords = element.getAttribute<typename Rectangle::Native>("border_coords_l");
+            const Rectangle& rightImageCoords = element.getAttribute<typename Rectangle::Native>("border_coords_r");
 
-            mainQuadPosition.x += leftImageCoords.size.x;
-            mainQuadSize.x -= rightImageCoords.size.x * 2;
+            mainQuadPosition.x += leftImageCoords.size().x();
+            mainQuadSize.x -= rightImageCoords.size().x() * 2;
         }
 
         //find out the amount of tiles it would have based on image size and size. Then based on stretch mode, set x, y or both, to 1. Then calculate underneath stuff and loop for all tiles
-        Vec2 tileAmount({(int32_t)mainQuadSize.x / imageCoords.size.x + 1, (int32_t)mainQuadSize.y / imageCoords.size.y + 1});
+        Vec2 tileAmount((int32_t)mainQuadSize.x / imageCoords.size().x() + 1, (int32_t)mainQuadSize.y / imageCoords.size().y() + 1);
 
         if(stretchMode == StretchMode::STRETCHED)
         {
-            tileAmount.x = 1;
-            tileAmount.y = 1;
+            tileAmount.x(1);
+            tileAmount.y(1);
         }
         else if(stretchMode == StretchMode::V_TILED)
         {
-            tileAmount.x = 1;
+            tileAmount.x(1);
         }
         else if(stretchMode == StretchMode::H_TILED)
         {
-            tileAmount.y = 1;
+            tileAmount.y(1);
         }
 
-        for(int32_t y = 0; y < tileAmount.y; y++)
+        for(int32_t y = 0; y < tileAmount.y(); y++)
         {
-            for(int32_t x = 0; x < tileAmount.x; x++)
+            for(int32_t x = 0; x < tileAmount.x(); x++)
             {
                 FloatVec2 quadPosition;
-                quadPosition.x = mainQuadPosition.x + x * imageCoords.size.x;
-                quadPosition.y = mainQuadPosition.y + y * imageCoords.size.y;
+                quadPosition.x = mainQuadPosition.x + x * imageCoords.size().x();
+                quadPosition.y = mainQuadPosition.y + y * imageCoords.size().y();
 
                 FloatVec2 quadSize;
 
-                bool lastX = x == tileAmount.x - 1;
-                bool lastY = y == tileAmount.y - 1;
+                bool lastX = x == tileAmount.x() - 1;
+                bool lastY = y == tileAmount.y() - 1;
 
-                quadSize.x = (!lastX) ? (imageCoords.size.x) : ((int32_t)mainQuadSize.x % imageCoords.size.x);
-                quadSize.y = (!lastY) ? (imageCoords.size.y) : ((int32_t)mainQuadSize.y % imageCoords.size.y);
+                quadSize.x = (!lastX) ? (imageCoords.size().x()) : ((int32_t)mainQuadSize.x % imageCoords.size().x());
+                quadSize.y = (!lastY) ? (imageCoords.size().y()) : ((int32_t)mainQuadSize.y % imageCoords.size().y());
 
                 FloatVec2 texCoordsStart;
-                texCoordsStart.x = (float)imageCoords.start.x / imageSize.x;
-                texCoordsStart.y = (float)imageCoords.start.y / imageSize.y;
+                texCoordsStart.x = (float)imageCoords.start().x() / imageSize.x;
+                texCoordsStart.y = (float)imageCoords.start().y() / imageSize.y;
                 FloatVec2 texCoordsSize;
-                texCoordsSize.x = (float)imageCoords.size.x / imageSize.x;
-                texCoordsSize.y = (float)imageCoords.size.y / imageSize.y;
+                texCoordsSize.x = (float)imageCoords.size().x() / imageSize.x;
+                texCoordsSize.y = (float)imageCoords.size().y() / imageSize.y;
 
                 if(stretchMode == StretchMode::STRETCHED)
                 {
@@ -165,19 +166,21 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         uint32_t textSize = textSizeUPtr ? *textSizeUPtr : *textSizePtr;
 
         //get optional attributes
-        const Color& color = getOrFallback<Color>(element, "text_color", Color{255, 255, 255, 255});
+        const typename Color::Native* nativeColorPtr = element.findAttribute<typename Color::Native>("text_color");
+        Color color = nativeColorPtr ? *nativeColorPtr : Color(255, 255, 255, 255);
         float textScale = getOrFallback<float>(element, "text_scale", 1.0f);
         float characterSpacing = getOrFallback<float>(element, "character_spacing", 0.0f);
         float lineSpacing = getOrFallback<float>(element, "line_spacing", 0.0f);
         int32_t tabWidth = getOrFallback<int32_t>(element, "tab_width", 4);
         TextStyle style = getOrFallback<TextStyle>(element, "text_style", TextStyle::NORMAL);
-        const Rectangle<Vec2>& textBorders = getOrFallback<Rectangle<Vec2>>(element, "text_borders", Rectangle<Vec2>(Vec2({0, 0}), Vec2(size)));
+        const typename Rectangle::Native* nativeTextBordersPtr = element.findAttribute<typename Rectangle::Native>("text_borders");
+        Rectangle textBorders = nativeTextBordersPtr ? *nativeTextBordersPtr :  Rectangle(Vec2(0, 0), Vec2(size));
         const WrapMode wrapMode = getOrFallback<WrapMode>(element, "line_wrap", WrapMode::WORDS);
         const TextAlign textAlign = getOrFallback<TextAlign>(element, "text_alignment", TextAlign::LEFT);
         bool clipText = getOrFallback<bool>(element, "text_clipping", true);
 
         MetricsMap* currentMetricsMap;
-        FontTextureCache* currentTextureCache; 
+        internal::FontTextureCache* currentTextureCache; 
         Font* currentFont;
         uint32_t currentFontCacheId;
         uint32_t currentFontTextureId;
@@ -225,9 +228,9 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
         renderData.textImageId = currentFontTextureId;
 
-        const Vec2 textStart({position.x + textBorders.start.x, position.y + textBorders.start.y});
-        float x = textStart.x;
-        float y = textStart.y + textSize * textScale;
+        const Vec2 textStart(position.x() + textBorders.start().x(), position.y() + textBorders.start().y());
+        float x = textStart.x();
+        float y = textStart.y() + textSize * textScale;
         float hspace = (getHSpace(*currentFont, textSize) + characterSpacing) * textScale;
         currentFont->resize(textSize);
         float vspace = (currentFont->lineSpacing() + lineSpacing) * textScale;
@@ -236,10 +239,10 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         if(clipText)
         {
             renderData.clipRectangle = std::unique_ptr<RenderData::ClipRect>(new RenderData::ClipRect());
-            renderData.clipRectangle->xStart = textStart.x;
-            renderData.clipRectangle->yStart = textStart.y;
-            renderData.clipRectangle->width = textBorders.size.x;
-            renderData.clipRectangle->height = textBorders.size.y;
+            renderData.clipRectangle->xStart = textStart.x();
+            renderData.clipRectangle->yStart = textStart.y();
+            renderData.clipRectangle->width = textBorders.size().x();
+            renderData.clipRectangle->height = textBorders.size().y();
         }
 
         TextureCoordinates texCoords;
@@ -263,11 +266,11 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
 
                 if(textAlign == TextAlign::RIGHT)
                 {
-                    rowOffset = textBorders.size.x - quads.back().start.x - quads.back().size.x + textStart.x;
+                    rowOffset = textBorders.size().x() - quads.back().start.x - quads.back().size.x + textStart.x();
                 }
                 else if(textAlign == TextAlign::CENTER)
                 {
-                    rowOffset = std::floor((textBorders.size.x - quads.back().start.x - quads.back().size.x + textStart.x) / 2.0f);
+                    rowOffset = std::floor((textBorders.size().x() - quads.back().start.x - quads.back().size.x + textStart.x()) / 2.0f);
                 }
 
                 for(const auto& quad : quads)
@@ -282,7 +285,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
         auto newLine = [&x, &y, &textStart, &vspace, flushRow] (std::vector<CharacterQuad>& quads, bool lineFull)
         {
             flushRow(quads, lineFull);
-            x = textStart.x;
+            x = textStart.x();
             y += vspace;
         };
 
@@ -336,7 +339,7 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
                     float height = metrics.height * textScale;
 
 
-                    if(x + left + width > textStart.x + textBorders.size.x)
+                    if(x + left + width > textStart.x() + textBorders.size().x())
                     {
                         if(wrapMode == WrapMode::CHARACTERS)
                         {
@@ -387,26 +390,26 @@ RenderData RenderDataGenerator<Vec2, Color>::generateElementData(const Element& 
     return renderData;
 }
 
-template <typename Vec2, typename Color>
-template <typename TextureAdaptor>
-uint32_t RenderDataGenerator<Vec2, Color>::registerTexture(const TextureAdaptor& texture)
+template <typename Vec2, typename Rectangle, typename Color>
+template <typename Texture>
+uint32_t RenderDataGenerator<Vec2, Rectangle, Color>::registerTexture(const Texture& texture)
 {
     Vec2 textureSize = texture.size();
 
-    GIM_ASSERT(textureSize.x > 0 && textureSize.y > 0, "trying to register a texture of size (" + std::to_string(textureSize.x) + "," + std::to_string(textureSize.y) + "). Both components must be above zero");
+    GIM_ASSERT(textureSize.x() > 0 && textureSize.y() > 0, "trying to register a texture of size (" + std::to_string(textureSize.x()) + "," + std::to_string(textureSize.y()) + "). Both components must be above zero");
 
     uint32_t newId = mNextTextureId++;
     mTextureSizes[newId] = textureSize;
     return newId;
 }
 
-template <typename Vec2, typename Color>
-template <typename TextureAdaptor>
-uint32_t RenderDataGenerator<Vec2, Color>::registerFontStorage(const std::vector<std::reference_wrapper<const Font>>& fonts, const TextureAdaptor& textureAdaptor)
+template <typename Vec2, typename Rectangle, typename Color>
+template <typename Texture>
+uint32_t RenderDataGenerator<Vec2, Rectangle, Color>::registerFontStorage(const std::vector<std::reference_wrapper<const Font>>& fonts, const Texture& texture)
 {
     uint32_t newImageId = mNextTextureId++;   
 
-    std::shared_ptr<FontCacheEntry> textureCache = std::make_shared<FontCacheEntry>(FontCacheEntry{FontTextureCache(textureAdaptor), newImageId});
+    std::shared_ptr<FontCacheEntry> textureCache = std::make_shared<FontCacheEntry>(FontCacheEntry{internal::FontTextureCache(texture), newImageId});
     for(auto& font : fonts)
     {
         uint32_t newFontId = mNextFontId++;   
@@ -418,22 +421,22 @@ uint32_t RenderDataGenerator<Vec2, Color>::registerFontStorage(const std::vector
     return newImageId;
 }
 
-template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateQuadWithoutImage(const FloatVec2& position, const FloatVec2& size, const Color& color, std::vector<float>& outPositions, std::vector<float>& outColors)
+template <typename Vec2, typename Rectangle, typename Color>
+void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadWithoutImage(const FloatVec2& position, const FloatVec2& size, const Color& color, std::vector<float>& outPositions, std::vector<float>& outColors)
 {
     generateQuadPositions(position, size, outPositions);
     generateQuadColors(color, outColors);
 }
 
-template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateQuadWithImage(const FloatVec2& position, const FloatVec2& size, const Color& color, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords, bool flipTexCoords)
+template <typename Vec2, typename Rectangle, typename Color>
+void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadWithImage(const FloatVec2& position, const FloatVec2& size, const Color& color, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords, bool flipTexCoords)
 {
     generateQuadWithoutImage(position, size, color, outPositions, outColors);
     generateQuadTexCoords(texCoordStart, texCoordSize, outTexCoords, flipTexCoords);
 }
 
-template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateQuadPositions(const FloatVec2& position, const FloatVec2& size, std::vector<float>& outPositions)
+template <typename Vec2, typename Rectangle, typename Color>
+void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadPositions(const FloatVec2& position, const FloatVec2& size, std::vector<float>& outPositions)
 {
     std::vector<float> triangle(
     {
@@ -448,13 +451,13 @@ void RenderDataGenerator<Vec2, Color>::generateQuadPositions(const FloatVec2& po
     outPositions.insert(outPositions.end(), triangle.begin(), triangle.end());
 }
 
-template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateQuadColors(const Color& color, std::vector<float>& outColors)
+template <typename Vec2, typename Rectangle, typename Color>
+void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadColors(const Color& color, std::vector<float>& outColors)
 {
-    float r = color.r / 255.0f;
-    float g = color.g / 255.0f;
-    float b = color.b / 255.0f;
-    float a = color.a / 255.0f;
+    float r = color.r() / 255.0f;
+    float g = color.g() / 255.0f;
+    float b = color.b() / 255.0f;
+    float a = color.a() / 255.0f;
 
     std::vector<float> colorList(
     {
@@ -469,8 +472,8 @@ void RenderDataGenerator<Vec2, Color>::generateQuadColors(const Color& color, st
     outColors.insert(outColors.end(), colorList.begin(), colorList.end());
 }
 
-template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateQuadTexCoords(const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outTexCoords, bool flipTexCoords)
+template <typename Vec2, typename Rectangle, typename Color>
+void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadTexCoords(const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outTexCoords, bool flipTexCoords)
 {
     if(!flipTexCoords)
     {
@@ -502,118 +505,118 @@ void RenderDataGenerator<Vec2, Color>::generateQuadTexCoords(const FloatVec2& te
     }
 }
 
-template <typename Vec2, typename Color>
-void RenderDataGenerator<Vec2, Color>::generateBorders(const Element& element, const FloatVec2& position, const FloatVec2& size, const Color& color, const FloatVec2& imageSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords)
+template <typename Vec2, typename Rectangle, typename Color>
+void RenderDataGenerator<Vec2, Rectangle, Color>::generateBorders(const Element& element, const FloatVec2& position, const FloatVec2& size, const Color& color, const FloatVec2& imageSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords)
 {
     const BorderMode* borderModePtr = element.findAttribute<BorderMode>("border_mode");
     BorderMode borderMode = borderModePtr ? *borderModePtr : BorderMode::NONE;
 
     if(borderMode == BorderMode::TOP_BOTTOM || borderMode == BorderMode::FULL)
     {//generate top and bottom borders
-        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_t"), "currentElement set to have borders at top/bottom or full but lacks top border image coords");
-        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_b"), "currentElement set to have borders at top/bottom or full but lacks bottom border image coords");
+        GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("border_coords_t"), "currentElement set to have borders at top/bottom or full but lacks top border image coords");
+        GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("border_coords_b"), "currentElement set to have borders at top/bottom or full but lacks bottom border image coords");
 
-        const Rectangle<Vec2>& topImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_t");
-        const Rectangle<Vec2>& bottomImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_b");
+        const Rectangle& topImageCoords = element.getAttribute<typename Rectangle::Native>("border_coords_t");
+        const Rectangle& bottomImageCoords = element.getAttribute<typename Rectangle::Native>("border_coords_b");
 
         //top quad
         generateQuadWithImage(
-                FloatVec2({position.x, position.y - topImageCoords.size.y}),
-                FloatVec2({size.x, (float)topImageCoords.size.y}),
+                FloatVec2({position.x, position.y - topImageCoords.size().y()}),
+                FloatVec2({size.x, (float)topImageCoords.size().y()}),
                 color,
-                FloatVec2({(float)topImageCoords.start.x / imageSize.x, (float)topImageCoords.start.y / imageSize.y}),
-                FloatVec2({(float)topImageCoords.size.x  / imageSize.x, (float)topImageCoords.size.y  / imageSize.y}),
+                FloatVec2({(float)topImageCoords.start().x() / imageSize.x, (float)topImageCoords.start().y() / imageSize.y}),
+                FloatVec2({(float)topImageCoords.size().x()  / imageSize.x, (float)topImageCoords.size().y()  / imageSize.y}),
                 outPositions, outColors, outTexCoords);
         
         //bottom quad
         generateQuadWithImage(
                 FloatVec2({position.x, position.y + size.y}),
-                FloatVec2({size.x, (float)bottomImageCoords.size.y}),
+                FloatVec2({size.x, (float)bottomImageCoords.size().y()}),
                 color,
-                FloatVec2({(float)bottomImageCoords.start.x / imageSize.x, (float)bottomImageCoords.start.y / imageSize.y}),
-                FloatVec2({(float)bottomImageCoords.size.x  / imageSize.x, (float)bottomImageCoords.size.y  / imageSize.y}),
+                FloatVec2({(float)bottomImageCoords.start().x() / imageSize.x, (float)bottomImageCoords.start().y() / imageSize.y}),
+                FloatVec2({(float)bottomImageCoords.size().x()  / imageSize.x, (float)bottomImageCoords.size().y()  / imageSize.y}),
                 outPositions, outColors, outTexCoords);
     }
 
     if(borderMode == BorderMode::LEFT_RIGHT || borderMode == BorderMode::FULL)
     {//generate left and right borders
-        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_l"), "currentElement set to have borders at left/right or full but lacks left border image coords");
-        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_r"), "currentElement set to have borders at left/right or full but lacks right border image coords");
+        GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("border_coords_l"), "currentElement set to have borders at left/right or full but lacks left border image coords");
+        GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("border_coords_r"), "currentElement set to have borders at left/right or full but lacks right border image coords");
 
-        const Rectangle<Vec2>& leftImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_l");
-        const Rectangle<Vec2>& rightImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_r");
+        const Rectangle& leftImageCoords = element.getAttribute<typename Rectangle::Native>("border_coords_l");
+        const Rectangle& rightImageCoords = element.getAttribute<typename Rectangle::Native>("border_coords_r");
 
         //left quad
         generateQuadWithImage(
-                FloatVec2({position.x - leftImageCoords.size.x, position.y}),
-                FloatVec2({(float)leftImageCoords.size.x, size.y}),
+                FloatVec2({position.x - leftImageCoords.size().x(), position.y}),
+                FloatVec2({(float)leftImageCoords.size().x(), size.y}),
                 color,
-                FloatVec2({(float)leftImageCoords.start.x / imageSize.x, (float)leftImageCoords.start.y / imageSize.y}),
-                FloatVec2({(float)leftImageCoords.size.x  / imageSize.x, (float)leftImageCoords.size.y  / imageSize.y}),
+                FloatVec2({(float)leftImageCoords.start().x() / imageSize.x, (float)leftImageCoords.start().y() / imageSize.y}),
+                FloatVec2({(float)leftImageCoords.size().x()  / imageSize.x, (float)leftImageCoords.size().y()  / imageSize.y}),
                 outPositions, outColors, outTexCoords);
         
         //right quad
         generateQuadWithImage(
                 FloatVec2({position.x + size.x, position.y}),
-                FloatVec2({(float)rightImageCoords.size.x, size.y}),
+                FloatVec2({(float)rightImageCoords.size().x(), size.y}),
                 color,
-                FloatVec2({(float)rightImageCoords.start.x / imageSize.x, (float)rightImageCoords.start.y / imageSize.y}),
-                FloatVec2({(float)rightImageCoords.size.x  / imageSize.x, (float)rightImageCoords.size.y  / imageSize.y}),
+                FloatVec2({(float)rightImageCoords.start().x() / imageSize.x, (float)rightImageCoords.start().y() / imageSize.y}),
+                FloatVec2({(float)rightImageCoords.size().x()  / imageSize.x, (float)rightImageCoords.size().y()  / imageSize.y}),
                 outPositions, outColors, outTexCoords);
     }
 
     if(borderMode == BorderMode::FULL)
     {//generate corner borders
-        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_tl"), "currentElement set to have full borders but lacks top-left border image coords");
-        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_tr"), "currentElement set to have full borders but lacks top-right border image coords");
-        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_bl"), "currentElement set to have full borders but lacks bottom-left border image coords");
-        GIM_ASSERT(element.hasAttribute<Rectangle<Vec2>>("border_coords_br"), "currentElement set to have full borders but lacks bottom-right border image coords");
+        GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("border_coords_tl"), "currentElement set to have full borders but lacks top-left border image coords");
+        GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("border_coords_tr"), "currentElement set to have full borders but lacks top-right border image coords");
+        GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("border_coords_bl"), "currentElement set to have full borders but lacks bottom-left border image coords");
+        GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("border_coords_br"), "currentElement set to have full borders but lacks bottom-right border image coords");
 
-        const Rectangle<Vec2>& topLeftImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_tl");
-        const Rectangle<Vec2>& topRightImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_tr");
-        const Rectangle<Vec2>& bottomLeftImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_bl");
-        const Rectangle<Vec2>& bottomRightImageCoords = element.getAttribute<Rectangle<Vec2>>("border_coords_br");
+        const Rectangle& topLeftImageCoords = element.getAttribute<typename Rectangle::Native>("border_coords_tl");
+        const Rectangle& topRightImageCoords = element.getAttribute<typename Rectangle::Native>("border_coords_tr");
+        const Rectangle& bottomLeftImageCoords = element.getAttribute<typename Rectangle::Native>("border_coords_bl");
+        const Rectangle& bottomRightImageCoords = element.getAttribute<typename Rectangle::Native>("border_coords_br");
 
         //topLeft quad
         generateQuadWithImage(
-                FloatVec2({position.x - topLeftImageCoords.size.x, position.y - topLeftImageCoords.size.y}),
-                {(float)topLeftImageCoords.size.x, (float)topLeftImageCoords.size.y},
+                FloatVec2({position.x - topLeftImageCoords.size().x(), position.y - topLeftImageCoords.size().y()}),
+                {(float)topLeftImageCoords.size().x(), (float)topLeftImageCoords.size().y()},
                 color,
-                FloatVec2({(float)topLeftImageCoords.start.x / imageSize.x, (float)topLeftImageCoords.start.y / imageSize.y}),
-                FloatVec2({(float)topLeftImageCoords.size.x  / imageSize.x, (float)topLeftImageCoords.size.y  / imageSize.y}),
+                FloatVec2({(float)topLeftImageCoords.start().x() / imageSize.x, (float)topLeftImageCoords.start().y() / imageSize.y}),
+                FloatVec2({(float)topLeftImageCoords.size().x()  / imageSize.x, (float)topLeftImageCoords.size().y()  / imageSize.y}),
                 outPositions, outColors, outTexCoords);
         
         //topRight quad
         generateQuadWithImage(
-                FloatVec2({position.x + size.x, position.y - topRightImageCoords.size.y}),
-                {(float)topRightImageCoords.size.x, (float)topRightImageCoords.size.y},
+                FloatVec2({position.x + size.x, position.y - topRightImageCoords.size().y()}),
+                {(float)topRightImageCoords.size().x(), (float)topRightImageCoords.size().y()},
                 color,
-                FloatVec2({(float)topRightImageCoords.start.x / imageSize.x, (float)topRightImageCoords.start.y / imageSize.y}),
-                FloatVec2({(float)topRightImageCoords.size.x  / imageSize.x, (float)topRightImageCoords.size.y  / imageSize.y}),
+                FloatVec2({(float)topRightImageCoords.start().x() / imageSize.x, (float)topRightImageCoords.start().y() / imageSize.y}),
+                FloatVec2({(float)topRightImageCoords.size().x()  / imageSize.x, (float)topRightImageCoords.size().y()  / imageSize.y}),
                 outPositions, outColors, outTexCoords);
 
         //bottomLeft quad
         generateQuadWithImage(
-                FloatVec2({position.x - bottomLeftImageCoords.size.y, position.y + size.y}),
-                {(float)bottomLeftImageCoords.size.x, (float)bottomLeftImageCoords.size.y},
+                FloatVec2({position.x - bottomLeftImageCoords.size().y(), position.y + size.y}),
+                {(float)bottomLeftImageCoords.size().x(), (float)bottomLeftImageCoords.size().y()},
                 color,
-                FloatVec2({(float)bottomLeftImageCoords.start.x / imageSize.x, (float)bottomLeftImageCoords.start.y / imageSize.y}),
-                FloatVec2({(float)bottomLeftImageCoords.size.x  / imageSize.x, (float)bottomLeftImageCoords.size.y  / imageSize.y}),
+                FloatVec2({(float)bottomLeftImageCoords.start().x() / imageSize.x, (float)bottomLeftImageCoords.start().y() / imageSize.y}),
+                FloatVec2({(float)bottomLeftImageCoords.size().x()  / imageSize.x, (float)bottomLeftImageCoords.size().y()  / imageSize.y}),
                 outPositions, outColors, outTexCoords);
         
         //bottomRight quad
         generateQuadWithImage(
                 FloatVec2({position.x + size.x, position.y + size.y}),
-                {(float)bottomRightImageCoords.size.x, (float)bottomRightImageCoords.size.y},
+                {(float)bottomRightImageCoords.size().x(), (float)bottomRightImageCoords.size().y()},
                 color,
-                FloatVec2({(float)bottomRightImageCoords.start.x / imageSize.x, (float)bottomRightImageCoords.start.y / imageSize.y}),
-                FloatVec2({(float)bottomRightImageCoords.size.x  / imageSize.x, (float)bottomRightImageCoords.size.y  / imageSize.y}),
+                FloatVec2({(float)bottomRightImageCoords.start().x() / imageSize.x, (float)bottomRightImageCoords.start().y() / imageSize.y}),
+                FloatVec2({(float)bottomRightImageCoords.size().x()  / imageSize.x, (float)bottomRightImageCoords.size().y()  / imageSize.y}),
                 outPositions, outColors, outTexCoords);
     }
 }
 
-template <typename Vec2, typename Color>
-float RenderDataGenerator<Vec2, Color>::getHSpace(const Font& font, uint32_t size)
+template <typename Vec2, typename Rectangle, typename Color>
+float RenderDataGenerator<Vec2, Rectangle, Color>::getHSpace(const Font& font, uint32_t size)
 {
     uint32_t whitespace = ' ';
     uint32_t fontId = mFontCacheIds.at(font.name());
@@ -638,8 +641,8 @@ float RenderDataGenerator<Vec2, Color>::getHSpace(const Font& font, uint32_t siz
     }
 }
 
-template <typename Vec2, typename Color>
-std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> RenderDataGenerator<Vec2, Color>::loadGlyphData(uint32_t codePoint, uint32_t textSize, uint32_t fontCacheId, FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font)
+template <typename Vec2, typename Rectangle, typename Color>
+std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> RenderDataGenerator<Vec2, Rectangle, Color>::loadGlyphData(uint32_t codePoint, uint32_t textSize, uint32_t fontCacheId, internal::FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font)
 {
     auto texCoordsPtr = textureCache.glyphCoords(codePoint, textSize, fontCacheId);
     TextureCoordinates texCoords;
