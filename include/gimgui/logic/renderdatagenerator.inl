@@ -185,40 +185,41 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
         uint32_t currentFontCacheId;
         uint32_t currentFontTextureId;
 
-        auto loadFont = [this, &currentMetricsMap, &currentTextureCache, &currentFont, &currentFontCacheId, &currentFontTextureId] (Font& font)
+        auto loadFont = [this, &currentMetricsMap, &currentTextureCache, &currentFont, &currentFontCacheId, &currentFontTextureId] (const std::string& font)
         {
-            GIM_ASSERT(mFontCacheIds.count(font.name()) != 0, "no texture registered for the given font '" + font.name() + "'");
-            currentFontCacheId = mFontCacheIds.at(font.name());
+            GIM_ASSERT(mFontCacheIds.count(font) != 0, "The given font '" + font + "' is not registered");
+            GIM_ASSERT(mFonts.count(font) != 0, "texture registered, but not existing. This is a bug in gimgui");
+            currentFontCacheId = mFontCacheIds.at(font);
             FontCacheEntry& fontCache = *mFontCache.at(currentFontCacheId);
             currentMetricsMap = &fontCache.metrics;
             currentTextureCache = &fontCache.textureCoordinates; 
-            currentFont = &font;
+            currentFont = &mFonts.at(font).get();
             currentFontTextureId = fontCache.textureId;
         };
 
         if(!(style & TextStyle::BOLD) && !(style & TextStyle::ITALIC))
         {
-            const gim::ref<Font>* fontPtr = element.findAttribute<gim::ref<Font>>("font");
-            GIM_ASSERT(fontPtr != nullptr, "cannot use TextStyle::NORMAL without setting the 'font' attribute to a font");
-            loadFont(*fontPtr);
+            const std::string* fontNamePtr = element.findAttribute<std::string>("font");
+            GIM_ASSERT(fontNamePtr != nullptr, "cannot use TextStyle::NORMAL without setting the 'font' attribute to a font");
+            loadFont(*fontNamePtr);
         }
         else if((style & TextStyle::BOLD) && !(style & TextStyle::ITALIC))
         {
-            const gim::ref<Font>* fontPtr = element.findAttribute<gim::ref<Font>>("bold_font");
-            GIM_ASSERT(fontPtr != nullptr, "cannot use TextStyle::BOLD without setting the 'bold_font' attribute to a font");
-            loadFont(*fontPtr);
+            const std::string* fontNamePtr = element.findAttribute<std::string>("bold_font");
+            GIM_ASSERT(fontNamePtr != nullptr, "cannot use TextStyle::BOLD without setting the 'bold_font' attribute to a font");
+            loadFont(*fontNamePtr);
         }
         else if(!(style & TextStyle::BOLD) && (style & TextStyle::ITALIC))
         {
-            const gim::ref<Font>* fontPtr = element.findAttribute<gim::ref<Font>>("italic_font");
-            GIM_ASSERT(fontPtr != nullptr, "cannot use TextStyle::ITALIC without setting the 'italic_font' attribute to a font");
-            loadFont(*fontPtr);
+            const std::string* fontNamePtr = element.findAttribute<std::string>("italic_font");
+            GIM_ASSERT(fontNamePtr != nullptr, "cannot use TextStyle::ITALIC without setting the 'italic_font' attribute to a font");
+            loadFont(*fontNamePtr);
         }
         else if((style & TextStyle::BOLD) && (style & TextStyle::ITALIC))
         {
-            const gim::ref<Font>* fontPtr = element.findAttribute<gim::ref<Font>>("bold_italic_font");
-            GIM_ASSERT(fontPtr != nullptr, "cannot use TextStyle::BOLD and TextStyle::ITALIC without setting the 'bold_italic_font' attribute to a font");
-            loadFont(*fontPtr);
+            const std::string* fontNamePtr = element.findAttribute<std::string>("bold_italic_font");
+            GIM_ASSERT(fontNamePtr != nullptr, "cannot use TextStyle::BOLD and TextStyle::ITALIC without setting the 'bold_italic_font' attribute to a font");
+            loadFont(*fontNamePtr);
         }
 
         //render text
@@ -405,7 +406,7 @@ uint32_t RenderDataGenerator<Vec2, Rectangle, Color>::registerTexture(const Text
 
 template <typename Vec2, typename Rectangle, typename Color>
 template <typename Texture>
-uint32_t RenderDataGenerator<Vec2, Rectangle, Color>::registerFontStorage(const std::vector<std::reference_wrapper<const Font>>& fonts, const Texture& texture)
+uint32_t RenderDataGenerator<Vec2, Rectangle, Color>::registerFontStorage(const std::vector<std::reference_wrapper<Font>>& fonts, const Texture& texture)
 {
     uint32_t newImageId = mNextTextureId++;   
 
@@ -416,6 +417,7 @@ uint32_t RenderDataGenerator<Vec2, Rectangle, Color>::registerFontStorage(const 
         GIM_ASSERT(mFontCacheIds.count(font.get().name()) == 0, "trying to register font '" + font.get().name() + "' but it has already been registered");
         mFontCacheIds.emplace(font.get().name(), newFontId);
         mFontCache.emplace(newFontId, textureCache);
+        mFonts.emplace(font.get().name(), font);
     }
 
     return newImageId;

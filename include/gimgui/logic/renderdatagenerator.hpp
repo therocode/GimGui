@@ -33,13 +33,18 @@ namespace gim
             uint32_t textureId;
             MetricsMap metrics;
         };
+        struct FontRegistration
+        {
+            uint32_t fontId;
+            uint32_t textureId;
+        };
         public:
             RenderDataGenerator();
             std::vector<RenderData> generate(const gim::Element& element);
             template <typename Texture>
             uint32_t registerTexture(const Texture& texture);
             template <typename Texture>
-            uint32_t registerFontStorage(const std::vector<std::reference_wrapper<const Font>>& fonts, const Texture& texture);
+            uint32_t registerFontStorage(const std::vector<std::reference_wrapper<Font>>& fonts, const Texture& texture);
         private:
             RenderData generateElementData(const Element& element, gim::AbsoluteMap<typename Vec2::Native>& absoluteMap);
             void generateQuadWithoutImage(const FloatVec2& position, const FloatVec2& size, const Color& color, std::vector<float>& outPositions, std::vector<float>& outColors);
@@ -60,6 +65,7 @@ namespace gim
 
             std::unordered_map<std::string, uint32_t> mFontCacheIds;
             std::unordered_map<uint32_t, std::shared_ptr<FontCacheEntry>> mFontCache;
+            std::unordered_map<std::string, std::reference_wrapper<Font>> mFonts;
     };
 
 #include <gimgui/logic/renderdatagenerator.inl>

@@ -569,7 +569,7 @@ SCENARIO("Text quads can be generated from the RenderDataGenerator, with a few b
                 {"size",     Vec2({48, 48})},
                 {"text", std::string("AAbbA")},
                 {"text_size", 16},
-                {"font", gim::makeRef(font)}
+                {"font", font.name()}
             });
 
             std::vector<gim::RenderData> data = generator.generate(element);
@@ -608,7 +608,7 @@ SCENARIO("Text quads can be generated from the RenderDataGenerator, with a few b
                 {"text", std::string("hej")},
                 {"text_color", Color{100, 0, 255, 200}},
                 {"text_size", 16},
-                {"font", makeRef(font)}
+                {"font", font.name()}
             });
 
             std::vector<gim::RenderData> data = generator.generate(element);
@@ -641,7 +641,7 @@ SCENARIO("Text quads can be generated from the RenderDataGenerator, with a few b
                 {"text", std::string("hej")},
                 {"text_size", 16},
                 {"text_scale", 1.0f},
-                {"font", makeRef(font)}
+                {"font", font.name()}
             });
 
             std::vector<gim::RenderData> smallData = generator.generate(element);
@@ -694,7 +694,7 @@ SCENARIO("Character spacing can be controlled in different ways when rendering t
                 {"text_size", 16},
                 {"character_spacing", 0.0f},
                 {"line_spacing", 0.0f},
-                {"font", gim::makeRef(font)}
+                {"font", font.name()}
             });
 
             std::vector<gim::RenderData> neutralData = generator.generate(element);
@@ -742,7 +742,7 @@ SCENARIO("Character spacing can be controlled in different ways when rendering t
                 {"text", std::string("\thej")},
                 {"text_size", 16},
                 {"tab_width", 4},
-                {"font", gim::makeRef(font)}
+                {"font", font.name()}
             });
 
             std::vector<gim::RenderData> neutralData = generator.generate(element);
@@ -788,10 +788,10 @@ SCENARIO("Different text styles can be applied using the text_style attribute", 
                 {"text", std::string("hej")},
                 {"text_size", 16},
                 {"text_style", gim::TextStyle::NORMAL},
-                {"font", gim::makeRef(font)},
-                {"bold_font", gim::makeRef(boldFont)},
-                {"italic_font", gim::makeRef(italicFont)},
-                {"bold_italic_font", gim::makeRef(boldItalicFont)},
+                {"font", font.name()},
+                {"bold_font", boldFont.name()},
+                {"italic_font", italicFont.name()},
+                {"bold_italic_font", boldItalicFont.name()},
             });
 
             std::vector<gim::RenderData> normalData = generator.generate(element);
@@ -849,7 +849,7 @@ SCENARIO("Text flow behaviour can be controlled using line_wrap", "[logic]")
             {"text", std::string("Hello, I like old pillows")},
             {"text_size", 16},
             {"text_style", gim::TextStyle::NORMAL},
-            {"font", gim::makeRef(font)}
+            {"font", font.name()}
         });
 
         std::vector<gim::RenderData> normalData = generator.generate(element);
@@ -925,7 +925,7 @@ SCENARIO("Text row alignment behavior can be controlled using the text_alignment
             {"text", std::string("This is a text which will span more than two lines")},
             {"text_size", 16},
             {"text_style", gim::TextStyle::NORMAL},
-            {"font", gim::makeRef(font)}
+            {"font", font.name()}
         });
 
         std::vector<gim::RenderData> normalData = generator.generate(element);
@@ -996,7 +996,7 @@ SCENARIO("text_borders can be used to control position and wrap position of text
             {"text", std::string("This is a text which is somewhat long so that it would span many lines and that is a good thing for the test.")},
             {"text_size", 16},
             //{"text_borders", Rectangle({{5, 15}, {25, 35}})},
-            {"font", gim::makeRef(font)},
+            {"font", font.name()},
         });
 
         WHEN("the default value is used")
@@ -1072,7 +1072,7 @@ SCENARIO("By default, the RenderData contains text clip rectangles but these can
             {"text", std::string("This is a text")},
             {"text_size", 16},
             {"text_borders", Rectangle({{5, 15}, {25, 35}})},
-            {"font", gim::makeRef(font)},
+            {"font", font.name()},
         });
 
         std::vector<gim::RenderData> normalData = generator.generate(element);
