@@ -41,8 +41,7 @@ namespace gim
         public:
             RenderDataGenerator();
             std::vector<RenderData> generate(const gim::Element& element);
-            template <typename Texture>
-            uint32_t registerTexture(const Texture& texture);
+            uint32_t registerTexture(const Vec2& textureSize);
             template <typename Texture>
             uint32_t registerFontStorage(const std::vector<std::reference_wrapper<Font>>& fonts, const Texture& texture);
         private:

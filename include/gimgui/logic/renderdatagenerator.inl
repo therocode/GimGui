@@ -392,11 +392,8 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
 }
 
 template <typename Vec2, typename Rectangle, typename Color>
-template <typename Texture>
-uint32_t RenderDataGenerator<Vec2, Rectangle, Color>::registerTexture(const Texture& texture)
+uint32_t RenderDataGenerator<Vec2, Rectangle, Color>::registerTexture(const Vec2& textureSize)
 {
-    Vec2 textureSize = texture.size();
-
     GIM_ASSERT(textureSize.x() > 0 && textureSize.y() > 0, "trying to register a texture of size (" + std::to_string(textureSize.x()) + "," + std::to_string(textureSize.y()) + "). Both components must be above zero");
 
     uint32_t newId = mNextTextureId++;

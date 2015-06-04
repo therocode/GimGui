@@ -21,8 +21,3 @@ void TextureInterfaceStub::writeBitmap(uint32_t x, uint32_t y, const gim::BitMap
 {
     //write the bitmap at the specific location given. The bitmap is in 8 bit grayscale format.
 }
-
-Vec2 TextureInterfaceStub::size() const
-{
-    return mSize;
-}

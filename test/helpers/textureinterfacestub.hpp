@@ -10,7 +10,7 @@ class TextureInterfaceStub
         void initialize(uint32_t width, uint32_t height);
         void resize(uint32_t width, uint32_t height);
         void writeBitmap(uint32_t x, uint32_t y, const gim::BitMap& bitMap);
-        Vec2 size() const;
+        //Vec2 size() const;
     private:
         Vec2 mSize;
 };
