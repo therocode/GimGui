@@ -76,7 +76,7 @@ SCENARIO("Fonts can be used to access various information", "[data]")
         {
             THEN("it matches the loaded file")
             {
-                CHECK(font.family() == "Liberation Sanss");
+                CHECK(font.family() == "Liberation Sans");
             }
         }
 
