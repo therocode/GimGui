@@ -178,6 +178,12 @@ if(BUILD_EXAMPLES)
 
     target_link_libraries(simple_rendering ${project_name} ${SDL2_LIBRARY} ${OPENGL_LIBRARIES})
 endif()
+
+#testing
+if(BUILD_TESTS)
+    enable_testing()
+    add_test(tests ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests)
+endif()
 	
 #installation
 if(WIN32)
