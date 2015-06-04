@@ -3,4 +3,4 @@ compiler:
     - gcc
     - clang
 
-script: cmake --build
+script: cmake . && make
