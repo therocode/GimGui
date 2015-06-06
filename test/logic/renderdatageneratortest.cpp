@@ -542,6 +542,48 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
             }
         }
     }
+
+    GIVEN("an element with no z_position set")
+    {
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        uint32_t imageId = generator.registerTexture({64, 64});
+        gim::Element element({"tiled"},
+        {
+            {"position", Vec2({5, 5})},
+            {"size",     Vec2({20, 10})},
+            {"image_id", imageId},
+            {"image_coords", Rectangle({{0, 0}, {32, 32}})}
+        });
+
+        WHEN("a RenderDataGenerator is used to get rendering info from the element")
+        {
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the z values are all zero")
+            {
+                REQUIRE(data[0].positions.size() > 0);
+                for(int32_t i = 0; i < data[0].positions.size(); i += 3)
+                {
+                    CHECK(data[0].positions[i + 2] == Approx(0.0f));
+                }
+            }
+        }
+
+        WHEN("z_position is set to something else than zero")
+        {
+            element.createAttribute("z_position", 10.0f);
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the z values are all set to that value")
+            {
+                REQUIRE(data[0].positions.size() > 0);
+                for(int32_t i = 0; i < data[0].positions.size(); i += 3)
+                {
+                    CHECK(data[0].positions[i + 2] == Approx(10.0f));
+                }
+            }
+        }
+    }
 }
 
 gim::Font loadFont(const std::string& path)
