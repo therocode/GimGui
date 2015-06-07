@@ -37,8 +37,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
     //generate positions
     const Vec2 position = absoluteMap.getAbsoluteOf(element);
     const Vec2 size = element.getAttribute<typename Vec2::Native>("size");
-    const float* zPositionPtr = element.findAttribute<float>("z_position");
-    const float zPosition = zPositionPtr ? *zPositionPtr : 0.0f;
+    const float zPosition = getOrFallback<float>(element, "z_position", 0.0f);
 
     //generate colors, default white
     const typename Color::Native* nativeColorPtr = element.findAttribute<typename Color::Native>("color");
@@ -166,6 +165,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
         const int32_t* textSizePtr = element.findAttribute<int32_t>("text_size");
         GIM_ASSERT(textSizeUPtr != nullptr || textSizePtr != nullptr, "cannot give an element text without also giving it a text_size");
         uint32_t textSize = textSizeUPtr ? *textSizeUPtr : *textSizePtr;
+        const float textZPosition = getOrFallback<float>(element, "text_z_position", 0.0f);
 
         //get optional attributes
         const typename Color::Native* nativeColorPtr = element.findAttribute<typename Color::Native>("text_color");
@@ -261,7 +261,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
 
         std::vector<CharacterQuad> currentRow;
 
-        auto flushRow = [this, &renderData, &textAlign, &textBorders, &textStart, &zPosition] (std::vector<CharacterQuad>& quads, bool lineFull)
+        auto flushRow = [this, &renderData, &textAlign, &textBorders, &textStart, &textZPosition] (std::vector<CharacterQuad>& quads, bool lineFull)
         {
             if(!quads.empty())
             {
@@ -279,7 +279,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
                 for(const auto& quad : quads)
                 {
                     FloatVec2 start({quad.start.x + rowOffset, quad.start.y});
-                    generateQuadWithImage(start, quad.size, quad.color, zPosition, {quad.texCoords.xStart, quad.texCoords.yStart}, {quad.texCoords.xEnd - quad.texCoords.xStart, quad.texCoords.yEnd - quad.texCoords.yStart}, renderData.textPositions, renderData.textColors, renderData.textTexCoords, quad.texCoords.flipped);
+                    generateQuadWithImage(start, quad.size, quad.color, textZPosition, {quad.texCoords.xStart, quad.texCoords.yStart}, {quad.texCoords.xEnd - quad.texCoords.xStart, quad.texCoords.yEnd - quad.texCoords.yStart}, renderData.textPositions, renderData.textColors, renderData.textTexCoords, quad.texCoords.flipped);
                 }
                 quads.clear();
             }

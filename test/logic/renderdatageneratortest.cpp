@@ -1157,5 +1157,20 @@ SCENARIO("By default, the RenderData contains text clip rectangles but these can
                 CHECK(noClipData[0].clipRectangle == nullptr);
             }
         }
+
+        WHEN("text_z_position is set to something else than zero")
+        {
+            element.createAttribute("text_z_position", 10.0f);
+            std::vector<gim::RenderData> data = generator.generate(element);
+
+            THEN("the z values of text are all set to that value")
+            {
+                REQUIRE(data[0].textPositions.size() > 0);
+                for(int32_t i = 0; i < data[0].textPositions.size(); i += 3)
+                {
+                    CHECK(data[0].textPositions[i + 2] == Approx(10.0f));
+                }
+            }
+        }
     }
 }
