@@ -120,6 +120,7 @@ namespace gim
         mFreetype = std::move(other.mFreetype);
         mFace = std::move(other.mFace);
         mFamily = std::move(other.mFamily);
+        mStyle = std::move(other.mStyle);
         mSize = std::move(other.mSize);
     }
 
@@ -128,6 +129,7 @@ namespace gim
         mFreetype = std::move(other.mFreetype);
         mFace = std::move(other.mFace);
         mFamily = std::move(other.mFamily);
+        mStyle = std::move(other.mStyle);
         mSize = std::move(other.mSize);
 
         return *this;

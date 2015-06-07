@@ -32,8 +32,6 @@ SCENARIO("Fonts can be created from istreams. Invalid font data throw an excepti
                 CHECK_THROWS_AS(loadFont(emptyData), gim::FontLoadException);
             }
         }
-
-        
     }
 }
 
@@ -93,6 +91,17 @@ SCENARIO("Fonts can be used to access various information", "[data]")
             THEN("it consists of the family and the style concatenated")
             {
                 CHECK(font.name() == "Liberation Sans Regular");
+            }
+        }
+
+        //regression test:
+        WHEN("the font name is accessed after being moved")
+        {
+            auto movedFont = std::move(font);
+
+            THEN("it consists of the family and the style concatenated")
+            {
+                CHECK(movedFont.name() == "Liberation Sans Regular");
             }
         }
 
