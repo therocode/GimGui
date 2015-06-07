@@ -641,7 +641,7 @@ float RenderDataGenerator<Vec2, Rectangle, Color>::getHSpace(const Font& font, u
     {
         auto glyphPtr = font.generateGlyph(whitespace);
 
-        GIM_ASSERT(glyphPtr != nullptr, "font didn't contain codepoint for ' ' (whitespace)");
+        GIM_ASSERT(glyphPtr != nullptr, "font " + font.name() + " didn't contain codepoint for ' ' (whitespace)");
 
         fontCache.textureCoordinates.add(*glyphPtr, fontId);
         fontCache.metrics.emplace(CodePointSizeId({whitespace, size, fontId}), glyphPtr->metrics);

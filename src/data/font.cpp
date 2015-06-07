@@ -125,6 +125,7 @@ namespace gim
         mFamily = std::move(other.mFamily);
         mStyle = std::move(other.mStyle);
         mSize = std::move(other.mSize);
+        mFontDataVector = std::move(other.mFontDataVector);
     }
 
     Font& Font::operator=(Font&& other)
@@ -134,6 +135,7 @@ namespace gim
         mFamily = std::move(other.mFamily);
         mStyle = std::move(other.mStyle);
         mSize = std::move(other.mSize);
+        mFontDataVector = std::move(other.mFontDataVector);
 
         return *this;
     }
