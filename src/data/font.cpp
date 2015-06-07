@@ -32,6 +32,9 @@ namespace gim
 
     Font::Freetype& Font::Freetype::operator=(Freetype&& other)
     {
+        if(mLibrary != nullptr)
+            FT_Done_FreeType(*mLibrary);
+
         mLibrary = std::move(other.mLibrary);
         return *this;
     }
