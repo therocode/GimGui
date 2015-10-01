@@ -1,6 +1,7 @@
 #include <gimgui/data/font.hpp>
 #include <gimgui/assert.hpp>
 #include <vector>
+#include <string>
 #include <algorithm>
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
