@@ -5,6 +5,7 @@
 */
 #include <gimgui/util/guillotinebinpack.hpp>
 #include <utility>
+#include <algorithm>
 
 namespace gim {
 

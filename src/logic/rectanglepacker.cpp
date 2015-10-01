@@ -48,14 +48,14 @@ namespace gim
             GIM_ASSERT(index >= 0, "index cannot be negative");
         
             if(index == 0)
-                return IVec2({0, 0});
+                return IVec2{ 0, 0 };
         
             int32_t order = indexToOrder(index);
             int32_t orderIndex = (index - 1) % 3;
         
             int32_t orderOffset = orderToSize(order);
         
-            IVec2 position({0, 0});
+            IVec2 position{ 0, 0 };
         
             if(orderIndex == 0)
             {

@@ -1,4 +1,5 @@
 #include <gimgui/logic/fonttexturecache.hpp>
+#include <algorithm>
 
 namespace gim
 {
