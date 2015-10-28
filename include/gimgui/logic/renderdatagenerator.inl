@@ -162,9 +162,8 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
 
         //get needed attributes
         const uint32_t* textSizeUPtr = element.findAttribute<uint32_t>("text_size");
-        const int32_t* textSizePtr = element.findAttribute<int32_t>("text_size");
-        GIM_ASSERT(textSizeUPtr != nullptr || textSizePtr != nullptr, "cannot give an element text without also giving it a text_size");
-        uint32_t textSize = textSizeUPtr ? *textSizeUPtr : *textSizePtr;
+        uint32_t textSize = textSizeUPtr ? *textSizeUPtr : getOrFallback<int32_t>(element, "text_size", 16);
+
         const float textZPosition = getOrFallback<float>(element, "text_z_position", 0.0f);
 
         //get optional attributes
