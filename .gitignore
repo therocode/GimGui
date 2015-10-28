@@ -14,3 +14,4 @@ doxy/gen/*
 *.sublime-project
 *.kdev4
 install_manifest.txt
+CTestTestfile.cmake
