@@ -47,9 +47,12 @@ Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
         float newTextSize = newSize.y / 256.0f;
         //self.setAttribute("text_scale", newTextSize);
 
-        Vec2 textSize = Vec2({size.x - 20, size.y - 20});
         self.setAttribute("size", newSize);
-        self.setAttribute("text_borders", Rectangle({{10, 10}, {textSize.x, textSize.y}}));
+        if(self.findAttribute<Rectangle>("text_borders"))
+        {
+            Vec2 textSize = Vec2({newSize.x - 20, newSize.y - 20});
+            self.setAttribute("text_borders", Rectangle({{10, 10}, {textSize.x, textSize.y}}));
+        }
     }
 };
 
