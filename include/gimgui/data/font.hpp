@@ -42,6 +42,7 @@ namespace gim
 
         public:
             Font(std::istream& fontData);
+            Font(std::istream&& fontData);
             Font(Font&& other);
             Font& operator=(Font&& other);
             Font(const Font& other) = delete;
@@ -59,6 +60,7 @@ namespace gim
             float underlineThickness() const;
             std::unique_ptr<Glyph> generateGlyph(uint32_t codePoint) const;
         private:
+            void loadFontFromStream(std::istream& fontData);
             Freetype mFreetype;
             std::unique_ptr<FontFace> mFace;
             std::vector<char> mFontDataVector;

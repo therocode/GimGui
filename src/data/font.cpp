@@ -84,41 +84,13 @@ namespace gim
     Font::Font(std::istream& fontData):
         mSize(0)
     {
-        if(!fontData)
-        {
-            throw FontLoadException("invalid font data given. maybe the file does not exist?");
-        }
+        loadFontFromStream(fontData);
+    }
 
-        if(!fontData.eof() && !fontData.fail())
-        {
-            fontData.seekg(0, std::ios_base::end);
-            std::streampos fileSize = fontData.tellg();
-            mFontDataVector.resize(fileSize);
-
-            fontData.seekg(0, std::ios_base::beg);
-            fontData.read(mFontDataVector.data(), fileSize);
-        }
-
-        mFace = std::unique_ptr<FontFace>(new FontFace(mFreetype, mFontDataVector));
-
-        //Select the Unicode character map
-        if(FT_Select_Charmap(mFace->face(), FT_ENCODING_UNICODE) != 0)
-        {
-            throw FontLoadException("failed to set the Unicode character set");
-        }
-
-        //Store the font name
-        mFamily = mFace->face()->family_name ? mFace->face()->family_name : std::string();
-        mStyle = mFace->face()->style_name ? mFace->face()->style_name : std::string();
-        
-        //default size
-        if(isFreelyScalable())
-            resize(16);
-        else
-        {
-            if(availableSizes().size() != 0)
-                resize(availableSizes().front());
-        }
+    Font::Font(std::istream&& fontData):
+        mSize(0)
+    {
+        loadFontFromStream(fontData);
     }
 
     Font::Font(Font&& other)
@@ -302,6 +274,45 @@ namespace gim
         {
             FT_Done_Glyph(glyph);
             return nullptr;
+        }
+    }
+
+    void Font::loadFontFromStream(std::istream& fontData)
+    {
+        if(!fontData)
+        {
+            throw FontLoadException("invalid font data given. maybe the file does not exist?");
+        }
+
+        if(!fontData.eof() && !fontData.fail())
+        {
+            fontData.seekg(0, std::ios_base::end);
+            std::streampos fileSize = fontData.tellg();
+            mFontDataVector.resize(fileSize);
+
+            fontData.seekg(0, std::ios_base::beg);
+            fontData.read(mFontDataVector.data(), fileSize);
+        }
+
+        mFace = std::unique_ptr<FontFace>(new FontFace(mFreetype, mFontDataVector));
+
+        //Select the Unicode character map
+        if(FT_Select_Charmap(mFace->face(), FT_ENCODING_UNICODE) != 0)
+        {
+            throw FontLoadException("failed to set the Unicode character set");
+        }
+
+        //Store the font name
+        mFamily = mFace->face()->family_name ? mFace->face()->family_name : std::string();
+        mStyle = mFace->face()->style_name ? mFace->face()->style_name : std::string();
+        
+        //default size
+        if(isFreelyScalable())
+            resize(16);
+        else
+        {
+            if(availableSizes().size() != 0)
+                resize(availableSizes().front());
         }
     }
 }
