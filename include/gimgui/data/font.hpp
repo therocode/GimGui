@@ -4,8 +4,11 @@
 #include <memory>
 #include <istream>
 #include <vector>
-#include <ft2build.h>
-#include FT_FREETYPE_H
+
+struct FT_LibraryRec_;
+typedef struct FT_LibraryRec_  *FT_Library;
+struct FT_FaceRec_;
+typedef struct FT_FaceRec_ *FT_Face;
 
 namespace gim
 {
