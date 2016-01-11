@@ -30,20 +30,22 @@ namespace gim
         struct FontCacheEntry
         {
             internal::FontTextureCache textureCoordinates;
-            uint32_t textureId;
+            //uint32_t textureId;
+            uint32_t textureHandle;
             MetricsMap metrics;
         };
-        struct FontRegistration
+        struct TextureEntry
         {
-            uint32_t fontId;
-            uint32_t textureId;
+            Vec2 size;
+            uint32_t handle;
         };
         public:
-            RenderDataGenerator();
+            //RenderDataGenerator();
             std::vector<RenderData> generate(const gim::Element& element);
-            uint32_t registerTexture(const Vec2& textureSize);
             template <typename Texture>
-            uint32_t registerFontStorage(const std::vector<std::reference_wrapper<Font>>& fonts, const Texture& texture);
+            void registerTexture(const std::string& textureName, const Texture& texture);
+            template <typename Texture>
+            void registerFontStorage(const std::vector<std::reference_wrapper<Font>>& fonts, const Texture& texture);
         private:
             RenderData generateElementData(const Element& element, gim::AbsoluteMap<typename Vec2::Native>& absoluteMap);
             void generateQuadWithoutImage(const FloatVec2& position, const FloatVec2& size, const Color& color, float zPosition, std::vector<float>& outPositions, std::vector<float>& outColors);
@@ -56,14 +58,11 @@ namespace gim
             float getHSpace(const Font& font, uint32_t size);
             std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> loadGlyphData(uint32_t codePoint, uint32_t textSize, uint32_t fontCacheId, internal::FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font);
 
-            std::unordered_map<uint32_t, Vec2> mTextureSizes;
+            std::unordered_map<std::string, TextureEntry> mTextures;
 
-            //fonts
-            uint32_t mNextTextureId;
-            uint32_t mNextFontId;
-
-            std::unordered_map<std::string, uint32_t> mFontCacheIds;
-            std::unordered_map<uint32_t, std::shared_ptr<FontCacheEntry>> mFontCache;
+            //std::unordered_map<std::string, uint32_t> mFontCacheIds;
+            //std::unordered_map<uint32_t, std::shared_ptr<FontCacheEntry>> mFontCache;
+            std::unordered_map<std::string, std::shared_ptr<FontCacheEntry>> mFontCache;
             std::unordered_map<std::string, std::reference_wrapper<Font>> mFonts;
     };
 

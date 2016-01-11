@@ -31,3 +31,8 @@ void TextureAdaptor::writeBitmap(uint32_t xPos, uint32_t yPos, const gim::BitMap
 
     mTexture.update();
 }
+
+uint32_t TextureAdaptor::handle() const
+{
+    return mTexture.getId();
+}

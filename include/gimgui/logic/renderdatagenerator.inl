@@ -1,9 +1,9 @@
-template <typename Vec2, typename Rectangle, typename Color>
-RenderDataGenerator<Vec2, Rectangle, Color>::RenderDataGenerator():
-    mNextTextureId(0),
-    mNextFontId(0)
-{
-}
+//template <typename Vec2, typename Rectangle, typename Color>
+//RenderDataGenerator<Vec2, Rectangle, Color>::RenderDataGenerator():
+//    mNextTextureId(0),
+//    mNextFontId(0)
+//{
+//}
 
 template <typename Vec2, typename Rectangle, typename Color>
 std::vector<RenderData> RenderDataGenerator<Vec2, Rectangle, Color>::generate(const gim::Element& element)
@@ -44,20 +44,21 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
     const Color color = nativeColorPtr ? *nativeColorPtr : Color(255, 255, 255, 255);
 
     //generate texcoords if the element has an image
-    const uint32_t* imageIdPtr = element.findAttribute<uint32_t>("image_id");
+    const std::string* textureNamePtr = element.findAttribute<std::string>("texture");
     //generate text quads if it has text
     const std::string* textPtr = element.findAttribute<std::string>("text");
-    if(imageIdPtr != nullptr)
+    if(textureNamePtr != nullptr)
     {
         FloatVec2 mainQuadPosition{(float)position.x(), (float)position.y()};
         FloatVec2 mainQuadSize{(float)size.x(), (float)size.y()};
         GIM_ASSERT(element.hasAttribute<typename Rectangle::Native>("image_coords"), "currentElement has an image id registered but lacks 'image_coords'");
-        GIM_ASSERT(mTextureSizes.count(*imageIdPtr) != 0, "image_id " + std::to_string(*imageIdPtr) + " given to an currentElement but that id has not been registered in the RenderDataGenerator");
+        GIM_ASSERT(mTextures.count(*textureNamePtr) != 0, "texture '" << *textureNamePtr << "' given to an currentElement but that id has not been registered in the RenderDataGenerator");
 
-        uint32_t imageId = *imageIdPtr;
+        const std::string& textureName = *textureNamePtr;
         StretchMode stretchMode = getOrFallback<StretchMode>(element, "stretch_mode", StretchMode::STRETCHED);
         const Rectangle& imageCoords = element.getAttribute<typename Rectangle::Native>("image_coords");
-        const Vec2& imageSizeInt = mTextureSizes.at(imageId);
+        const auto& texture = mTextures.at(textureName).get();
+        const Vec2& imageSizeInt = texture.size();
         const FloatVec2 imageSize{(float)imageSizeInt.x(), (float)imageSizeInt.y()};
         BorderMode borderMode = getOrFallback<BorderMode>(element, "border_mode", BorderMode::NONE);
 
@@ -153,7 +154,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
         }
         generateBorders(element, mainQuadPosition, mainQuadSize, color, zPosition, imageSize, renderData.positions, renderData.colors, renderData.texCoords);
 
-        renderData.imageId = imageId;
+        renderData.textureHandle = texture.handle();
     }
 
     if(textPtr != nullptr)
@@ -184,18 +185,19 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
         internal::FontTextureCache* currentTextureCache; 
         Font* currentFont;
         uint32_t currentFontCacheId;
-        uint32_t currentFontTextureId;
+        uint32_t currentFontTextureHandle;
 
-        auto loadFont = [this, &currentMetricsMap, &currentTextureCache, &currentFont, &currentFontCacheId, &currentFontTextureId] (const std::string& font)
+        auto loadFont = [this, &currentMetricsMap, &currentTextureCache, &currentFont, &currentFontCacheId, &currentFontTextureHandle] (const std::string& font)
         {
-            GIM_ASSERT(mFontCacheIds.count(font) != 0, "The given font '" + font + "' is not registered");
+            GIM_ASSERT(mFontCache.count(font) != 0, "The given font '" + font + "' is not registered");
             GIM_ASSERT(mFonts.count(font) != 0, "texture registered, but not existing. This is a bug in gimgui");
-            currentFontCacheId = mFontCacheIds.at(font);
-            FontCacheEntry& fontCache = *mFontCache.at(currentFontCacheId);
+            //currentFontCacheId = mFontCacheIds.at(font);
+            //FontCacheEntry& fontCache = *mFontCache.at(currentFontCacheId);
+            FontCacheEntry& fontCache = *mFontCache.at(font);
             currentMetricsMap = &fontCache.metrics;
             currentTextureCache = &fontCache.textureCoordinates; 
             currentFont = &mFonts.at(font).get();
-            currentFontTextureId = fontCache.textureId;
+            currentFontTextureHandle = fontCache.textureHandle;
         };
 
         if(!(style & TextStyle::BOLD) && !(style & TextStyle::ITALIC))
@@ -228,7 +230,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
         auto codePointsVector = utf8Decoder.decode(utf8string);
         std::deque<uint32_t> codePoints(codePointsVector.begin(), codePointsVector.end());
 
-        renderData.textImageId = currentFontTextureId;
+        renderData.textTextureHandle = currentFontTextureHandle;
 
         const Vec2 textStart(position.x() + textBorders.start().x(), position.y() + textBorders.start().y());
         float x = textStart.x();
@@ -393,32 +395,28 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
 }
 
 template <typename Vec2, typename Rectangle, typename Color>
-uint32_t RenderDataGenerator<Vec2, Rectangle, Color>::registerTexture(const Vec2& textureSize)
+template <typename Texture>
+void RenderDataGenerator<Vec2, Rectangle, Color>::registerTexture(const std::string& textureName, const Texture& texture)
 {
+    GIM_ASSERT(mTextures.count(textureName) == 0, "trying to register already existing texture '" << textureName << "'");
+    Vec2 textureSize = texture.size();
     GIM_ASSERT(textureSize.x() > 0 && textureSize.y() > 0, "trying to register a texture of size (" + std::to_string(textureSize.x()) + "," + std::to_string(textureSize.y()) + "). Both components must be above zero");
 
-    uint32_t newId = mNextTextureId++;
-    mTextureSizes[newId] = textureSize;
-    return newId;
+    mTextures[textureName] = {textureSize, texture.handle()};
 }
 
 template <typename Vec2, typename Rectangle, typename Color>
 template <typename Texture>
-uint32_t RenderDataGenerator<Vec2, Rectangle, Color>::registerFontStorage(const std::vector<std::reference_wrapper<Font>>& fonts, const Texture& texture)
+void RenderDataGenerator<Vec2, Rectangle, Color>::registerFontStorage(const std::vector<std::reference_wrapper<Font>>& fonts, const Texture& texture)
 {
-    uint32_t newImageId = mNextTextureId++;   
-
-    std::shared_ptr<FontCacheEntry> textureCache = std::make_shared<FontCacheEntry>(FontCacheEntry{internal::FontTextureCache(texture), newImageId});
+    std::shared_ptr<FontCacheEntry> textureCache = std::make_shared<FontCacheEntry>(FontCacheEntry{internal::FontTextureCache(texture), texture.handle()});
     for(auto& font : fonts)
     {
-        uint32_t newFontId = mNextFontId++;   
-        GIM_ASSERT(mFontCacheIds.count(font.get().name()) == 0, "trying to register font '" + font.get().name() + "' but it has already been registered");
-        mFontCacheIds.emplace(font.get().name(), newFontId);
-        mFontCache.emplace(newFontId, textureCache);
+        GIM_ASSERT(mFontCache.count(font.get().name()) == 0, "trying to register font '" + font.get().name() + "' but it has already been registered");
+        //mFontCacheIds.emplace(font.get().name(), newFontId);
+        mFontCache.emplace(font.get().name(), textureCache);
         mFonts.emplace(font.get().name(), font);
     }
-
-    return newImageId;
 }
 
 template <typename Vec2, typename Rectangle, typename Color>
@@ -627,8 +625,8 @@ template <typename Vec2, typename Rectangle, typename Color>
 float RenderDataGenerator<Vec2, Rectangle, Color>::getHSpace(const Font& font, uint32_t size)
 {
     uint32_t whitespace = ' ';
-    uint32_t fontId = mFontCacheIds.at(font.name());
-    auto& fontCache = *mFontCache.at(fontId);
+    //uint32_t fontId = mFontCacheIds.at(font.name());
+    auto& fontCache = *mFontCache.at(font.name());
 
     auto metricsIter = fontCache.metrics.find(CodePointSizeId({whitespace, size, fontId}));
     

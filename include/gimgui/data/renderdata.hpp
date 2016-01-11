@@ -26,12 +26,12 @@ namespace gim
         std::vector<float> positions;
         std::vector<float> colors;
         std::vector<float> texCoords;
-        uint32_t imageId;
+        uint32_t textureHandle;
 
         std::vector<float> textPositions;
         std::vector<float> textColors;
         std::vector<float> textTexCoords;
-        uint32_t textImageId;
+        uint32_t textTextureHandle;
         
         std::unique_ptr<ClipRect> clipRectangle;
     };

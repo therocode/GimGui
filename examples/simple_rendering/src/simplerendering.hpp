@@ -32,7 +32,7 @@ class SimpleRendering
         std::array<float, 16> mProjection;
         gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> mRenderDataGenerator;
         Vec2 mLastPosition;
-        std::unordered_map<int32_t, std::unique_ptr<Texture>> mTextures;
+        std::vector<std::unique_ptr<Texture>> mTextures;
         std::ifstream mFontFile;
         std::ifstream mBoldFontFile;
         std::ifstream mItalicFontFile;
