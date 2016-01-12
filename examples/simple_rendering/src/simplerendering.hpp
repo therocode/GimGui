@@ -6,20 +6,19 @@
 #include <fstream>
 #include <glutils/texture.hpp>
 #include <gimgui/logic/renderdatagenerator.hpp>
-#include <helpers/vec2.hpp>
+#include <helpers/vector2.hpp>
 #include <helpers/rectangle.hpp>
 #include <helpers/color.hpp>
 
-struct Vec2;
 union SDL_Event;
 
 class SimpleRendering
 {
 
     public:
-        SimpleRendering(const Vec2& viewSize);
+        SimpleRendering(const Vector2& viewSize);
         void loop();
-        void setViewSize(const Vec2& viewSize);
+        void setViewSize(const Vector2& viewSize);
         bool isTerminated() const;
         void handleEvents(const std::deque<SDL_Event>& events);
     private:
@@ -31,8 +30,9 @@ class SimpleRendering
         Shader mBaseShader;
         std::array<float, 16> mProjection;
         gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> mRenderDataGenerator;
-        Vec2 mLastPosition;
+        Vector2 mLastPosition;
         std::vector<std::unique_ptr<Texture>> mTextures;
+        std::unordered_map<uint32_t, std::reference_wrapper<const Texture>> mTextureHandleIndex;
         std::ifstream mFontFile;
         std::ifstream mBoldFontFile;
         std::ifstream mItalicFontFile;
@@ -47,5 +47,5 @@ class SimpleRendering
         GLint mColorLocation;
         GLint mTexCoordLocation;
 
-        Vec2 mViewSize;
+        Vector2 mViewSize;
 };

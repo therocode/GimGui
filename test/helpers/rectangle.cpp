@@ -15,7 +15,7 @@ RectangleAdaptor::RectangleAdaptor()
 }
 
 RectangleAdaptor::RectangleAdaptor(const Vec2Adaptor& start, const Vec2Adaptor& size):
-    mRectangle{Vec2{start.x(), start.y()}, Vec2{size.x(), size.y()}}
+    mRectangle{Vector2{start.x(), start.y()}, Vector2{size.x(), size.y()}}
 {
 }
 

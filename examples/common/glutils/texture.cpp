@@ -112,9 +112,9 @@ void Texture::resize(uint32_t width, uint32_t height)
     create(width, height, newPixels.get(), false, true);
 }
 
-Vec2 Texture::size() const
+Vector2 Texture::size() const
 {
-    return Vec2({(int32_t)mWidth, (int32_t)mHeight});
+    return Vector2({(int32_t)mWidth, (int32_t)mHeight});
 }
 
 void Texture::destroy()

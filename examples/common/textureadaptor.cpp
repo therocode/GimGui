@@ -36,3 +36,8 @@ uint32_t TextureAdaptor::handle() const
 {
     return mTexture.getId();
 }
+
+Vec2Adaptor TextureAdaptor::size() const
+{
+    return {mTexture.size().x, mTexture.size().y};
+}

@@ -8,14 +8,14 @@ SCENARIO("FontTextureCache can be used to store and access glyph texture coordin
 {
     GIVEN("a FontTextureCache setup with a texture interface, and a font")
     {
-        TextureInterfaceStub textureInterface({5, 5});
+        TextureInterfaceStub textureInterface({5, 5}, 30);
         std::ifstream file("resources/fonts/LiberationSans-Regular.ttf", std::ios::binary);
         gim::Font font(file);
         gim::internal::FontTextureCache textureCache(textureInterface);
 
         WHEN("the coordinates of a non-existing glyph is accessed")
         {
-             auto texCoordsPointer = textureCache.glyphCoords('G', 16, 0);
+             auto texCoordsPointer = textureCache.glyphCoords(0, 'G', 16);
              
              THEN("the returned pointer is nullptr")
              {
@@ -28,8 +28,8 @@ SCENARIO("FontTextureCache can be used to store and access glyph texture coordin
             font.resize(16);
             auto glyph = font.generateGlyph('G');
             REQUIRE(glyph != nullptr);
-            auto texCoords = textureCache.add(*glyph, 0);
-            auto texCoordsPointer = textureCache.glyphCoords('G', 16, 0);
+            auto texCoords = textureCache.add(0, *glyph);
+            auto texCoordsPointer = textureCache.glyphCoords(0, 'G', 16);
 
             THEN("the initial coordinates and subsequent coordinates match")
             {
@@ -43,9 +43,9 @@ SCENARIO("FontTextureCache can be used to store and access glyph texture coordin
             font.resize(10);
             auto glyph = font.generateGlyph('A');
             REQUIRE(glyph != nullptr);
-            textureCache.add(*glyph, 0);
-            auto sameGlyph = textureCache.glyphCoords('A', 11, 0);
-            auto sameSize = textureCache.glyphCoords('B', 11, 0);
+            textureCache.add(0, *glyph);
+            auto sameGlyph = textureCache.glyphCoords(0, 'A', 11);
+            auto sameSize = textureCache.glyphCoords(0, 'B', 11);
 
             THEN("nullptrs are returned")
             {
@@ -60,7 +60,7 @@ SCENARIO("FontTextureCache can be used to access coordinates of a whole-filled q
 {
     GIVEN("a FontTextureCache setup with a texture interface")
     {
-        TextureInterfaceStub textureInterface({10, 10});
+        TextureInterfaceStub textureInterface({10, 10}, 20);
         gim::internal::FontTextureCache textureCache(textureInterface);
 
         WHEN("the coordinates of the solid quad are accessed")

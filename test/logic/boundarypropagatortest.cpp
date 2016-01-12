@@ -1,7 +1,7 @@
 #include <catch.hpp>
 #include <gimgui/data/element.hpp>
 #include <gimgui/logic/boundarypropagator.hpp>
-#include <helpers/vec2.hpp>
+#include <helpers/vector2.hpp>
 #include <set>
 
 SCENARIO("BoundaryPropagator propagates through the hierarchy based on which elements are within the boundary of the access point", "[logic]")
@@ -12,44 +12,44 @@ SCENARIO("BoundaryPropagator propagates through the hierarchy based on which ele
 
             gim::Element root({"in"}, 
             {
-                {"position", Vec2({0, 0})},
-                {"size", Vec2({20, 20})}
+                {"position", Vector2({0, 0})},
+                {"size", Vector2({20, 20})}
             },
             {
                 gim::Element({"in"},
                 {
-                    {"position", Vec2({8, 8})},
-                    {"size", Vec2({5, 5})}
+                    {"position", Vector2({8, 8})},
+                    {"size", Vector2({5, 5})}
                 },
                 {
                     gim::Element({"not_in"},
                     {
-                        {"position", Vec2({8, 8})},
-                        {"size", Vec2({5, 5})}
+                        {"position", Vector2({8, 8})},
+                        {"size", Vector2({5, 5})}
                     },
                     {
                         gim::Element({"in"},
                         {
-                            {"position", Vec2({-8, -8})},
-                            {"size", Vec2({5, 5})}
+                            {"position", Vector2({-8, -8})},
+                            {"size", Vector2({5, 5})}
                         })
                     }),
                     gim::Element({"in"},
                     {
-                        {"position", Vec2({0, 0})},
-                        {"size", Vec2({5, 5})}
+                        {"position", Vector2({0, 0})},
+                        {"size", Vector2({5, 5})}
                     })
                 }),
                 gim::Element({"in_second"}, 
                 {
-                    {"position", Vec2({11, 8})},
-                    {"size", Vec2({5, 5})}
+                    {"position", Vector2({11, 8})},
+                    {"size", Vector2({5, 5})}
                 })
             });
 
         WHEN("the hierarchy is given to a BoundaryPropagator with one point added")
         {
-            gim::BoundaryPropagator<Vec2> propagator(root, {Vec2({10, 10})});
+            gim::BoundaryPropagator<Vector2> propagator(root, {Vector2({10, 10})});
 
             THEN("the .next() method can be used to grab all elements within the bounds with the given point one by one, ending indefinitely on nullptr")
             {
@@ -68,7 +68,7 @@ SCENARIO("BoundaryPropagator propagates through the hierarchy based on which ele
 
         WHEN("the hierarchy is given to a BoundaryPropagator with two points added")
         {
-            gim::BoundaryPropagator<Vec2> propagator(root, {Vec2({10, 10}), Vec2({12, 9})});
+            gim::BoundaryPropagator<Vector2> propagator(root, {Vector2({10, 10}), Vector2({12, 9})});
 
             THEN("the .next() method can be used to grab all elements within the bounds with the given point one by one, ending indefinitely on nullptr")
             {
@@ -90,8 +90,8 @@ SCENARIO("BoundaryPropagator propagates through the hierarchy based on which ele
 
         WHEN("the hierarchy is given to a BoundaryPropagator and the order is reversed")
         {
-            gim::BoundaryPropagator<Vec2> propagator(root, {Vec2({10, 10})});
-            gim::BoundaryPropagator<Vec2> reversePropagator(root, {Vec2({10, 10})});
+            gim::BoundaryPropagator<Vector2> propagator(root, {Vector2({10, 10})});
+            gim::BoundaryPropagator<Vector2> reversePropagator(root, {Vector2({10, 10})});
             reversePropagator.reverse();
 
             THEN("the order is the opposite to that of a normal execution")

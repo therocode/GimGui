@@ -1,5 +1,5 @@
 #pragma once
-#include <helpers/vec2.hpp>
+#include <helpers/vector2.hpp>
 #include <opengl.hpp>
 #include <SDL2/SDL.h>
 #include <deque>
@@ -7,7 +7,7 @@
 class Window
 {
     public:
-        Window(const Vec2& size);
+        Window(const Vector2& size);
         ~Window();
         Window(const Window& other) = delete;
         Window& operator=(const Window& other) = delete;

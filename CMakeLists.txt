@@ -33,7 +33,7 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 #Set source files.
 set(source_files
     src/data/element.cpp
-    src/data/codepointsizeid.cpp
+    src/data/codepointsize.cpp
     src/data/font.cpp
     src/data/fontloadexception.cpp
     src/data/renderdata.cpp
@@ -51,7 +51,7 @@ set(source_files
 set(header_files
     include/gimgui/assert.hpp
     include/gimgui/data/bitmap.hpp
-    include/gimgui/data/codepointsizeid.hpp
+    include/gimgui/data/codepointsize.hpp
     include/gimgui/data/element.hpp
     include/gimgui/data/element.inl
     include/gimgui/data/font.hpp
@@ -129,7 +129,7 @@ if(BUILD_TESTS)
         "test/helpers/color.cpp"
         "test/helpers/closeenough.cpp"
         "test/helpers/textureinterfacestub.cpp"
-        "test/helpers/vec2.cpp"
+        "test/helpers/vector2.cpp"
         "test/helpers/rectangle.cpp"
         )
 
@@ -171,7 +171,7 @@ if(BUILD_EXAMPLES)
         ${simple_src}/main.cpp
         ${simple_src}/simplerendering.cpp
         ${simple_src}/events.cpp
-        test/helpers/vec2.cpp
+        test/helpers/vector2.cpp
         test/helpers/rectangle.cpp
         test/helpers/color.cpp
         )

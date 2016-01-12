@@ -1,8 +1,8 @@
-#include <helpers/vec2.hpp>
+#include <helpers/vector2.hpp>
 
-Vec2 Vec2::operator+(const Vec2& other) const
+Vector2 Vector2::operator+(const Vector2& other) const
 {
-    Vec2 result;
+    Vector2 result;
 
     result.x = x + other.x;
     result.y = y + other.y;
@@ -10,7 +10,7 @@ Vec2 Vec2::operator+(const Vec2& other) const
     return result;
 }
 
-Vec2& Vec2::operator+=(const Vec2& other)
+Vector2& Vector2::operator+=(const Vector2& other)
 {
     x += other.x;
     y += other.y;
@@ -18,12 +18,12 @@ Vec2& Vec2::operator+=(const Vec2& other)
     return *this;
 }
 
-bool Vec2::operator==(const Vec2& other) const
+bool Vector2::operator==(const Vector2& other) const
 {
     return x == other.x && y == other.y;
 }
 
-bool Vec2::operator!=(const Vec2& other) const
+bool Vector2::operator!=(const Vector2& other) const
 {
     return !(other == *this);
 }
@@ -37,7 +37,7 @@ Vec2Adaptor::Vec2Adaptor(int32_t x, int32_t y):
 {
 }
 
-Vec2Adaptor::Vec2Adaptor(const Vec2& vec2):
+Vec2Adaptor::Vec2Adaptor(const Vector2& vec2):
     mVec2(vec2)
 {
 }

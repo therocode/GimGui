@@ -1,7 +1,7 @@
 #include <catch.hpp>
 #include <gimgui/data/rectangle.hpp>
 #include <gimgui/logic/rectanglepacker.hpp>
-#include <helpers/vec2.hpp>
+#include <helpers/vector2.hpp>
 
 const int32_t minSize = 4;
 const int32_t maxSize = 10;

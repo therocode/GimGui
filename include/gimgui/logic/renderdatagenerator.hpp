@@ -5,6 +5,7 @@
 #include <gimgui/data/textstyles.hpp>
 #include <gimgui/data/textalignments.hpp>
 #include <gimgui/data/wrapmode.hpp>
+#include <gimgui/data/codepointsize.hpp>
 #include <gimgui/logic/allpropagator.hpp>
 #include <gimgui/logic/absolutemap.hpp>
 #include <gimgui/logic/fonttexturecache.hpp>
@@ -21,7 +22,7 @@ namespace gim
     template <typename Vec2, typename Rectangle, typename Color>
     class RenderDataGenerator
     {
-        using MetricsMap = std::unordered_map<CodePointSizeId, Glyph::Metrics>;
+        using MetricsMap = std::unordered_map<CodePointSize, Glyph::Metrics>;
         struct FloatVec2
         {
             float x;
@@ -32,7 +33,8 @@ namespace gim
             internal::FontTextureCache textureCoordinates;
             //uint32_t textureId;
             uint32_t textureHandle;
-            MetricsMap metrics;
+            std::unordered_map<std::string, int32_t> fontIndices;
+            std::vector<MetricsMap> metrics;
         };
         struct TextureEntry
         {
@@ -56,7 +58,7 @@ namespace gim
             void generateBorders(const Element& element, const FloatVec2& position, const FloatVec2& size, const Color& color, float zPosition, const FloatVec2& imageSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords);
 
             float getHSpace(const Font& font, uint32_t size);
-            std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> loadGlyphData(uint32_t codePoint, uint32_t textSize, uint32_t fontCacheId, internal::FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font);
+            std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> loadGlyphData(int32_t fontId, uint32_t codePoint, uint32_t textSize, internal::FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font);
 
             std::unordered_map<std::string, TextureEntry> mTextures;
 

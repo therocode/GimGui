@@ -1,11 +1,11 @@
 #pragma once
 #include <cstdint>
-#include <helpers/vec2.hpp>
+#include <helpers/vector2.hpp>
 
 struct Rectangle
 {
-    Vec2 start;
-    Vec2 size;
+    Vector2 start;
+    Vector2 size;
 
     bool operator==(const Rectangle& other) const;
     bool operator!=(const Rectangle& other) const;

@@ -5,21 +5,21 @@
 #include <gimgui/logic/allpropagator.hpp>
 #include <gimgui/util/getorfallback.hpp>
 
-void mouseClicked(gim::Element& element, const Vec2& position, MouseButton button)
+void mouseClicked(gim::Element& element, const Vector2& position, MouseButton button)
 {
-    gim::AbsoluteMap<Vec2> positionMap("position");
+    gim::AbsoluteMap<Vector2> positionMap("position");
 
-    gim::BoundaryPropagator<Vec2> boundaryPropagator(element, {position});
+    gim::BoundaryPropagator<Vector2> boundaryPropagator(element, {position});
     boundaryPropagator.reverse();
 
     std::vector<gim::Element*> toDrag;
 
     while(gim::Element* currentElement = boundaryPropagator.next())
     {
-        Vec2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
+        Vector2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
         CallbackExecutor executor("on_click");
         executor.execute(*currentElement, {{"position", position},
-                                           {"relative_position", Vec2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
+                                           {"relative_position", Vector2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
                                            {"button", button}});
 
         toDrag.push_back(currentElement);
@@ -32,10 +32,10 @@ void mouseClicked(gim::Element& element, const Vec2& position, MouseButton butto
 
     while(gim::Element* currentElement = allPropagator.next())
     {
-        Vec2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
+        Vector2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
         CallbackExecutor executor("on_global_click");
         executor.execute(*currentElement, {{"position", position},
-                                           {"relative_position", Vec2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
+                                           {"relative_position", Vector2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
                                            {"button", button}});
     }
 
@@ -46,21 +46,21 @@ void mouseClicked(gim::Element& element, const Vec2& position, MouseButton butto
     }
 }
 
-void mouseReleased(gim::Element& element, const Vec2& position, MouseButton button)
+void mouseReleased(gim::Element& element, const Vector2& position, MouseButton button)
 {
-    gim::AbsoluteMap<Vec2> positionMap("position");
+    gim::AbsoluteMap<Vector2> positionMap("position");
 
-    gim::BoundaryPropagator<Vec2> boundaryPropagator(element, {position});
+    gim::BoundaryPropagator<Vector2> boundaryPropagator(element, {position});
     boundaryPropagator.reverse();
 
     std::vector<gim::Element*> toUnDrag;
 
     while(gim::Element* currentElement = boundaryPropagator.next())
     {
-        Vec2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
+        Vector2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
         CallbackExecutor executor("on_release");
         executor.execute(*currentElement, {{"position", position},
-                                           {"relative_position", Vec2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
+                                           {"relative_position", Vector2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
                                            {"button", button}});
         toUnDrag.push_back(currentElement);
 
@@ -72,10 +72,10 @@ void mouseReleased(gim::Element& element, const Vec2& position, MouseButton butt
 
     while(gim::Element* currentElement = allPropagator.next())
     {
-        Vec2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
+        Vector2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
         CallbackExecutor executor("on_global_release");
         executor.execute(*currentElement, {{"position", position},
-                                           {"relative_position", Vec2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
+                                           {"relative_position", Vector2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
                                            {"button", button}});
     }
 
@@ -86,13 +86,13 @@ void mouseReleased(gim::Element& element, const Vec2& position, MouseButton butt
     }
 }
 
-void moveMouse(gim::Element& element, const Vec2& currentPosition, const Vec2& lastPosition)
+void moveMouse(gim::Element& element, const Vector2& currentPosition, const Vector2& lastPosition)
 {
-    Vec2 delta;
+    Vector2 delta;
     delta.x = currentPosition.x - lastPosition.x;
     delta.y = currentPosition.y - lastPosition.y;
 
-    auto overlaps = [] (const Vec2& posA, const Vec2& posB, const Vec2& size) 
+    auto overlaps = [] (const Vector2& posA, const Vector2& posB, const Vector2& size) 
     {
         return posA.x > posB.x &&
             posA.x < posB.x + size.x &&
@@ -100,7 +100,7 @@ void moveMouse(gim::Element& element, const Vec2& currentPosition, const Vec2& l
             posA.y < posB.y + size.y;
     };
 
-    gim::BoundaryPropagator<Vec2> propagator(element, {currentPosition, lastPosition});
+    gim::BoundaryPropagator<Vector2> propagator(element, {currentPosition, lastPosition});
 
 
     while(gim::Element* currentElement = propagator.next())
@@ -112,20 +112,20 @@ void moveMouse(gim::Element& element, const Vec2& currentPosition, const Vec2& l
                     {"delta", delta}});
         }
 
-        gim::AbsoluteMap<Vec2> absoluteMap("position");
-        Vec2 elementPosition = absoluteMap.getAbsoluteOf(*currentElement);
-        Vec2 elementSize = currentElement->getAttribute<Vec2>("size");
+        gim::AbsoluteMap<Vector2> absoluteMap("position");
+        Vector2 elementPosition = absoluteMap.getAbsoluteOf(*currentElement);
+        Vector2 elementSize = currentElement->getAttribute<Vector2>("size");
 
         bool currentPosOverlaps = overlaps(currentPosition, elementPosition, elementSize);
         bool lastPosOverlaps = overlaps(lastPosition, elementPosition, elementSize);
 
-        Vec2 relativePosition;
+        Vector2 relativePosition;
         relativePosition.x = currentPosition.x - elementPosition.x;
         relativePosition.y = currentPosition.y - elementPosition.y;
 
-        absoluteMap = gim::AbsoluteMap<Vec2>("position");
+        absoluteMap = gim::AbsoluteMap<Vector2>("position");
         elementPosition = absoluteMap.getAbsoluteOf(*currentElement);
-        elementSize = currentElement->getAttribute<Vec2>("size");
+        elementSize = currentElement->getAttribute<Vector2>("size");
 
         if(currentPosOverlaps && !lastPosOverlaps)
         {//got hovered

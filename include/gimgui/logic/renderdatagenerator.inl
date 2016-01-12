@@ -57,8 +57,8 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
         const std::string& textureName = *textureNamePtr;
         StretchMode stretchMode = getOrFallback<StretchMode>(element, "stretch_mode", StretchMode::STRETCHED);
         const Rectangle& imageCoords = element.getAttribute<typename Rectangle::Native>("image_coords");
-        const auto& texture = mTextures.at(textureName).get();
-        const Vec2& imageSizeInt = texture.size();
+        const auto& texture = mTextures.at(textureName);
+        Vec2 imageSizeInt = texture.size;
         const FloatVec2 imageSize{(float)imageSizeInt.x(), (float)imageSizeInt.y()};
         BorderMode borderMode = getOrFallback<BorderMode>(element, "border_mode", BorderMode::NONE);
 
@@ -154,7 +154,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
         }
         generateBorders(element, mainQuadPosition, mainQuadSize, color, zPosition, imageSize, renderData.positions, renderData.colors, renderData.texCoords);
 
-        renderData.textureHandle = texture.handle();
+        renderData.textureHandle = texture.handle;
     }
 
     if(textPtr != nullptr)
@@ -184,17 +184,19 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
         MetricsMap* currentMetricsMap;
         internal::FontTextureCache* currentTextureCache; 
         Font* currentFont;
+        int32_t currentFontIndex;
         uint32_t currentFontCacheId;
         uint32_t currentFontTextureHandle;
 
-        auto loadFont = [this, &currentMetricsMap, &currentTextureCache, &currentFont, &currentFontCacheId, &currentFontTextureHandle] (const std::string& font)
+        auto loadFont = [this, &currentFontIndex, &currentMetricsMap, &currentTextureCache, &currentFont, &currentFontCacheId, &currentFontTextureHandle] (const std::string& font)
         {
             GIM_ASSERT(mFontCache.count(font) != 0, "The given font '" + font + "' is not registered");
             GIM_ASSERT(mFonts.count(font) != 0, "texture registered, but not existing. This is a bug in gimgui");
             //currentFontCacheId = mFontCacheIds.at(font);
             //FontCacheEntry& fontCache = *mFontCache.at(currentFontCacheId);
             FontCacheEntry& fontCache = *mFontCache.at(font);
-            currentMetricsMap = &fontCache.metrics;
+            currentFontIndex = fontCache.fontIndices.at(font);
+            currentMetricsMap = &fontCache.metrics[currentFontIndex];
             currentTextureCache = &fontCache.textureCoordinates; 
             currentFont = &mFonts.at(font).get();
             currentFontTextureHandle = fontCache.textureHandle;
@@ -323,7 +325,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
             else
             {
 
-                auto glyphData = loadGlyphData(codePoint, textSize, currentFontCacheId, *currentTextureCache, *currentMetricsMap, *currentFont);
+                auto glyphData = loadGlyphData(currentFontIndex, codePoint, textSize, *currentTextureCache, *currentMetricsMap, *currentFont);
 
                 if(glyphData)
                 {
@@ -412,11 +414,14 @@ void RenderDataGenerator<Vec2, Rectangle, Color>::registerFontStorage(const std:
     std::shared_ptr<FontCacheEntry> textureCache = std::make_shared<FontCacheEntry>(FontCacheEntry{internal::FontTextureCache(texture), texture.handle()});
     for(auto& font : fonts)
     {
+        textureCache->fontIndices.emplace(font.get().name(), textureCache->fontIndices.size());
         GIM_ASSERT(mFontCache.count(font.get().name()) == 0, "trying to register font '" + font.get().name() + "' but it has already been registered");
         //mFontCacheIds.emplace(font.get().name(), newFontId);
         mFontCache.emplace(font.get().name(), textureCache);
         mFonts.emplace(font.get().name(), font);
     }
+
+    textureCache->metrics.resize(fonts.size());
 }
 
 template <typename Vec2, typename Rectangle, typename Color>
@@ -628,9 +633,10 @@ float RenderDataGenerator<Vec2, Rectangle, Color>::getHSpace(const Font& font, u
     //uint32_t fontId = mFontCacheIds.at(font.name());
     auto& fontCache = *mFontCache.at(font.name());
 
-    auto metricsIter = fontCache.metrics.find(CodePointSizeId({whitespace, size, fontId}));
+    int32_t fontIndex = fontCache.fontIndices.at(font.name());
+    auto metricsIter = fontCache.metrics[fontIndex].find(CodePointSize{whitespace, size});
     
-    if(metricsIter != fontCache.metrics.end())
+    if(metricsIter != fontCache.metrics[fontIndex].end())
     {
         return metricsIter->second.advance;
     }
@@ -640,17 +646,17 @@ float RenderDataGenerator<Vec2, Rectangle, Color>::getHSpace(const Font& font, u
 
         GIM_ASSERT(glyphPtr != nullptr, "font " + font.name() + " didn't contain codepoint for ' ' (whitespace)");
 
-        fontCache.textureCoordinates.add(*glyphPtr, fontId);
-        fontCache.metrics.emplace(CodePointSizeId({whitespace, size, fontId}), glyphPtr->metrics);
+        fontCache.textureCoordinates.add(fontIndex, *glyphPtr);
+        fontCache.metrics[fontCache.fontIndices.at(font.name())].emplace(CodePointSize({whitespace, size}), glyphPtr->metrics);
 
         return glyphPtr->metrics.advance;
     }
 }
 
 template <typename Vec2, typename Rectangle, typename Color>
-std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> RenderDataGenerator<Vec2, Rectangle, Color>::loadGlyphData(uint32_t codePoint, uint32_t textSize, uint32_t fontCacheId, internal::FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font)
+std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> RenderDataGenerator<Vec2, Rectangle, Color>::loadGlyphData(int32_t fontIndex, uint32_t codePoint, uint32_t textSize, internal::FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font)
 {
-    auto texCoordsPtr = textureCache.glyphCoords(codePoint, textSize, fontCacheId);
+    auto texCoordsPtr = textureCache.glyphCoords(fontIndex, codePoint, textSize);
     TextureCoordinates texCoords;
     Glyph::Metrics metrics;
 
@@ -661,8 +667,8 @@ std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> RenderDataGenera
         if(glyphPtr)
         {
             metrics = glyphPtr->metrics;
-            texCoords = textureCache.add(*glyphPtr, fontCacheId);
-            metricsMap.emplace(CodePointSizeId({codePoint, textSize, fontCacheId}), metrics);
+            texCoords = textureCache.add(fontIndex, *glyphPtr);
+            metricsMap.emplace(CodePointSize({codePoint, textSize}), metrics);
         }
         else
         {//codepoint doesn't exist - do nothing
@@ -671,9 +677,9 @@ std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> RenderDataGenera
     }
     else
     {
-        GIM_ASSERT(metricsMap.count(CodePointSizeId({codePoint, textSize, fontCacheId})) != 0, "glyph existed in texture but not in metrics map. this is a bug.");
+        GIM_ASSERT(metricsMap.count(CodePointSize({codePoint, textSize})) != 0, "glyph existed in texture but not in metrics map. this is a bug.");
         texCoords = *texCoordsPtr;
-        metrics = metricsMap.at(CodePointSizeId({codePoint, textSize, fontCacheId}));
+        metrics = metricsMap.at(CodePointSize({codePoint, textSize}));
     }
 
     return std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>>(new std::tuple<TextureCoordinates, Glyph::Metrics>(texCoords, metrics));

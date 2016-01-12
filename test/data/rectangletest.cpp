@@ -1,5 +1,5 @@
 #include <catch.hpp>
-#include <helpers/vec2.hpp>
+#include <helpers/vector2.hpp>
 #include <helpers/rectangle.hpp>
 
 SCENARIO("Rectangles can be constructed with a value", "[data]")
@@ -12,8 +12,8 @@ SCENARIO("Rectangles can be constructed with a value", "[data]")
         {
             THEN("it is correct")
             {
-                CHECK(rectangle.start == Vec2({0, 0}));
-                CHECK(rectangle.size == Vec2({10, 10}));
+                CHECK(rectangle.start == Vector2({0, 0}));
+                CHECK(rectangle.size == Vector2({10, 10}));
             }
         }
     }

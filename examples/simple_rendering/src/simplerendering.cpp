@@ -25,13 +25,13 @@ Callback addText = [] (gim::Element& self, const Parameters& parameters)
 
 Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
 {
-    Vec2 position = getOrFallback(parameters, "position", Vec2({0,0}));
-    Vec2 delta = getOrFallback(parameters, "delta", Vec2({0,0}));
+    Vector2 position = getOrFallback(parameters, "position", Vector2({0,0}));
+    Vector2 delta = getOrFallback(parameters, "delta", Vector2({0,0}));
 
     if(!getOrFallback(self, "resize", false))
     {
-        Vec2 relativePosition = self.getAttribute<Vec2>("position");
-        Vec2 newPosition;
+        Vector2 relativePosition = self.getAttribute<Vector2>("position");
+        Vector2 newPosition;
         newPosition.x = relativePosition.x + delta.x;
         newPosition.y = relativePosition.y + delta.y;
 
@@ -39,8 +39,8 @@ Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
     }
     else
     {
-        Vec2 size = self.getAttribute<Vec2>("size");
-        Vec2 newSize;
+        Vector2 size = self.getAttribute<Vector2>("size");
+        Vector2 newSize;
         newSize.y = size.y + delta.y;
         newSize.x = newSize.y;
 
@@ -50,7 +50,7 @@ Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
         self.setAttribute("size", newSize);
         if(self.findAttribute<Rectangle>("text_borders"))
         {
-            Vec2 textSize = Vec2({newSize.x - 20, newSize.y - 20});
+            Vector2 textSize = Vector2({newSize.x - 20, newSize.y - 20});
             self.setAttribute("text_borders", Rectangle({{10, 10}, {textSize.x, textSize.y}}));
         }
     }
@@ -58,14 +58,14 @@ Callback moveOrResize = [] (gim::Element& self, const Parameters& parameters)
 
 Callback setResize = [] (gim::Element& self, const Parameters& parameters)
 {
-    Vec2 clickPos = getOrFallback(parameters, "position", Vec2({0,0}));
-    gim::AbsoluteMap<Vec2> absoluteMap("position");
-    const Vec2 position = absoluteMap.getAbsoluteOf(self);
+    Vector2 clickPos = getOrFallback(parameters, "position", Vector2({0,0}));
+    gim::AbsoluteMap<Vector2> absoluteMap("position");
+    const Vector2 position = absoluteMap.getAbsoluteOf(self);
 
-    Vec2 relativeClickPos;
+    Vector2 relativeClickPos;
     relativeClickPos.x = clickPos.x - position.x;
     relativeClickPos.y = clickPos.y - position.y;
-    const Vec2 size = self.getAttribute<Vec2>("size");
+    const Vector2 size = self.getAttribute<Vector2>("size");
 
     if(relativeClickPos.x > size.x - 20 && relativeClickPos.y > size.y - 20)
     {
@@ -127,7 +127,7 @@ Callback toggleMode = [] (gim::Element& self, const Parameters& parameters)
     }
 };
 
-SimpleRendering::SimpleRendering(const Vec2& viewSize):
+SimpleRendering::SimpleRendering(const Vector2& viewSize):
     mQuit(false),
     mTriangles(Buffer::ARRAY_BUFFER, Buffer::DYNAMIC),
     mColors(Buffer::ARRAY_BUFFER, Buffer::DYNAMIC),
@@ -147,10 +147,10 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             {"color",    Color(40, 40, 40)},
             {"original_color",    Color(40, 40, 40)},
             {"click_color",    Color(174, 70, 56)},
-            {"position", Vec2({10, 20})},
-            {"size",     Vec2({300, 400})},
+            {"position", Vector2({10, 20})},
+            {"size",     Vector2({300, 400})},
             {"stretch_mode", gim::StretchMode::STRETCHED},
-            {"image_id", 0u},
+            {"texture", std::string("")},
             {"image_coords", Rectangle({{8, 8}, {48, 48}})},
             {"dragged", 0},
             {"resize", false},
@@ -194,10 +194,10 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"color",    Color(94, 140, 106, 100)},
                 {"original_color",    Color(94, 140, 106, 100)},
                 {"click_color",    Color(124, 170, 136)},
-                {"position", Vec2({20, 20})},
-                {"size",     Vec2({56, 18})},
+                {"position", Vector2({20, 20})},
+                {"size",     Vector2({56, 18})},
                 {"stretch_mode", gim::StretchMode::STRETCHED},
-                {"image_id", 0u},
+                {"texture", std::string("")},
                 {"image_coords", Rectangle({{8, 8}, {48, 48}})},
                 {"block_event", true},
                 {"dragged", 0},
@@ -222,10 +222,10 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                 {"color",    Color(136, 166, 94, 20)},
                 {"original_color",    Color(136, 166, 94, 20)},
                 {"click_color",    Color(166, 196, 124)},
-                {"position", Vec2({90, 20})},
-                {"size",     Vec2({64, 64})},
+                {"position", Vector2({90, 20})},
+                {"size",     Vector2({64, 64})},
                 {"stretch_mode", gim::StretchMode::STRETCHED},
-                {"image_id", 0u},
+                {"texture", std::string("")},
                 {"image_coords", Rectangle({{8, 8}, {48, 48}})},
                 {"dragged", 0},
                 {"resize", false},
@@ -250,10 +250,10 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
                     {"color",    Color(191, 179, 90)},
                     {"original_color",    Color(191, 179, 90)},
                     {"click_color",    Color(221, 209, 124)},
-                    {"position", Vec2({20, 90})},
-                    {"size",     Vec2({64, 64})},
+                    {"position", Vector2({20, 90})},
+                    {"size",     Vector2({64, 64})},
                     {"stretch_mode", gim::StretchMode::STRETCHED},
-                    {"image_id", 0u},
+                    {"texture", std::string("")},
                     {"dragged", 0},
                     {"resize", false},
                     {"image_coords", Rectangle({{8, 8}, {48, 48}})},
@@ -274,23 +274,23 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
             })
         })
 {
-    std::unique_ptr<Texture> fontTexture = std::unique_ptr<Texture>(new Texture());
-    auto textureId = mRenderDataGenerator.registerFontStorage({mFont, mBoldFont, mItalicFont, mBoldItalicFont}, TextureAdaptor(*fontTexture));
-    mTextures.emplace(textureId, std::move(fontTexture));
+    mTextures.emplace_back(std::unique_ptr<Texture>(new Texture()));
+    auto& fontTexture = *mTextures.back();
+    mRenderDataGenerator.registerFontStorage({mFont, mBoldFont, mItalicFont, mBoldItalicFont}, TextureAdaptor(fontTexture));
 
     //load textures
     auto textureA = std::unique_ptr<Texture>(new Texture(loadTexture("resources/borders.png")));
     auto textureB = std::unique_ptr<Texture>(new Texture(loadTexture("resources/button.png")));
 
-    uint32_t textureIdA = mRenderDataGenerator.registerTexture(textureA->size());
-    uint32_t textureIdB = mRenderDataGenerator.registerTexture(textureB->size());
+    mRenderDataGenerator.registerTexture("borders", TextureAdaptor(*textureA));
+    mRenderDataGenerator.registerTexture("buttons", TextureAdaptor(*textureB));
 
-    mTextures.emplace(textureIdA, std::move(textureA));
-    mTextures.emplace(textureIdB, std::move(textureB));
+    mTextures.emplace_back(std::move(textureA));
+    mTextures.emplace_back(std::move(textureB));
 
-    mRoot.setAttribute("image_id", textureIdA);
+    mRoot.setAttribute("texture", std::string("borders"));
     for(auto& child : mRoot.children())
-        child->setAttribute("image_id", textureIdA);
+        child->setAttribute("texture", std::string("borders"));
 
     //rendering
 
@@ -329,6 +329,9 @@ SimpleRendering::SimpleRendering(const Vec2& viewSize):
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable( GL_BLEND );
+
+    for(const auto& texture : mTextures)
+        mTextureHandleIndex.emplace(texture->getId(), *texture);
 }
 
 void SimpleRendering::loop()
@@ -358,8 +361,8 @@ void SimpleRendering::loop()
     {
         if(renderData.positions.size() > 0)
         {
-            GIM_ASSERT(mTextures.count(renderData.imageId) != 0, "invalid texture given");
-            mBaseShader.setUniform("texture", UniformType::TEXTURE, &*mTextures.at(renderData.imageId));
+            //GIM_ASSERT(mTextures.count(renderData.imageId) != 0, "invalid texture given");
+            mBaseShader.setUniform("texture", UniformType::TEXTURE, &mTextureHandleIndex.at(renderData.textureHandle).get());
             mTriangles.setData(renderData.positions);
             mColors.setData(renderData.colors);
 
@@ -370,8 +373,8 @@ void SimpleRendering::loop()
 
         if(renderData.textPositions.size() > 0)
         {
-            GIM_ASSERT(mTextures.count(renderData.textImageId) != 0, "invalid texture given");
-            mBaseShader.setUniform("texture", UniformType::TEXTURE, &*mTextures.at(renderData.textImageId));
+            //GIM_ASSERT(mTextures.count(renderData.textImageId) != 0, "invalid texture given");
+            mBaseShader.setUniform("texture", UniformType::TEXTURE, &mTextureHandleIndex.at(renderData.textTextureHandle).get());
             mTriangles.setData(renderData.textPositions);
             mColors.setData(renderData.textColors);
             mTexCoords.setData(renderData.textTexCoords);
@@ -392,7 +395,7 @@ void SimpleRendering::loop()
     }
 }
 
-void SimpleRendering::setViewSize(const Vec2& viewSize)
+void SimpleRendering::setViewSize(const Vector2& viewSize)
 {
     mViewSize = viewSize;
     Projection proj;
@@ -413,7 +416,7 @@ void SimpleRendering::handleEvents(const std::deque<SDL_Event>& events)
         {
             if(event.window.event == SDL_WINDOWEVENT_RESIZED)
             {
-                setViewSize(Vec2({event.window.data1, event.window.data2}));
+                setViewSize(Vector2({event.window.data1, event.window.data2}));
             }
         }
         else if(event.type == SDL_KEYDOWN)
@@ -425,13 +428,13 @@ void SimpleRendering::handleEvents(const std::deque<SDL_Event>& events)
         }
         else if(event.type == SDL_MOUSEMOTION)
         {
-            Vec2 position = Vec2({event.motion.x, event.motion.y});
+            Vector2 position = Vector2({event.motion.x, event.motion.y});
             moveMouse(mRoot, position, mLastPosition);
             mLastPosition = position;
         }
         else if(event.type == SDL_MOUSEBUTTONDOWN)
         {
-            Vec2 position = Vec2({event.button.x, event.button.y});
+            Vector2 position = Vector2({event.button.x, event.button.y});
             uint8_t button = event.button.button;
 
             MouseButton converted = gim::resolve(button, {{SDL_BUTTON_LEFT, LEFT}, {SDL_BUTTON_RIGHT, RIGHT}, {SDL_BUTTON_MIDDLE, MIDDLE}}, UNKNOWN);
@@ -439,7 +442,7 @@ void SimpleRendering::handleEvents(const std::deque<SDL_Event>& events)
         }
         else if(event.type == SDL_MOUSEBUTTONUP)
         {
-            Vec2 position = Vec2({event.button.x, event.button.y});
+            Vector2 position = Vector2({event.button.x, event.button.y});
             uint8_t button = event.button.button;
 
             MouseButton converted = gim::resolve(button, {{SDL_BUTTON_LEFT, LEFT}, {SDL_BUTTON_RIGHT, RIGHT}, {SDL_BUTTON_MIDDLE, MIDDLE}}, UNKNOWN);

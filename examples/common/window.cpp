@@ -1,7 +1,7 @@
 #include <window.hpp>
 #include <iostream>
 
-Window::Window(const Vec2& size)
+Window::Window(const Vector2& size)
 {
 #if !defined(__EMSCRIPTEN__)
     auto glStatus = ogl_LoadFunctions();

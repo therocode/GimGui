@@ -1,7 +1,7 @@
 #pragma once
 #include <gimgui/logic/event.hpp>
 #include <gimgui/data/element.hpp>
-#include <helpers/vec2.hpp>
+#include <helpers/vector2.hpp>
 #include <vector>
 #include <functional>
 
@@ -38,7 +38,7 @@ class CallbackExecutor
 enum MouseButton { UNKNOWN = 0, LEFT = 1, RIGHT = 2, MIDDLE = 4};
 
 //goes to the element which was actually clicked
-void mouseClicked(gim::Element& element, const Vec2& position, MouseButton button);
+void mouseClicked(gim::Element& element, const Vector2& position, MouseButton button);
 //goes to all elements, notifying that a mouse button was released
-void mouseReleased(gim::Element& element, const Vec2& position, MouseButton button);
-void moveMouse(gim::Element& element, const Vec2& currentPosition, const Vec2& lastPosition);
+void mouseReleased(gim::Element& element, const Vector2& position, MouseButton button);
+void moveMouse(gim::Element& element, const Vector2& currentPosition, const Vector2& lastPosition);

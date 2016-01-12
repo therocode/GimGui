@@ -1,7 +1,7 @@
 #include <iostream>
 #include "simplerendering.hpp"
 #include <memory>
-#include <helpers/vec2.hpp>
+#include <helpers/vector2.hpp>
 #include <window.hpp>
 
 #if defined(__EMSCRIPTEN__)
@@ -38,7 +38,7 @@ void trampoline()
 int main()
 {
     Window window({800, 600});
-    std::unique_ptr<SimpleRendering> simple = std::unique_ptr<SimpleRendering>(new SimpleRendering(Vec2({800, 600})));
+    std::unique_ptr<SimpleRendering> simple = std::unique_ptr<SimpleRendering>(new SimpleRendering(Vector2({800, 600})));
 
 #if defined(__EMSCRIPTEN__)
     simpleInstance = simple.get();

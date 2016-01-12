@@ -1,14 +1,14 @@
 #include <catch.hpp>
-#include <helpers/vec2.hpp>
+#include <helpers/vector2.hpp>
 #include <helpers/color.hpp>
 #include <helpers/closeenough.hpp>
 
-TEST_CASE("Vec2 helper struct equality", "[test]")
+TEST_CASE("Vector2 helper struct equality", "[test]")
 {
-    Vec2 pointA{45, 54};
-    Vec2 pointB{45, 54};
-    Vec2 pointC{45, 53};
-    Vec2 pointD{46, 53};
+    Vector2 pointA{45, 54};
+    Vector2 pointB{45, 54};
+    Vector2 pointC{45, 53};
+    Vector2 pointD{46, 53};
 
     CHECK(pointA == pointB);
     CHECK(pointA != pointC);
@@ -16,16 +16,16 @@ TEST_CASE("Vec2 helper struct equality", "[test]")
     CHECK(pointC != pointD);
 }
 
-TEST_CASE("Vec2 helper struct addition", "[test]")
+TEST_CASE("Vector2 helper struct addition", "[test]")
 {
-    Vec2 pointA{5, 6};
-    Vec2 pointB{7, 8};
+    Vector2 pointA{5, 6};
+    Vector2 pointB{7, 8};
 
-    Vec2 pointC{1, 2};
+    Vector2 pointC{1, 2};
     pointC += pointA;
 
-    CHECK((pointA + pointB) == Vec2({12, 14}));
-    CHECK(pointC == Vec2({6, 8}));
+    CHECK((pointA + pointB) == Vector2({12, 14}));
+    CHECK(pointC == Vector2({6, 8}));
 }
 
 TEST_CASE("Color helper struct construction", "[test]")
