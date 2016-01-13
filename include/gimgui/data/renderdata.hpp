@@ -6,6 +6,7 @@ namespace gim
 {
     class Element;
 
+    template<typename Texture>
     struct RenderData
     {
         struct ClipRect
@@ -26,13 +27,48 @@ namespace gim
         std::vector<float> positions;
         std::vector<float> colors;
         std::vector<float> texCoords;
-        uint32_t textureHandle;
+        const Texture* texture;
 
         std::vector<float> textPositions;
         std::vector<float> textColors;
         std::vector<float> textTexCoords;
-        uint32_t textTextureHandle;
+        const Texture* textTexture;
         
         std::unique_ptr<ClipRect> clipRectangle;
     };
+
+    template<typename Texture>
+    RenderData<Texture>::RenderData(const RenderData<Texture>& other):
+        element(other.element),
+        positions(other.positions),
+        colors(other.colors),
+        texCoords(other.texCoords),
+        texture(other.texture),
+        textPositions(other.textPositions),
+        textColors(other.textColors),
+        textTexCoords(other.textTexCoords),
+        textTexture(other.textTexture)
+    {
+        if(other.clipRectangle)
+            clipRectangle = std::unique_ptr<ClipRect>(new ClipRect(*other.clipRectangle));
+    }
+
+    template<typename Texture>
+    RenderData<Texture>& RenderData<Texture>::operator=(const RenderData& other)
+    {
+        element = other.element;
+        positions = other.positions;
+        colors = other.colors;
+        texCoords = other.texCoords;
+        texture= other.texture;
+        textPositions = other.textPositions;
+        textColors = other.textColors;
+        textTexCoords = other.textTexCoords;
+        textTexture= other.textTexture;
+
+        if(other.clipRectangle)
+            clipRectangle = std::unique_ptr<ClipRect>(new ClipRect(*other.clipRectangle));
+
+        return *this;
+    }
 }

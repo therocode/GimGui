@@ -81,7 +81,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
     GIVEN("a gui tree with elements with the attributes width and height, and a RenderDataGenerator")
     {
         TextureInterfaceStub textureAdaptor({64, 64}, 30);
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         generator.registerTexture("test_texture", textureAdaptor);
 
         gim::Element root({"container"},
@@ -102,7 +102,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("the RenderDataGenerator is used to get rendering info from the tree")
         {
-            std::vector<gim::RenderData> data = generator.generate(root);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(root);
 
             THEN("the data is correct")
             {
@@ -114,7 +114,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
                 REQUIRE(data[1].colors.size() == 0);
                 REQUIRE(data[1].texCoords.size() == 0);
 
-                CHECK(data[0].textureHandle == 30);
+                CHECK(data[0].texture->handle() == 30);
                 CHECK(data[0].element == &root);
                 CHECK(data[1].element == root.children()[0].get());
 
@@ -130,7 +130,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
     //tiles
     GIVEN("an element set to not be tiled")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
 
@@ -145,7 +145,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the data is correct")
             {
@@ -158,7 +158,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element bigger than one tile set to be fully tiled")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
         gim::Element element({"tiled"},
@@ -172,7 +172,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the data is correct")
             {
@@ -206,7 +206,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element smaller than one tile set to be fully tiled")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
         gim::Element element({"tiled"},
@@ -220,7 +220,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the data is correct")
             {
@@ -233,7 +233,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element bigger than one tile set to be vertically tiled")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
         gim::Element element({"tiled"},
@@ -247,7 +247,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the data is correct")
             {
@@ -264,7 +264,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element smaller than one tile set to be vertically tiled")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
         gim::Element element({"tiled"},
@@ -278,7 +278,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the data is correct")
             {
@@ -291,7 +291,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element bigger than one tile set to be horizontally tiled")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
         gim::Element element({"tiled"},
@@ -305,7 +305,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the data is correct")
             {
@@ -326,7 +326,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element smaller than one tile set to be horizontally tiled")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
         gim::Element element({"tiled"},
@@ -340,7 +340,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the data is correct")
             {
@@ -353,7 +353,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element smaller than one tile and having an image being a full subset of another one set to be fully tiled")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
         gim::Element element({"tiled"},
@@ -367,7 +367,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the data is correct")
             {
@@ -381,7 +381,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
     //borders
     GIVEN("an element set to have no border")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
         gim::Element element({"no border"},
@@ -395,7 +395,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the data is correct")
             {
@@ -408,7 +408,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element set to have left-right border")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
         gim::Element element({"left-right"},
@@ -424,7 +424,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the data is correct")
             {
@@ -445,7 +445,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element set to have top-bottom border")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
         gim::Element element({"top-bottom"},
@@ -461,7 +461,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the data is correct")
             {
@@ -482,7 +482,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element set to have full border")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
         gim::Element element({"full"},
@@ -504,7 +504,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the data is correct")
             {
@@ -558,7 +558,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
     GIVEN("an element with no z_position set")
     {
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
         TextureInterfaceStub textureAdaptor({64, 64}, 25);
         generator.registerTexture("test_texture", textureAdaptor);
         gim::Element element({"tiled"},
@@ -571,7 +571,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
 
         WHEN("a RenderDataGenerator is used to get rendering info from the element")
         {
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the z values are all zero")
             {
@@ -586,7 +586,7 @@ SCENARIO("RenderDataGenerator can be used to turn a gui tree into triangle buffe
         WHEN("z_position is set to something else than zero")
         {
             element.createAttribute("z_position", 10.0f);
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the z values are all set to that value")
             {
@@ -613,7 +613,7 @@ SCENARIO("Text quads can be generated from the RenderDataGenerator, with a few b
         gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20}, 30);
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
 
         generator.registerFontStorage({font}, textureAdaptor);
 
@@ -628,7 +628,7 @@ SCENARIO("Text quads can be generated from the RenderDataGenerator, with a few b
                 {"font", font.name()}
             });
 
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("quads for the text is returned with reasonable texture coordinates")
             {
@@ -639,7 +639,7 @@ SCENARIO("Text quads can be generated from the RenderDataGenerator, with a few b
                 REQUIRE(data[0].textPositions.size() == 90);
                 REQUIRE(data[0].textColors.size() == 120);
                 REQUIRE(data[0].textTexCoords.size() == 60);
-                CHECK(data[0].textTextureHandle == 30);
+                CHECK(data[0].textTexture->handle() == 30);
 
                 //first A equals second A
                 CHECK(std::equal(data[0].textTexCoords.begin() + 0, data[0].textTexCoords.begin() + 12, data[0].textTexCoords.begin() + 12));
@@ -667,7 +667,7 @@ SCENARIO("Text quads can be generated from the RenderDataGenerator, with a few b
                 {"font", font.name()}
             });
 
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("quads for the text is returned with reasonable colour values")
             {
@@ -678,7 +678,7 @@ SCENARIO("Text quads can be generated from the RenderDataGenerator, with a few b
                 REQUIRE(data[0].textPositions.size() == 54);
                 REQUIRE(data[0].textColors.size() == 72);
                 REQUIRE(data[0].textTexCoords.size() == 36);
-                CHECK(data[0].textTextureHandle == 30);
+                CHECK(data[0].textTexture->handle() == 30);
 
                 //colors are correct
                 CHECK(data[0].textColors[0] == Approx(0.39215686274f));
@@ -700,11 +700,11 @@ SCENARIO("Text quads can be generated from the RenderDataGenerator, with a few b
                 {"font", font.name()}
             });
 
-            std::vector<gim::RenderData> smallData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> smallData = generator.generate(element);
 
             element.setAttribute("text_scale", 2.0f);
 
-            std::vector<gim::RenderData> bigData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> bigData = generator.generate(element);
 
             THEN("the small data is smaller")
             {
@@ -736,7 +736,7 @@ SCENARIO("Character spacing can be controlled in different ways when rendering t
         gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20}, 30);
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
 
         generator.registerFontStorage({font}, textureAdaptor);
 
@@ -753,16 +753,16 @@ SCENARIO("Character spacing can be controlled in different ways when rendering t
                 {"font", font.name()}
             });
 
-            std::vector<gim::RenderData> neutralData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> neutralData = generator.generate(element);
 
             element.setAttribute("character_spacing", 10.0f);
-            std::vector<gim::RenderData> characterSpacedData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> characterSpacedData = generator.generate(element);
 
             element.setAttribute("character_spacing", 0.0f);
             element.setAttribute("text", std::string("h\ne\nj"));
-            std::vector<gim::RenderData> neutralData2 = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> neutralData2 = generator.generate(element);
             element.setAttribute("line_spacing", 20.0f);
-            std::vector<gim::RenderData> lineSpacedData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> lineSpacedData = generator.generate(element);
 
             THEN("the quads are spaced accordingly")
             {
@@ -801,10 +801,10 @@ SCENARIO("Character spacing can be controlled in different ways when rendering t
                 {"font", font.name()}
             });
 
-            std::vector<gim::RenderData> neutralData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> neutralData = generator.generate(element);
 
             element.setAttribute("tab_width", 8);
-            std::vector<gim::RenderData> doubleTabbedData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> doubleTabbedData = generator.generate(element);
 
             THEN("the double tabbed data is twice as much spaced")
             {
@@ -831,7 +831,7 @@ SCENARIO("Different text styles can be applied using the text_style attribute", 
         gim::Font boldItalicFont = loadFont("resources/fonts/LiberationSans-BoldItalic.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20}, 30);
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
 
         generator.registerFontStorage({font, boldFont, italicFont, boldItalicFont}, textureAdaptor);
 
@@ -850,16 +850,16 @@ SCENARIO("Different text styles can be applied using the text_style attribute", 
                 {"bold_italic_font", boldItalicFont.name()},
             });
 
-            std::vector<gim::RenderData> normalData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> normalData = generator.generate(element);
 
             element.setAttribute("text_style", gim::TextStyle::BOLD);
-            std::vector<gim::RenderData> boldData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> boldData = generator.generate(element);
 
             element.setAttribute("text_style", gim::TextStyle::ITALIC);
-            std::vector<gim::RenderData> italicData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> italicData = generator.generate(element);
 
             element.setAttribute("text_style", gim::TextStyle::BOLD | gim::TextStyle::ITALIC);
-            std::vector<gim::RenderData> boldItalicData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> boldItalicData = generator.generate(element);
 
             THEN("normal/bold/italic/bold-italic font data all have unique texture coordinates")
             {
@@ -894,7 +894,7 @@ SCENARIO("Text flow behaviour can be controlled using line_wrap", "[logic]")
         gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20}, 30);
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
 
         generator.registerFontStorage({font}, textureAdaptor);
 
@@ -908,13 +908,13 @@ SCENARIO("Text flow behaviour can be controlled using line_wrap", "[logic]")
             {"font", font.name()}
         });
 
-        std::vector<gim::RenderData> normalData = generator.generate(element);
+        std::vector<gim::RenderData<TextureInterfaceStub>> normalData = generator.generate(element);
 
         WHEN("line_wrap is set to WORDS")
         {
             element.createAttribute("line_wrap", gim::WrapMode::WORDS);
 
-            std::vector<gim::RenderData> wordWrappedData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> wordWrappedData = generator.generate(element);
 
             THEN("it is the same as without since it is the default")
             {
@@ -934,7 +934,7 @@ SCENARIO("Text flow behaviour can be controlled using line_wrap", "[logic]")
         {
             element.createAttribute("line_wrap", gim::WrapMode::CHARACTERS);
 
-            std::vector<gim::RenderData> characterWrappedData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> characterWrappedData = generator.generate(element);
 
             THEN("it wraps mid-words when the border of the element is reached")
             {
@@ -950,7 +950,7 @@ SCENARIO("Text flow behaviour can be controlled using line_wrap", "[logic]")
         {
             element.createAttribute("line_wrap", gim::WrapMode::NONE);
 
-            std::vector<gim::RenderData> noneWrappedData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> noneWrappedData = generator.generate(element);
 
             THEN("There is no wrapping at all")
             {
@@ -970,7 +970,7 @@ SCENARIO("Text row alignment behavior can be controlled using the text_alignment
         gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20}, 30);
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
 
         generator.registerFontStorage({font}, textureAdaptor);
 
@@ -984,13 +984,13 @@ SCENARIO("Text row alignment behavior can be controlled using the text_alignment
             {"font", font.name()}
         });
 
-        std::vector<gim::RenderData> normalData = generator.generate(element);
+        std::vector<gim::RenderData<TextureInterfaceStub>> normalData = generator.generate(element);
 
         WHEN("text_alignment is set to LEFT")
         {
             element.createAttribute("text_alignment", gim::TextAlign::LEFT);
 
-            std::vector<gim::RenderData> leftWrappedData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> leftWrappedData = generator.generate(element);
 
             THEN("it is the same as without since it is the default")
             {
@@ -1008,7 +1008,7 @@ SCENARIO("Text row alignment behavior can be controlled using the text_alignment
         {
             element.createAttribute("text_alignment", gim::TextAlign::RIGHT);
 
-            std::vector<gim::RenderData> rightWrappedData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> rightWrappedData = generator.generate(element);
 
             THEN()
             {
@@ -1021,7 +1021,7 @@ SCENARIO("Text row alignment behavior can be controlled using the text_alignment
         {
             element.createAttribute("text_alignment", gim::TextAlign::CENTER);
 
-            std::vector<gim::RenderData> centerWrappedData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> centerWrappedData = generator.generate(element);
 
             THEN()
             {
@@ -1041,7 +1041,7 @@ SCENARIO("text_borders can be used to control position and wrap position of text
         gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20}, 30);
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
 
         generator.registerFontStorage({font}, textureAdaptor);
 
@@ -1057,7 +1057,7 @@ SCENARIO("text_borders can be used to control position and wrap position of text
 
         WHEN("the default value is used")
         {
-            std::vector<gim::RenderData> defaultData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> defaultData = generator.generate(element);
 
             THEN("the text generated is limited by the position and size of the element")
             {
@@ -1084,7 +1084,7 @@ SCENARIO("text_borders can be used to control position and wrap position of text
         WHEN("the text_borders attribute is set to a region")
         {
             element.createAttribute("text_borders", Rectangle({{40, 70}, {150, 10}}));
-            std::vector<gim::RenderData> textBordersData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> textBordersData = generator.generate(element);
 
             THEN("the text generated is limited by the position and size of the text_borders")
             {
@@ -1117,7 +1117,7 @@ SCENARIO("By default, the RenderData contains text clip rectangles but these can
         gim::Font font = loadFont("resources/fonts/LiberationSans-Regular.ttf");
 
         TextureInterfaceStub textureAdaptor({20, 20}, 30);
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> generator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureInterfaceStub> generator;
 
         generator.registerFontStorage({font}, textureAdaptor);
 
@@ -1131,13 +1131,13 @@ SCENARIO("By default, the RenderData contains text clip rectangles but these can
             {"font", font.name()},
         });
 
-        std::vector<gim::RenderData> normalData = generator.generate(element);
+        std::vector<gim::RenderData<TextureInterfaceStub>> normalData = generator.generate(element);
 
         WHEN("text_clipping is set to true")
         {
             element.createAttribute("text_clipping", true);
 
-            std::vector<gim::RenderData> textClippedData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> textClippedData = generator.generate(element);
 
             THEN("it is the same as without since it is the default")
             {
@@ -1164,7 +1164,7 @@ SCENARIO("By default, the RenderData contains text clip rectangles but these can
         {
             element.createAttribute("text_clipping", false);
 
-            std::vector<gim::RenderData> noClipData = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> noClipData = generator.generate(element);
 
             THEN("it contains no clipping rectangle")
             {
@@ -1175,7 +1175,7 @@ SCENARIO("By default, the RenderData contains text clip rectangles but these can
         WHEN("text_z_position is set to something else than zero")
         {
             element.createAttribute("text_z_position", 10.0f);
-            std::vector<gim::RenderData> data = generator.generate(element);
+            std::vector<gim::RenderData<TextureInterfaceStub>> data = generator.generate(element);
 
             THEN("the z values of text are all set to that value")
             {

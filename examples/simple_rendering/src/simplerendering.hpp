@@ -9,6 +9,7 @@
 #include <helpers/vector2.hpp>
 #include <helpers/rectangle.hpp>
 #include <helpers/color.hpp>
+#include <textureadaptor.hpp>
 
 union SDL_Event;
 
@@ -29,7 +30,7 @@ class SimpleRendering
         Buffer mTexCoords;
         Shader mBaseShader;
         std::array<float, 16> mProjection;
-        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor> mRenderDataGenerator;
+        gim::RenderDataGenerator<Vec2Adaptor, RectangleAdaptor, ColorAdaptor, TextureAdaptor> mRenderDataGenerator;
         Vector2 mLastPosition;
         std::vector<std::unique_ptr<Texture>> mTextures;
         std::unordered_map<uint32_t, std::reference_wrapper<const Texture>> mTextureHandleIndex;

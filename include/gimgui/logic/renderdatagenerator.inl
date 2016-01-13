@@ -1,15 +1,15 @@
-//template <typename Vec2, typename Rectangle, typename Color>
-//RenderDataGenerator<Vec2, Rectangle, Color>::RenderDataGenerator():
+//template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+//RenderDataGenerator<Vec2, Rectangle, Color, Texture>::RenderDataGenerator():
 //    mNextTextureId(0),
 //    mNextFontId(0)
 //{
 //}
 
-template <typename Vec2, typename Rectangle, typename Color>
-std::vector<RenderData> RenderDataGenerator<Vec2, Rectangle, Color>::generate(const gim::Element& element)
+template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+std::vector<RenderData<Texture>> RenderDataGenerator<Vec2, Rectangle, Color, Texture>::generate(const gim::Element& element)
 {
     gim::AllConstPropagator all(element);
-    std::vector<RenderData> result(all.size());
+    std::vector<RenderData<Texture>> result(all.size());
 
     const gim::Element* currentElement;
 
@@ -26,10 +26,10 @@ std::vector<RenderData> RenderDataGenerator<Vec2, Rectangle, Color>::generate(co
     return result;
 }
 
-template <typename Vec2, typename Rectangle, typename Color>
-RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(const Element& element, gim::AbsoluteMap<typename Vec2::Native>& absoluteMap)
+template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+RenderData<Texture> RenderDataGenerator<Vec2, Rectangle, Color, Texture>::generateElementData(const Element& element, gim::AbsoluteMap<typename Vec2::Native>& absoluteMap)
 {
-    RenderData renderData;
+    RenderData<Texture> renderData;
 
     //set the current element pointer
     renderData.element = &element;
@@ -58,7 +58,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
         StretchMode stretchMode = getOrFallback<StretchMode>(element, "stretch_mode", StretchMode::STRETCHED);
         const Rectangle& imageCoords = element.getAttribute<typename Rectangle::Native>("image_coords");
         const auto& texture = mTextures.at(textureName);
-        Vec2 imageSizeInt = texture.size;
+        Vec2 imageSizeInt = texture.size();
         const FloatVec2 imageSize{(float)imageSizeInt.x(), (float)imageSizeInt.y()};
         BorderMode borderMode = getOrFallback<BorderMode>(element, "border_mode", BorderMode::NONE);
 
@@ -154,7 +154,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
         }
         generateBorders(element, mainQuadPosition, mainQuadSize, color, zPosition, imageSize, renderData.positions, renderData.colors, renderData.texCoords);
 
-        renderData.textureHandle = texture.handle;
+        renderData.texture = &texture;
     }
 
     if(textPtr != nullptr)
@@ -186,9 +186,9 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
         Font* currentFont;
         int32_t currentFontIndex;
         uint32_t currentFontCacheId;
-        uint32_t currentFontTextureHandle;
+        const Texture* currentFontTexture;
 
-        auto loadFont = [this, &currentFontIndex, &currentMetricsMap, &currentTextureCache, &currentFont, &currentFontCacheId, &currentFontTextureHandle] (const std::string& font)
+        auto loadFont = [this, &currentFontIndex, &currentMetricsMap, &currentTextureCache, &currentFont, &currentFontCacheId, &currentFontTexture] (const std::string& font)
         {
             GIM_ASSERT(mFontCache.count(font) != 0, "The given font '" + font + "' is not registered");
             GIM_ASSERT(mFonts.count(font) != 0, "texture registered, but not existing. This is a bug in gimgui");
@@ -199,7 +199,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
             currentMetricsMap = &fontCache.metrics[currentFontIndex];
             currentTextureCache = &fontCache.textureCoordinates; 
             currentFont = &mFonts.at(font).get();
-            currentFontTextureHandle = fontCache.textureHandle;
+            currentFontTexture = fontCache.texture.get();
         };
 
         if(!(style & TextStyle::BOLD) && !(style & TextStyle::ITALIC))
@@ -232,7 +232,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
         auto codePointsVector = utf8Decoder.decode(utf8string);
         std::deque<uint32_t> codePoints(codePointsVector.begin(), codePointsVector.end());
 
-        renderData.textTextureHandle = currentFontTextureHandle;
+        renderData.textTexture = currentFontTexture;
 
         const Vec2 textStart(position.x() + textBorders.start().x(), position.y() + textBorders.start().y());
         float x = textStart.x();
@@ -244,7 +244,7 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
 
         if(clipText)
         {
-            renderData.clipRectangle = std::unique_ptr<RenderData::ClipRect>(new RenderData::ClipRect());
+            renderData.clipRectangle = std::unique_ptr<typename RenderData<Texture>::ClipRect>(new typename RenderData<Texture>::ClipRect());
             renderData.clipRectangle->xStart = textStart.x();
             renderData.clipRectangle->yStart = textStart.y();
             renderData.clipRectangle->width = textBorders.size().x();
@@ -396,22 +396,21 @@ RenderData RenderDataGenerator<Vec2, Rectangle, Color>::generateElementData(cons
     return renderData;
 }
 
-template <typename Vec2, typename Rectangle, typename Color>
-template <typename Texture>
-void RenderDataGenerator<Vec2, Rectangle, Color>::registerTexture(const std::string& textureName, const Texture& texture)
+template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+void RenderDataGenerator<Vec2, Rectangle, Color, Texture>::registerTexture(const std::string& textureName, Texture texture)
 {
     GIM_ASSERT(mTextures.count(textureName) == 0, "trying to register already existing texture '" << textureName << "'");
     Vec2 textureSize = texture.size();
     GIM_ASSERT(textureSize.x() > 0 && textureSize.y() > 0, "trying to register a texture of size (" + std::to_string(textureSize.x()) + "," + std::to_string(textureSize.y()) + "). Both components must be above zero");
 
-    mTextures[textureName] = {textureSize, texture.handle()};
+    mTextures.emplace(textureName, std::move(texture));
 }
 
-template <typename Vec2, typename Rectangle, typename Color>
-template <typename Texture>
-void RenderDataGenerator<Vec2, Rectangle, Color>::registerFontStorage(const std::vector<std::reference_wrapper<Font>>& fonts, const Texture& texture)
+template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+void RenderDataGenerator<Vec2, Rectangle, Color, Texture>::registerFontStorage(const std::vector<std::reference_wrapper<Font>>& fonts, Texture texture)
 {
-    std::shared_ptr<FontCacheEntry> textureCache = std::make_shared<FontCacheEntry>(FontCacheEntry{internal::FontTextureCache(texture), texture.handle()});
+    std::unique_ptr<Texture> texturePointer = std::unique_ptr<Texture>(new Texture(std::move(texture)));
+    std::shared_ptr<FontCacheEntry> textureCache = std::make_shared<FontCacheEntry>(FontCacheEntry{internal::FontTextureCache(*texturePointer), std::move(texturePointer)});
     for(auto& font : fonts)
     {
         textureCache->fontIndices.emplace(font.get().name(), textureCache->fontIndices.size());
@@ -424,22 +423,22 @@ void RenderDataGenerator<Vec2, Rectangle, Color>::registerFontStorage(const std:
     textureCache->metrics.resize(fonts.size());
 }
 
-template <typename Vec2, typename Rectangle, typename Color>
-void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadWithoutImage(const FloatVec2& position, const FloatVec2& size, const Color& color, float zPosition, std::vector<float>& outPositions, std::vector<float>& outColors)
+template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+void RenderDataGenerator<Vec2, Rectangle, Color, Texture>::generateQuadWithoutImage(const FloatVec2& position, const FloatVec2& size, const Color& color, float zPosition, std::vector<float>& outPositions, std::vector<float>& outColors)
 {
     generateQuadPositions(position, size, zPosition, outPositions);
     generateQuadColors(color, outColors);
 }
 
-template <typename Vec2, typename Rectangle, typename Color>
-void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadWithImage(const FloatVec2& position, const FloatVec2& size, const Color& color, float zPosition, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords, bool flipTexCoords)
+template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+void RenderDataGenerator<Vec2, Rectangle, Color, Texture>::generateQuadWithImage(const FloatVec2& position, const FloatVec2& size, const Color& color, float zPosition, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords, bool flipTexCoords)
 {
     generateQuadWithoutImage(position, size, color, zPosition, outPositions, outColors);
     generateQuadTexCoords(texCoordStart, texCoordSize, outTexCoords, flipTexCoords);
 }
 
-template <typename Vec2, typename Rectangle, typename Color>
-void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadPositions(const FloatVec2& position, const FloatVec2& size, float zPosition, std::vector<float>& outPositions)
+template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+void RenderDataGenerator<Vec2, Rectangle, Color, Texture>::generateQuadPositions(const FloatVec2& position, const FloatVec2& size, float zPosition, std::vector<float>& outPositions)
 {
     std::vector<float> triangle(
     {
@@ -454,8 +453,8 @@ void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadPositions(const Fl
     outPositions.insert(outPositions.end(), triangle.begin(), triangle.end());
 }
 
-template <typename Vec2, typename Rectangle, typename Color>
-void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadColors(const Color& color, std::vector<float>& outColors)
+template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+void RenderDataGenerator<Vec2, Rectangle, Color, Texture>::generateQuadColors(const Color& color, std::vector<float>& outColors)
 {
     float r = color.r() / 255.0f;
     float g = color.g() / 255.0f;
@@ -475,8 +474,8 @@ void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadColors(const Color
     outColors.insert(outColors.end(), colorList.begin(), colorList.end());
 }
 
-template <typename Vec2, typename Rectangle, typename Color>
-void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadTexCoords(const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outTexCoords, bool flipTexCoords)
+template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+void RenderDataGenerator<Vec2, Rectangle, Color, Texture>::generateQuadTexCoords(const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outTexCoords, bool flipTexCoords)
 {
     if(!flipTexCoords)
     {
@@ -508,8 +507,8 @@ void RenderDataGenerator<Vec2, Rectangle, Color>::generateQuadTexCoords(const Fl
     }
 }
 
-template <typename Vec2, typename Rectangle, typename Color>
-void RenderDataGenerator<Vec2, Rectangle, Color>::generateBorders(const Element& element, const FloatVec2& position, const FloatVec2& size, const Color& color, float zPosition, const FloatVec2& imageSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords)
+template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+void RenderDataGenerator<Vec2, Rectangle, Color, Texture>::generateBorders(const Element& element, const FloatVec2& position, const FloatVec2& size, const Color& color, float zPosition, const FloatVec2& imageSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords)
 {
     const BorderMode* borderModePtr = element.findAttribute<BorderMode>("border_mode");
     BorderMode borderMode = borderModePtr ? *borderModePtr : BorderMode::NONE;
@@ -626,8 +625,8 @@ void RenderDataGenerator<Vec2, Rectangle, Color>::generateBorders(const Element&
     }
 }
 
-template <typename Vec2, typename Rectangle, typename Color>
-float RenderDataGenerator<Vec2, Rectangle, Color>::getHSpace(const Font& font, uint32_t size)
+template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+float RenderDataGenerator<Vec2, Rectangle, Color, Texture>::getHSpace(const Font& font, uint32_t size)
 {
     uint32_t whitespace = ' ';
     //uint32_t fontId = mFontCacheIds.at(font.name());
@@ -653,8 +652,8 @@ float RenderDataGenerator<Vec2, Rectangle, Color>::getHSpace(const Font& font, u
     }
 }
 
-template <typename Vec2, typename Rectangle, typename Color>
-std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> RenderDataGenerator<Vec2, Rectangle, Color>::loadGlyphData(int32_t fontIndex, uint32_t codePoint, uint32_t textSize, internal::FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font)
+template <typename Vec2, typename Rectangle, typename Color, typename Texture>
+std::unique_ptr<std::tuple<TextureCoordinates, Glyph::Metrics>> RenderDataGenerator<Vec2, Rectangle, Color, Texture>::loadGlyphData(int32_t fontIndex, uint32_t codePoint, uint32_t textSize, internal::FontTextureCache& textureCache, MetricsMap& metricsMap, const Font& font)
 {
     auto texCoordsPtr = textureCache.glyphCoords(fontIndex, codePoint, textSize);
     TextureCoordinates texCoords;

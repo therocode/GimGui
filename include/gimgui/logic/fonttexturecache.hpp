@@ -21,7 +21,7 @@ namespace gim
             };
             public:
                 template <typename TextureAdaptor>
-                FontTextureCache(TextureAdaptor textureAdaptor);
+                FontTextureCache(TextureAdaptor& textureAdaptor);
                 std::unique_ptr<TextureCoordinates> glyphCoords(int32_t fontIndex, uint32_t codePoint, uint32_t size);
                 TextureCoordinates add(int32_t fontIndex, const Glyph& glyph);
                 TextureCoordinates solidCoords() const;

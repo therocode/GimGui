@@ -1,7 +1,6 @@
 #include "simplerendering.hpp"
 #include <glutils/baseshader.hpp>
 #include <glutils/uniform.hpp>
-#include <textureadaptor.hpp>
 #include <opengl.hpp>
 #include <iostream>
 #include <glutils/projection.hpp>
@@ -362,7 +361,7 @@ void SimpleRendering::loop()
         if(renderData.positions.size() > 0)
         {
             //GIM_ASSERT(mTextures.count(renderData.imageId) != 0, "invalid texture given");
-            mBaseShader.setUniform("texture", UniformType::TEXTURE, &mTextureHandleIndex.at(renderData.textureHandle).get());
+            mBaseShader.setUniform("texture", UniformType::TEXTURE, &renderData.texture->internal());
             mTriangles.setData(renderData.positions);
             mColors.setData(renderData.colors);
 
@@ -374,7 +373,7 @@ void SimpleRendering::loop()
         if(renderData.textPositions.size() > 0)
         {
             //GIM_ASSERT(mTextures.count(renderData.textImageId) != 0, "invalid texture given");
-            mBaseShader.setUniform("texture", UniformType::TEXTURE, &mTextureHandleIndex.at(renderData.textTextureHandle).get());
+            mBaseShader.setUniform("texture", UniformType::TEXTURE, &renderData.textTexture->internal());
             mTriangles.setData(renderData.textPositions);
             mColors.setData(renderData.textColors);
             mTexCoords.setData(renderData.textTexCoords);

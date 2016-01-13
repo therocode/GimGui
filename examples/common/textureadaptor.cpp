@@ -8,12 +8,12 @@ TextureAdaptor::TextureAdaptor(Texture& texture):
 
 void TextureAdaptor::initialize(uint32_t width, uint32_t height)
 {
-    mTexture.create(width, height, Color(0, 0, 0, 0), false, true);
+    mTexture.get().create(width, height, Color(0, 0, 0, 0), false, true);
 }
 
 void TextureAdaptor::resize(uint32_t width, uint32_t height)
 {
-    mTexture.resize(width, height);
+    mTexture.get().resize(width, height);
 }
 
 void TextureAdaptor::writeBitmap(uint32_t xPos, uint32_t yPos, const gim::BitMap& bitMap)
@@ -25,19 +25,24 @@ void TextureAdaptor::writeBitmap(uint32_t xPos, uint32_t yPos, const gim::BitMap
             uint8_t value = bitMap.pixels[x + y * bitMap.width];
 
             if(value != 0)
-                mTexture.setPixel(xPos + x, yPos + y, Color(value, value, value, value));
+                mTexture.get().setPixel(xPos + x, yPos + y, Color(value, value, value, value));
         }
     }
 
-    mTexture.update();
+    mTexture.get().update();
 }
 
 uint32_t TextureAdaptor::handle() const
 {
-    return mTexture.getId();
+    return mTexture.get().getId();
 }
 
 Vec2Adaptor TextureAdaptor::size() const
 {
-    return {mTexture.size().x, mTexture.size().y};
+    return {mTexture.get().size().x, mTexture.get().size().y};
+}
+
+const Texture& TextureAdaptor::internal() const
+{
+    return mTexture;
 }

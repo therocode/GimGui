@@ -12,6 +12,7 @@ class TextureAdaptor
         void writeBitmap(uint32_t x, uint32_t y, const gim::BitMap& bitMap);
         uint32_t handle() const;
         Vec2Adaptor size() const;
+        const Texture& internal() const;
     private:
-        Texture& mTexture;
+        std::reference_wrapper<Texture> mTexture;
 };
