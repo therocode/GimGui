@@ -23,20 +23,20 @@ void mouseClicked(gim::Element& element, const Vector2& position, MouseButton bu
     std::vector<std::pair<std::reference_wrapper<gim::Element>, Vector2>> clickedElements;
     std::vector<std::pair<std::reference_wrapper<gim::Element>, Vector2>> allElements;
 
-    gim::forEach(element, [&position, &clickedElements, &allElements] (gim::Element& element, const Vector2& absolutePosition)
+    gim::forEach(element, [&position, &clickedElements, &allElements] (gim::Element& currentElement, const Vector2& absolutePosition)
     {
-        bool overlaps = overlapsPoint(element, absolutePosition, position);
+        bool overlaps = overlapsPoint(currentElement, absolutePosition, position);
         
-        allElements.emplace_back(element, absolutePosition);   
+        allElements.emplace_back(currentElement, absolutePosition);   
 
         if(overlaps)
-            clickedElements.emplace_back(element, absolutePosition);   
+            clickedElements.emplace_back(currentElement, absolutePosition);   
 
         return !overlaps;
     },
-    [] (const gim::Element& element, const Vector2& parentPosition)
+    [] (const gim::Element& currentElement, const Vector2& parentPosition)
     {
-        const Vector2* positionPtr = element.findAttribute<Vector2>("position");
+        const Vector2* positionPtr = currentElement.findAttribute<Vector2>("position");
 
         GIM_ASSERT(positionPtr != nullptr, "Element lacks position value. Cannot be rendered.");
         
@@ -74,10 +74,10 @@ void mouseClicked(gim::Element& element, const Vector2& position, MouseButton bu
                                            {"button", button}});
     }
 
-    for(auto element : toDrag)
+    for(auto currentElement : toDrag)
     {
-        int32_t oldDrag = element.get().getAttribute<int32_t>("dragged");
-        element.get().setAttribute("dragged", oldDrag | button);
+        int32_t oldDrag = currentElement.get().getAttribute<int32_t>("dragged");
+        currentElement.get().setAttribute("dragged", oldDrag | button);
     }
 }
 
@@ -86,20 +86,20 @@ void mouseReleased(gim::Element& element, const Vector2& position, MouseButton b
     std::vector<std::pair<std::reference_wrapper<gim::Element>, Vector2>> releasedElements;
     std::vector<std::pair<std::reference_wrapper<gim::Element>, Vector2>> allElements;
 
-    gim::forEach(element, [&position, &releasedElements, &allElements] (gim::Element& element, const Vector2& absolutePosition)
+    gim::forEach(element, [&position, &releasedElements, &allElements] (gim::Element& currentElement, const Vector2& absolutePosition)
     {
-        bool overlaps = overlapsPoint(element, absolutePosition, position);
+        bool overlaps = overlapsPoint(currentElement, absolutePosition, position);
         
-        allElements.emplace_back(element, absolutePosition);   
+        allElements.emplace_back(currentElement, absolutePosition);   
 
         if(overlaps)
-            releasedElements.emplace_back(element, absolutePosition);   
+            releasedElements.emplace_back(currentElement, absolutePosition);   
 
         return !overlaps;
     },
-    [] (const gim::Element& element, const Vector2& parentPosition)
+    [] (const gim::Element& currentElement, const Vector2& parentPosition)
     {
-        const Vector2* positionPtr = element.findAttribute<Vector2>("position");
+        const Vector2* positionPtr = currentElement.findAttribute<Vector2>("position");
 
         GIM_ASSERT(positionPtr != nullptr, "Element lacks position value. Cannot be rendered.");
         
@@ -137,10 +137,10 @@ void mouseReleased(gim::Element& element, const Vector2& position, MouseButton b
                                            {"button", button}});
     }
 
-    for(auto element : toUnDrag)
+    for(auto currentElement : toUnDrag)
     {
-        int32_t oldDrag = element.get().getAttribute<int32_t>("dragged");
-        element.get().setAttribute("dragged", oldDrag & (~button));
+        int32_t oldDrag = currentElement.get().getAttribute<int32_t>("dragged");
+        currentElement.get().setAttribute("dragged", oldDrag & (~button));
     }
 }
 
@@ -148,18 +148,18 @@ void moveMouse(gim::Element& element, const Vector2& currentPosition, const Vect
 {
     std::vector<std::pair<std::reference_wrapper<gim::Element>, Vector2>> movedElements;
 
-    gim::forEach(element, [&currentPosition, &lastPosition, &movedElements] (gim::Element& element, const Vector2& absolutePosition)
+    gim::forEach(element, [&currentPosition, &lastPosition, &movedElements] (gim::Element& currentElement, const Vector2& absolutePosition)
     {
-        bool overlaps = overlapsPoint(element, absolutePosition, currentPosition) || overlapsPoint(element, absolutePosition, lastPosition);
+        bool overlaps = overlapsPoint(currentElement, absolutePosition, currentPosition) || overlapsPoint(currentElement, absolutePosition, lastPosition);
         
         if(overlaps)
-            movedElements.emplace_back(element, absolutePosition);   
+            movedElements.emplace_back(currentElement, absolutePosition);   
 
         return !overlaps;
     },
-    [] (const gim::Element& element, const Vector2& parentPosition)
+    [] (const gim::Element& currentElement, const Vector2& parentPosition)
     {
-        const Vector2* positionPtr = element.findAttribute<Vector2>("position");
+        const Vector2* positionPtr = currentElement.findAttribute<Vector2>("position");
 
         GIM_ASSERT(positionPtr != nullptr, "Element lacks position value. Cannot be rendered.");
         
@@ -192,16 +192,16 @@ void moveMouse(gim::Element& element, const Vector2& currentPosition, const Vect
                     {"delta", delta}});
         }
 
-        Vector2 elementSize = currentElement.getAttribute<Vector2>("size");
+        Vector2 currentElementSize = currentElement.getAttribute<Vector2>("size");
 
-        bool currentPosOverlaps = overlaps(currentPosition, absolutePosition, elementSize);
-        bool lastPosOverlaps = overlaps(lastPosition, absolutePosition, elementSize);
+        bool currentPosOverlaps = overlaps(currentPosition, absolutePosition, currentElementSize);
+        bool lastPosOverlaps = overlaps(lastPosition, absolutePosition, currentElementSize);
 
         Vector2 relativePosition;
         relativePosition.x = currentPosition.x - absolutePosition.x;
         relativePosition.y = currentPosition.y - absolutePosition.y;
 
-        elementSize = currentElement.getAttribute<Vector2>("size");
+        currentElementSize = currentElement.getAttribute<Vector2>("size");
 
         if(currentPosOverlaps && !lastPosOverlaps)
         {//got hovered
