@@ -6,8 +6,7 @@
 #include <gimgui/data/textalignments.hpp>
 #include <gimgui/data/wrapmode.hpp>
 #include <gimgui/data/codepointsize.hpp>
-#include <gimgui/logic/allpropagator.hpp>
-#include <gimgui/logic/absolutemap.hpp>
+#include <gimgui/logic/foreach.hpp>
 #include <gimgui/logic/fonttexturecache.hpp>
 #include <gimgui/logic/utf8decoder.hpp>
 #include <gimgui/util/getorfallback.hpp>
@@ -42,7 +41,7 @@ namespace gim
             void registerTexture(const std::string& textureName, Texture texture);
             void registerFontStorage(const std::vector<std::reference_wrapper<Font>>& fonts, Texture texture);
         private:
-            RenderData<Texture> generateElementData(const Element& element, gim::AbsoluteMap<typename Vec2::Native>& absoluteMap);
+            RenderData<Texture> generateElementData(const Element& element, const Vec2& absolutePosition);
             void generateQuadWithoutImage(const FloatVec2& position, const FloatVec2& size, const Color& color, float zPosition, std::vector<float>& outPositions, std::vector<float>& outColors);
             void generateQuadWithImage(const FloatVec2& position, const FloatVec2& size, const Color& color, float zPosition, const FloatVec2& texCoordStart, const FloatVec2& texCoordSize, std::vector<float>& outPositions, std::vector<float>& outColors, std::vector<float>& outTexCoords, bool flipTexCoords = false);
             void generateQuadPositions(const FloatVec2& position, const FloatVec2& size, float zPosition, std::vector<float>& outPositions);

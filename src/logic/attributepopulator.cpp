@@ -1,23 +1,19 @@
 #include <gimgui/logic/attributepopulator.hpp>
-#include <gimgui/logic/allpropagator.hpp>
+#include <gimgui/logic/foreach.hpp>
 #include <list>
 
 namespace gim
 {
     void AttributePopulator::populate(gim::Element& target) const
     {
-        AllPropagator propagator(target);
-
-        gim::Element* currentElement;
-
-        while((currentElement = propagator.next()))
+        forEach(target, [this] (Element& element)
         {
             for(auto attributeCreator : mGlobalAttributeCreators)
             {
-                attributeCreator.second(*currentElement);
+                attributeCreator.second(element);
             }
 
-            for(const auto& tag : currentElement->tags())
+            for(const auto& tag : element.tags())
             {
                 auto specificCreatorsIterator = mSpecificAttributeCreators.find(tag);
 
@@ -25,10 +21,12 @@ namespace gim
                 {
                     for(auto attributeCreator : specificCreatorsIterator->second)
                     {
-                        attributeCreator.second(*currentElement);
+                        attributeCreator.second(element);
                     }
                 }
             }
-        }
+
+            return false;
+        });
     }
 }

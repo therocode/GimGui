@@ -1,96 +1,172 @@
 #include "events.hpp"
 #include <helpers/color.hpp>
+#include <algorithm>
 #include <gimgui/logic/absolutemap.hpp>
-#include <gimgui/logic/boundarypropagator.hpp>
-#include <gimgui/logic/allpropagator.hpp>
+#include <gimgui/logic/foreach.hpp>
+//#include <gimgui/logic/boundarypropagator.hpp>
+//#include <gimgui/logic/allpropagator.hpp>
 #include <gimgui/util/getorfallback.hpp>
+
+bool overlapsPoint(const gim::Element& element, const Vector2& absolutePosition, const Vector2& point)
+{
+    GIM_ASSERT(element.hasAttribute<Vector2>("size"), "overlapsPoint was given element which doesn't have the attribute 'size'");
+    const Vector2& size = element.getAttribute<Vector2>("size");
+
+    return  point.x > absolutePosition.x && 
+            point.x < absolutePosition.x + size.x &&
+            point.y > absolutePosition.y &&
+            point.y < absolutePosition.y + size.y;
+}
 
 void mouseClicked(gim::Element& element, const Vector2& position, MouseButton button)
 {
-    gim::AbsoluteMap<Vector2> positionMap("position");
+    std::vector<std::pair<std::reference_wrapper<gim::Element>, Vector2>> clickedElements;
+    std::vector<std::pair<std::reference_wrapper<gim::Element>, Vector2>> allElements;
 
-    gim::BoundaryPropagator<Vector2> boundaryPropagator(element, {position});
-    boundaryPropagator.reverse();
-
-    std::vector<gim::Element*> toDrag;
-
-    while(gim::Element* currentElement = boundaryPropagator.next())
+    gim::forEach(element, [&position, &clickedElements, &allElements] (gim::Element& element, const Vector2& absolutePosition)
     {
-        Vector2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
+        bool overlaps = overlapsPoint(element, absolutePosition, position);
+        
+        allElements.emplace_back(element, absolutePosition);   
+
+        if(overlaps)
+            clickedElements.emplace_back(element, absolutePosition);   
+
+        return !overlaps;
+    },
+    [] (const gim::Element& element, const Vector2& parentPosition)
+    {
+        const Vector2* positionPtr = element.findAttribute<Vector2>("position");
+
+        GIM_ASSERT(positionPtr != nullptr, "Element lacks position value. Cannot be rendered.");
+        
+        return parentPosition + *positionPtr;
+    });
+
+    std::reverse(clickedElements.begin(), clickedElements.end());
+    std::reverse(allElements.begin(), allElements.end());
+
+    std::vector<std::reference_wrapper<gim::Element>> toDrag;
+
+    for(auto&& currentElementIter : clickedElements)
+    {
+        auto&& currentElement = currentElementIter.first;
+        Vector2 absolutePosition = currentElementIter.second;
+
         CallbackExecutor executor("on_click");
-        executor.execute(*currentElement, {{"position", position},
+        executor.execute(currentElement, {{"position", position},
                                            {"relative_position", Vector2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
                                            {"button", button}});
 
         toDrag.push_back(currentElement);
 
-        if(bool* blocks = currentElement->findAttribute<bool>("block_event"))
+        if(bool* blocks = currentElement.get().findAttribute<bool>("block_event"))
             break;
     }
 
-    gim::AllPropagator allPropagator(element);
-
-    while(gim::Element* currentElement = allPropagator.next())
+    for(auto&& currentElementIter : allElements)
     {
-        Vector2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
+        auto&& currentElement = currentElementIter.first;
+        Vector2 absolutePosition = currentElementIter.second;
         CallbackExecutor executor("on_global_click");
-        executor.execute(*currentElement, {{"position", position},
+        executor.execute(currentElement, {{"position", position},
                                            {"relative_position", Vector2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
                                            {"button", button}});
     }
 
     for(auto element : toDrag)
     {
-        int32_t oldDrag = element->getAttribute<int32_t>("dragged");
-        element->setAttribute("dragged", oldDrag | button);
+        int32_t oldDrag = element.get().getAttribute<int32_t>("dragged");
+        element.get().setAttribute("dragged", oldDrag | button);
     }
 }
 
 void mouseReleased(gim::Element& element, const Vector2& position, MouseButton button)
 {
-    gim::AbsoluteMap<Vector2> positionMap("position");
+    std::vector<std::pair<std::reference_wrapper<gim::Element>, Vector2>> releasedElements;
+    std::vector<std::pair<std::reference_wrapper<gim::Element>, Vector2>> allElements;
 
-    gim::BoundaryPropagator<Vector2> boundaryPropagator(element, {position});
-    boundaryPropagator.reverse();
-
-    std::vector<gim::Element*> toUnDrag;
-
-    while(gim::Element* currentElement = boundaryPropagator.next())
+    gim::forEach(element, [&position, &releasedElements, &allElements] (gim::Element& element, const Vector2& absolutePosition)
     {
-        Vector2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
+        bool overlaps = overlapsPoint(element, absolutePosition, position);
+        
+        allElements.emplace_back(element, absolutePosition);   
+
+        if(overlaps)
+            releasedElements.emplace_back(element, absolutePosition);   
+
+        return !overlaps;
+    },
+    [] (const gim::Element& element, const Vector2& parentPosition)
+    {
+        const Vector2* positionPtr = element.findAttribute<Vector2>("position");
+
+        GIM_ASSERT(positionPtr != nullptr, "Element lacks position value. Cannot be rendered.");
+        
+        return parentPosition + *positionPtr;
+    });
+
+    std::reverse(releasedElements.begin(), releasedElements.end());
+    std::reverse(allElements.begin(), allElements.end());
+
+    std::vector<std::reference_wrapper<gim::Element>> toUnDrag;
+
+    for(auto&& currentElementIter : releasedElements)
+    {
+        auto&& currentElement = currentElementIter.first;
+        Vector2 absolutePosition = currentElementIter.second;
+
         CallbackExecutor executor("on_release");
-        executor.execute(*currentElement, {{"position", position},
+        executor.execute(currentElement, {{"position", position},
                                            {"relative_position", Vector2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
                                            {"button", button}});
         toUnDrag.push_back(currentElement);
 
-        if(bool* blocks = currentElement->findAttribute<bool>("block_event"))
+        if(bool* blocks = currentElement.get().findAttribute<bool>("block_event"))
             break;
     }
 
-    gim::AllPropagator allPropagator(element);
-
-    while(gim::Element* currentElement = allPropagator.next())
+    for(auto&& currentElementIter : allElements)
     {
-        Vector2 absolutePosition = positionMap.getAbsoluteOf(*currentElement);
+        auto&& currentElement = currentElementIter.first;
+        Vector2 absolutePosition = currentElementIter.second;
+
         CallbackExecutor executor("on_global_release");
-        executor.execute(*currentElement, {{"position", position},
+        executor.execute(currentElement, {{"position", position},
                                            {"relative_position", Vector2({position.x - absolutePosition.x, position.y - absolutePosition.y})},
                                            {"button", button}});
     }
 
     for(auto element : toUnDrag)
     {
-        int32_t oldDrag = element->getAttribute<int32_t>("dragged");
-        element->setAttribute("dragged", oldDrag & (~button));
+        int32_t oldDrag = element.get().getAttribute<int32_t>("dragged");
+        element.get().setAttribute("dragged", oldDrag & (~button));
     }
 }
 
 void moveMouse(gim::Element& element, const Vector2& currentPosition, const Vector2& lastPosition)
 {
-    Vector2 delta;
-    delta.x = currentPosition.x - lastPosition.x;
-    delta.y = currentPosition.y - lastPosition.y;
+    std::vector<std::pair<std::reference_wrapper<gim::Element>, Vector2>> movedElements;
+
+    gim::forEach(element, [&currentPosition, &lastPosition, &movedElements] (gim::Element& element, const Vector2& absolutePosition)
+    {
+        bool overlaps = overlapsPoint(element, absolutePosition, currentPosition) || overlapsPoint(element, absolutePosition, lastPosition);
+        
+        if(overlaps)
+            movedElements.emplace_back(element, absolutePosition);   
+
+        return !overlaps;
+    },
+    [] (const gim::Element& element, const Vector2& parentPosition)
+    {
+        const Vector2* positionPtr = element.findAttribute<Vector2>("position");
+
+        GIM_ASSERT(positionPtr != nullptr, "Element lacks position value. Cannot be rendered.");
+        
+        return parentPosition + *positionPtr;
+    });
+
+    std::reverse(movedElements.begin(), movedElements.end());
 
     auto overlaps = [] (const Vector2& posA, const Vector2& posB, const Vector2& size) 
     {
@@ -100,45 +176,45 @@ void moveMouse(gim::Element& element, const Vector2& currentPosition, const Vect
             posA.y < posB.y + size.y;
     };
 
-    gim::BoundaryPropagator<Vector2> propagator(element, {currentPosition, lastPosition});
+    Vector2 delta;
+    delta.x = currentPosition.x - lastPosition.x;
+    delta.y = currentPosition.y - lastPosition.y;
 
-
-    while(gim::Element* currentElement = propagator.next())
+    for(auto&& currentElementIter : movedElements)
     {
-        if(currentElement->getAttribute<int32_t>("dragged"))
+        auto&& currentElement = currentElementIter.first.get();
+        Vector2 absolutePosition = currentElementIter.second;
+
+        if(currentElement.getAttribute<int32_t>("dragged"))
         {//got dragged
             CallbackExecutor executor("on_drag");
-            executor.execute(*currentElement, {{"position", currentPosition},
+            executor.execute(currentElement, {{"position", currentPosition},
                     {"delta", delta}});
         }
 
-        gim::AbsoluteMap<Vector2> absoluteMap("position");
-        Vector2 elementPosition = absoluteMap.getAbsoluteOf(*currentElement);
-        Vector2 elementSize = currentElement->getAttribute<Vector2>("size");
+        Vector2 elementSize = currentElement.getAttribute<Vector2>("size");
 
-        bool currentPosOverlaps = overlaps(currentPosition, elementPosition, elementSize);
-        bool lastPosOverlaps = overlaps(lastPosition, elementPosition, elementSize);
+        bool currentPosOverlaps = overlaps(currentPosition, absolutePosition, elementSize);
+        bool lastPosOverlaps = overlaps(lastPosition, absolutePosition, elementSize);
 
         Vector2 relativePosition;
-        relativePosition.x = currentPosition.x - elementPosition.x;
-        relativePosition.y = currentPosition.y - elementPosition.y;
+        relativePosition.x = currentPosition.x - absolutePosition.x;
+        relativePosition.y = currentPosition.y - absolutePosition.y;
 
-        absoluteMap = gim::AbsoluteMap<Vector2>("position");
-        elementPosition = absoluteMap.getAbsoluteOf(*currentElement);
-        elementSize = currentElement->getAttribute<Vector2>("size");
+        elementSize = currentElement.getAttribute<Vector2>("size");
 
         if(currentPosOverlaps && !lastPosOverlaps)
         {//got hovered
             CallbackExecutor executor("on_hover");
-            executor.execute(*currentElement, {{"position", currentPosition},
+            executor.execute(currentElement, {{"position", currentPosition},
                     {"delta", delta}});
         }
         else if(lastPosOverlaps && !currentPosOverlaps)
         {//got blurred
             CallbackExecutor executor("on_blur");
-            executor.execute(*currentElement, {{"position", currentPosition},
+            executor.execute(currentElement, {{"position", currentPosition},
                     {"delta", delta}});
-            currentElement->setAttribute("dragged", 0);
+            currentElement.setAttribute("dragged", 0);
         }
     }
 }

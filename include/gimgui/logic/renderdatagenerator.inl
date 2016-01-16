@@ -8,32 +8,33 @@
 template <typename Vec2, typename Rectangle, typename Color, typename Texture>
 std::vector<RenderData<Texture>> RenderDataGenerator<Vec2, Rectangle, Color, Texture>::generate(const gim::Element& element)
 {
-    gim::AllConstPropagator all(element, [] (const Element& element)
+    std::vector<RenderData<Texture>> result;
+
+    forEach(element, [this, &result] (const Element& elementToRender, const Vec2& absolutePosition)
     {
-        const bool* hide = element.findAttribute<bool>("hide");
+        const bool* hidePtr = elementToRender.findAttribute<bool>("hide");
 
-        return hide && *hide;
-    });
+        bool skip = hidePtr && *hidePtr;
 
-    std::vector<RenderData<Texture>> result(all.size());
+        if(!skip)
+            result.emplace_back(generateElementData(elementToRender, absolutePosition));
 
-    const gim::Element* currentElement;
-
-    gim::AbsoluteMap<typename Vec2::Native> absolutePositions("position");
-
-    size_t currentIndex = 0;
-    while((currentElement = all.next()))
+        return skip; //skip children if I was skipped
+    },
+    [] (const Element& elementToGetAbsolutePositionOf, const Vec2& parentPosition)
     {
-        result[currentIndex] = generateElementData(*currentElement, absolutePositions);
+        const typename Vec2::Native* positionPtr = elementToGetAbsolutePositionOf.findAttribute<typename Vec2::Native>("position");
 
-        currentIndex++;
-    }
+        GIM_ASSERT(positionPtr != nullptr, "Element lacks position value. Cannot be rendered.");
+
+        return parentPosition + Vec2(*positionPtr);
+    }, Vec2(0, 0));
 
     return result;
 }
 
 template <typename Vec2, typename Rectangle, typename Color, typename Texture>
-RenderData<Texture> RenderDataGenerator<Vec2, Rectangle, Color, Texture>::generateElementData(const Element& element, gim::AbsoluteMap<typename Vec2::Native>& absoluteMap)
+RenderData<Texture> RenderDataGenerator<Vec2, Rectangle, Color, Texture>::generateElementData(const Element& element, const Vec2& absolutePosition)
 {
     RenderData<Texture> renderData;
 
@@ -41,7 +42,7 @@ RenderData<Texture> RenderDataGenerator<Vec2, Rectangle, Color, Texture>::genera
     renderData.element = &element;
 
     //generate positions
-    const Vec2 position = absoluteMap.getAbsoluteOf(element);
+    const Vec2 position = absolutePosition;
     const Vec2 size = element.getAttribute<typename Vec2::Native>("size");
     const float zPosition = getOrFallback<float>(element, "z_position", 0.0f);
 

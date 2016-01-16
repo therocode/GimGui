@@ -8,7 +8,8 @@
 #include <window.hpp>
 #include "events.hpp"
 #include <glutils/textureloader.hpp>
-#include <gimgui/logic/boundarypropagator.hpp>
+#include <gimgui/logic/absolutemap.hpp>
+#include <gimgui/logic/foreach.hpp>
 #include <gimgui/util/getorfallback.hpp>
 #include <gimgui/util/resolve.hpp>
 #include <gimgui/data/font.hpp>

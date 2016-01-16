@@ -40,7 +40,6 @@ set(source_files
     src/data/texturecoordinates.cpp
     src/data/textstyles.cpp
     src/data/variant.cpp
-    src/logic/allpropagator.cpp
     src/logic/attributepopulator.cpp
     src/logic/fonttexturecache.cpp
     src/logic/rectanglepacker.cpp
@@ -70,14 +69,13 @@ set(header_files
     include/gimgui/data/wrapmode.hpp
     include/gimgui/logic/absolutemap.hpp
     include/gimgui/logic/absolutemap.inl
-    include/gimgui/logic/allpropagator.hpp
     include/gimgui/logic/attributepopulator.hpp
     include/gimgui/logic/attributepopulator.inl
-    include/gimgui/logic/boundarypropagator.hpp
-    include/gimgui/logic/boundarypropagator.inl
     include/gimgui/logic/event.hpp
     include/gimgui/logic/fonttexturecache.hpp
     include/gimgui/logic/fonttexturecache.inl
+    include/gimgui/logic/foreach.hpp
+    include/gimgui/logic/foreach.inl
     include/gimgui/logic/renderdatagenerator.hpp
     include/gimgui/logic/renderdatagenerator.inl
     include/gimgui/logic/rectanglepacker.hpp
@@ -112,10 +110,8 @@ if(BUILD_TESTS)
         "test/data/fonttest.cpp"
         "test/data/rectangletest.cpp"
         "test/data/varianttest.cpp"
-        "test/logic/allpropagatortest.cpp"
         "test/logic/attributepopulatortest.cpp"
         "test/logic/absolutemaptest.cpp"
-        "test/logic/boundarypropagatortest.cpp"
         "test/logic/fonttexturecachetest.cpp"
         "test/logic/renderdatageneratortest.cpp"
         "test/logic/rectanglepackertest.cpp"
