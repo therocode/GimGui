@@ -1,6 +1,7 @@
 #pragma once
 #include <list>
 #include <cstddef>
+#include <functional>
 
 namespace gim
 {
@@ -20,7 +21,7 @@ namespace gim
     class AllConstPropagator
     {
         public:
-            AllConstPropagator(const gim::Element& first);
+            AllConstPropagator(const gim::Element& first, std::function<bool(const Element&)> ignore = {});
             const gim::Element* next();
             size_t size() const;
         private:

@@ -8,7 +8,13 @@
 template <typename Vec2, typename Rectangle, typename Color, typename Texture>
 std::vector<RenderData<Texture>> RenderDataGenerator<Vec2, Rectangle, Color, Texture>::generate(const gim::Element& element)
 {
-    gim::AllConstPropagator all(element);
+    gim::AllConstPropagator all(element, [] (const Element& element)
+    {
+        const bool* hide = element.findAttribute<bool>("hide");
+
+        return hide && *hide;
+    });
+
     std::vector<RenderData<Texture>> result(all.size());
 
     const gim::Element* currentElement;

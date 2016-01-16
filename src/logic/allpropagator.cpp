@@ -37,19 +37,23 @@ namespace gim
         return mElements.size();
     }
 
-    AllConstPropagator::AllConstPropagator(const gim::Element& first)
+    AllConstPropagator::AllConstPropagator(const gim::Element& first, std::function<bool(const Element&)> ignore)
     {
-        mElements.push_back(&first);
-
-        for(auto elementIterator = mElements.begin(); elementIterator != mElements.end(); elementIterator++)
+        if(!ignore(first))
         {
-            for(auto& child : (*elementIterator)->children())
+            mElements.push_back(&first);
+
+            for(auto elementIterator = mElements.begin(); elementIterator != mElements.end(); elementIterator++)
             {
-                mElements.push_back(child.get());
+                for(auto& child : (*elementIterator)->children())
+                {
+                    if(!ignore(*child.get()))
+                        mElements.push_back(child.get());
+                }
             }
+
+            mCurrentElement = mElements.begin();
         }
-        
-        mCurrentElement = mElements.begin();
     }
 
     const gim::Element* AllConstPropagator::next()
