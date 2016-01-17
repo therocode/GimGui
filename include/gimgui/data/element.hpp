@@ -46,6 +46,8 @@ namespace gim
             template <typename AttributeType>
             const AttributeType& getAttribute(const std::string& name) const;
             template <typename AttributeType>
+            AttributeType& getAttribute(const std::string& name);
+            template <typename AttributeType>
             void setAttribute(const std::string& name, const AttributeType& value);
         private:
             ElementPtrList findChildrenHelper(const TagSet& tags) const;
